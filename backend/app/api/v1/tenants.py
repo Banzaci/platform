@@ -6,6 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.redis import redis_client
+from app.core.config import settings
 
 from app.models.page import Page
 from app.models.room import Room
@@ -13,7 +15,7 @@ from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.tenant_membership import TenantMembership
-from app.schemas.entities import TenantCreate, TenantOut
+from app.schemas.entities import TenantCreate, TenantOut, TenantFullOut
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -108,8 +110,6 @@ async def get_tenants(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch tenants",
         )
-
-
 
 @router.post("/generate", response_model=GenerateProjectResponse)
 async def generate_project(
@@ -253,7 +253,39 @@ async def generate_project(
     )
 
 
+@router.get("/resolve", response_model=TenantFullOut)
+async def resolve_tenant_by_host(
+    host: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Public site resolution — tendant calls this with the Host header
+    it received, and gets back the tenant + all its pages in one call.
+    Matches either subdomain (laughing-goat-ghana.yourplatform.com) or a
+    custom_domain (www.laughinggoatghana.com)."""
 
+    cache_key = f"tenant-resolve:{host}"
+    cached = await redis_client.get(cache_key)
+    if cached:
+        return TenantFullOut.model_validate_json(cached)
+
+    if host.startswith("localhost"):
+        subdomain = "laughing-goat-ghana"
+    else:
+        subdomain = host.split(".")[0]
+
+    result = await db.execute(
+        select(Tenant).where((Tenant.custom_domain == host) | (Tenant.subdomain == subdomain))
+    )
+    tenant = result.scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tenant for this host")
+
+    result = await db.execute(select(Page).where(Page.tenant_id == tenant.id).order_by(Page.sort_order))
+    pages = result.scalars().all()
+
+    full = TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)
+    await redis_client.set(cache_key, full.model_dump_json(), ex=settings.cache_ttl_seconds)
+    return full
 
 @router.get("/{tenant_id}", response_model=TenantOut)
 async def get_tenant_by_id(
@@ -266,3 +298,20 @@ async def get_tenant_by_id(
     if not tenant:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
     return tenant
+
+
+@router.get("/{tenant_id}/pages", response_model=TenantFullOut)
+async def get_tenant_full(tenant_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    """Public — everything about a tenant in one call: tenant info plus
+    every page's fields. This is what a tenant's site (or a debug view)
+    can fetch to render the whole thing at once."""
+
+    result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+    tenant = result.scalar_one_or_none()
+    if not tenant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
+
+    result = await db.execute(select(Page).where(Page.tenant_id == tenant_id))
+    pages = result.scalars().all()
+
+    return TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)

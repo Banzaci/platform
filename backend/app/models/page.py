@@ -29,6 +29,7 @@ class Page(Base):
 
     slug: Mapped[str] = mapped_column(String, nullable=False)  # 'contact', 'home', 'about'
     layout_variant: Mapped[str] = mapped_column(String, default="default")
+    sort_order: Mapped[int] = mapped_column(default=0)
 
     fields: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     theme: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)

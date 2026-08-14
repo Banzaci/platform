@@ -4,6 +4,13 @@ from typing import Literal, Union
 from pydantic import BaseModel
 
 
+class ImageRowFieldSchema(BaseModel):
+    id: str
+    type: Literal["image-row"]
+    label: str
+    columns: int
+    value: list[dict]  # [{"image": "...", "text": "..."}]
+
 class TextFieldSchema(BaseModel):
     id: str
     type: Literal["text", "textarea"]
@@ -26,7 +33,7 @@ class ImageGalleryFieldSchema(BaseModel):
     images: list[dict]  # [{"src": "...", "alt": "..."}]
 
 
-FieldSchema = Union[TextFieldSchema, ImageFieldSchema, ImageGalleryFieldSchema]
+FieldSchema = Union[TextFieldSchema, ImageFieldSchema, ImageGalleryFieldSchema, ImageRowFieldSchema]
 
 
 class PageOut(BaseModel):

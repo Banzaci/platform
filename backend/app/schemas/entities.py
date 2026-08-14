@@ -1,6 +1,7 @@
 import uuid
 from datetime import date
 
+from app.schemas.page import PageOut
 from pydantic import BaseModel
 
 
@@ -17,6 +18,9 @@ class TenantOut(BaseModel):
     class Config:
         from_attributes = True
 
+class TenantFullOut(BaseModel):
+    tenant: TenantOut
+    pages: list[PageOut]
 
 class TenantCreate(BaseModel):
     name: str

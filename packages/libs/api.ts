@@ -15,7 +15,7 @@ export function createApi(url: string, tokenName: string) {
         ...options.headers,
       },
     });
-
+    
     if (!res.ok) {
       throw new Error("API error");
     }

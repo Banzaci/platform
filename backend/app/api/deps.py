@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Header
 
 from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
@@ -11,6 +12,10 @@ from app.models.tenant_membership import TenantMembership, TenantRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+# def require_service_key(x_api_key: str = Header(...)):
+#     if x_api_key != settings.tendant_api_key:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid service key")
+    
 async def require_owner(
     tenant_id: uuid.UUID,
     user: CurrentUser = Depends(get_current_user),
