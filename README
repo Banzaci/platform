@@ -5,5 +5,11 @@ npm run dev -w tenant
 
 
 
-npm install @hotel/hooks -w platform
-npm ls @hotel/hooks -w platform
+npm install @hotel/types -w tenant
+npm ls @hotel/types -w tenant
+
+
+
+
+
+  const { showLoader, hideLoader } = useLoader();

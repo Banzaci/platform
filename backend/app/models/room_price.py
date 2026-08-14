@@ -1,8 +1,12 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Float, DateTime, Enum, ForeignKey
-from datetime import datetime
-from app.db.base import Base
 import enum
+import uuid
+from datetime import datetime
+
+from sqlalchemy import String, Float, DateTime, Enum, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.db.base import Base
 
 
 class PriceType(str, enum.Enum):
@@ -13,13 +17,13 @@ class PriceType(str, enum.Enum):
 class RoomPrice(Base):
     __tablename__ = "room_prices"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    room_id: Mapped[str] = mapped_column(
-        String,
-        ForeignKey("rooms.id"),   # 🔥 FIX
+    room_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("rooms.id", ondelete="CASCADE"),
+        nullable=False,
         index=True,
-        nullable=False
     )
 
     date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
@@ -32,4 +36,4 @@ class RoomPrice(Base):
         index=True,
     )
 
-    room = relationship("Room", back_populates="prices")  # 🔥 ADD
+    room: Mapped["Room"] = relationship(back_populates="prices")

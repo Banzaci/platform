@@ -28,22 +28,3 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
 
-
-class TenantMembership(Base):
-    """Join table: which tenants a user can administer. Composite primary
-    key means a user can have at most one membership row per tenant, but
-    any number of tenants overall."""
-
-    __tablename__ = "tenant_memberships"
-
-    tenant_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), primary_key=True
-    )
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
-    )
-    role: Mapped[str] = mapped_column(String, default="admin")  # room to add e.g. 'viewer' later
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-
-    tenant: Mapped["Tenant"] = relationship(back_populates="memberships")
-    user: Mapped["User"] = relationship(back_populates="memberships")

@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import CurrentUser, get_current_user
+from app.api.get_current_user import CurrentUser, get_current_user
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db.session import get_db
-from app.models.tenant import Tenant
-from app.models.user import User, TenantMembership
+from app.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
-from app.schemas.entities import TenantOut, UserOut
+from app.schemas.entities import UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -51,20 +50,7 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     return TokenResponse(access_token=token)
 
 
-@router.get("/me/session", response_model=list[TenantOut])
-async def my_tenants(
-    user: CurrentUser = Depends(get_current_user), db: AsyncSession = Depends(get_db)
-):
-    """The company switcher — lists every tenant this user can administer.
-    Superadmins get every tenant; everyone else gets only what they hold a
-    TenantMembership row for."""
-
-    if user.is_superadmin:
-        result = await db.execute(select(Tenant))
-    else:
-        result = await db.execute(
-            select(Tenant)
-            .join(TenantMembership, TenantMembership.tenant_id == Tenant.id)
-            .where(TenantMembership.user_id == uuid.UUID(user.id))
-        )
-    return result.scalars().all()
+@router.get("/me/session", response_model=UserOut)
+async def me_session(user: CurrentUser = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.id == uuid.UUID(user.id)))
+    return result.scalar_one()

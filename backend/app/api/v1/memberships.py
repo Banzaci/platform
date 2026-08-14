@@ -6,7 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_tenant_access
 from app.db.session import get_db
-from app.models.user import User, TenantMembership
+from app.models.tenant_membership import TenantMembership
+from app.models.user import User
 from app.schemas.entities import MembershipCreate, MembershipOut
 
 router = APIRouter(prefix="/tenants/{tenant_id}/members", tags=["memberships"])
