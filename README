@@ -1,0 +1,9 @@
+npm run dev -w platform
+npm run dev -w tenant  
+
+
+
+
+
+npm install @hotel/hooks -w platform
+npm ls @hotel/hooks -w platform
