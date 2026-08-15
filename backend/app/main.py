@@ -14,10 +14,6 @@ ALLOWED_ORIGINS = [
     "http://localhost:3002",
 ]
 
-# Tillåt allt i utveckling (mobile-appen skickar ingen origin-header)
-if os.getenv("ENV", "development") == "development":
-    ALLOWED_ORIGINS = ["*"]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,

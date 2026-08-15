@@ -12,4 +12,10 @@ npm ls @hotel/types -w tenant
 
 
 
-  const { showLoader, hideLoader } = useLoader();
+const { showLoader, hideLoader } = useLoader();
+
+
+
+bg-[var(--primary)]
+text-[var(--text)]
+text-[var(--secondary)]

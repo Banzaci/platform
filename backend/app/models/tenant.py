@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import String, DateTime, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -31,6 +31,11 @@ class Tenant(Base):
     rooms: Mapped[list["Room"]] = relationship(
         back_populates="tenant",
         cascade="all, delete-orphan",
+    )
+    theme: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=dict,
     )
 
     pages: Mapped[list["Page"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")

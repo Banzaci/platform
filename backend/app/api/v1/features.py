@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_superadmin, require_tenant_access
+from app.api.deps import require_superadmin
 from app.core.redis import redis_client, tenant_features_cache_key
 from app.db.session import get_db
 from app.models.feature import Feature, TenantFeature

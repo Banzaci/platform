@@ -1,19 +1,97 @@
 import json
 import uuid
-
+from fastapi import Request
+from app.api.deps import invalidate_tenant_cache
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import require_tenant_access
+from app.api.get_current_user import CurrentUser, get_current_user
 from app.core.redis import page_cache_key, redis_client
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.page import Page
 from app.schemas.page import PageOut, PageUpdate
+from app.models.tenant import Tenant
 
 router = APIRouter(prefix="/tenants/{tenant_id}/pages", tags=["pages"])
 
+@router.put("/{page_id}", response_model=PageOut)
+async def update_page(
+    request: Request,
+    tenant_id: uuid.UUID,
+    page_id: uuid.UUID,
+    payload: PageUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    print(
+        f"Updating page {page_id} for tenant {tenant_id} "
+        f"with payload: {payload}"
+    )
+
+    try:
+        result = await db.execute(
+            select(Page).where(
+                Page.id == page_id,
+                Page.tenant_id == tenant_id,
+            )
+        )
+
+        page = result.scalar_one_or_none()
+
+        if not page:
+            raise HTTPException(
+                status_code=404,
+                detail="Page not found",
+            )
+        
+        tenant_result = await db.execute(
+            select(Tenant).where(
+                Tenant.id == tenant_id
+            )
+        )
+
+        tenant = tenant_result.scalar_one_or_none()
+
+        if not tenant:
+            raise HTTPException(
+                status_code=404,
+                detail="Tenant not found",
+            )
+        
+        if payload.layout_variant is not None:
+            page.layout_variant = payload.layout_variant
+
+        if payload.sections is not None:
+            page.sections = [
+                section.model_dump()
+                for section in payload.sections
+            ]
+
+        if payload.theme is not None:
+            page.theme = payload.theme
+
+        await db.commit()
+        await db.refresh(page)
+        host = request.headers.get("x-forwarded-host") or request.headers.get("host")
+        if host:
+            # await invalidate_tenant_cache(host)
+            await invalidate_tenant_cache("localhost:3001")
+        return page
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        await db.rollback()
+
+        print("UPDATE PAGE ERROR:", repr(e))
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to update page: {str(e)}",
+        )
 
 @router.get("/{slug}", response_model=PageOut)
 async def get_page(tenant_id: uuid.UUID, slug: str, db: AsyncSession = Depends(get_db)):
@@ -35,33 +113,3 @@ async def get_page(tenant_id: uuid.UUID, slug: str, db: AsyncSession = Depends(g
     await redis_client.set(cache_key, page_out.model_dump_json(), ex=settings.cache_ttl_seconds)
     return page_out
 
-
-@router.put("/{slug}", response_model=PageOut)
-async def update_page(
-    tenant_id: uuid.UUID,
-    slug: str,
-    payload: PageUpdate,
-    db: AsyncSession = Depends(get_db),
-    _user=Depends(require_tenant_access),
-):
-    """Admin endpoint — tenant_admin (own tenant only) or superadmin. Any
-    edit invalidates the cached version so the live site picks up changes
-    on the next request instead of serving stale content for the full TTL."""
-
-    result = await db.execute(select(Page).where(Page.tenant_id == tenant_id, Page.slug == slug))
-    page = result.scalar_one_or_none()
-    if not page:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
-
-    if payload.fields is not None:
-        page.fields = [f.model_dump() for f in payload.fields]
-    if payload.theme is not None:
-        page.theme = payload.theme
-    if payload.layout_variant is not None:
-        page.layout_variant = payload.layout_variant
-
-    await db.commit()
-    await db.refresh(page)
-
-    await redis_client.delete(page_cache_key(str(tenant_id), slug))
-    return PageOut.model_validate(page)

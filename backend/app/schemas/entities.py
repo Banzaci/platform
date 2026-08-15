@@ -5,6 +5,15 @@ from app.schemas.page import PageOut
 from pydantic import BaseModel
 
 
+class ThemeSchema(BaseModel):
+    backgroundColor: str = "#ffffff"
+    textColor: str = "#222222"
+    primaryColor: str = "#111111"
+    secondaryColor: str = "#666666"
+    fontFamily: str = "Inter"
+    headingFontFamily: str = "Inter"
+    fontSize: str = "16px"
+
 class TenantOut(BaseModel):
     id: uuid.UUID
     name: str
@@ -14,6 +23,7 @@ class TenantOut(BaseModel):
     location: str | None
     logo_url: str | None
     short_description: str | None
+    theme: ThemeSchema
 
     class Config:
         from_attributes = True
@@ -90,3 +100,5 @@ class TransactionCreate(BaseModel):
     currency: str = "SEK"
     description: str | None = None
     occurred_at: date
+
+
