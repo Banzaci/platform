@@ -22,8 +22,20 @@ class BasePrice(Base):
         unique=True,
     )
 
-    daily_price: Mapped[float] = mapped_column(Float, nullable=False)
-    monthly_price: Mapped[float] = mapped_column(Float, nullable=False)
+    daily_price: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+    )
+
+    weekly_price: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
+    monthly_price: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

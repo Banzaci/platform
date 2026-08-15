@@ -40,3 +40,32 @@ export type TenantResponse = {
   };
   pages: PageData[];
 };
+
+export type BasePrice = {
+  id?: string;
+  property_id?: string;
+  daily_price: number;
+  weekly_price: number | null;
+  monthly_price: number | null;
+};
+
+export type PropertyImage = {
+  url: string;
+  publicId: string;
+};
+
+export type Property = {
+  id: string;
+  tenant_id: string;
+  name: string;
+  description: string | null;
+  max_guests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  units: number;
+  amenities: string[];
+  images: PropertyImage[];
+  is_open: boolean;
+  base_price: BasePrice | null;
+};

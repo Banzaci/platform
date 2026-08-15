@@ -8,10 +8,7 @@ import {
 import ImageUpload from "./ImageUpload";
 
 
-export type PropertyImage = {
-  url: string;
-  publicId: string;
-};
+
 
 type Props = {
   tenantId: string;
@@ -56,6 +53,7 @@ export default function PropertyImagesEditor({
     );
   }
 
+  console.log(images)
   return (
     <div>
       <h3 className="mb-3 text-sm font-medium">
@@ -125,7 +123,7 @@ export default function PropertyImagesEditor({
         tenantId={tenantId}
         onChange={(image) => {
           if (!image) return;
-
+          console.log("UPLOADED IMAGE:", image);
           onChange([
             ...images,
             image,

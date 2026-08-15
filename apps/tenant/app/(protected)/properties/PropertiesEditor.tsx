@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
-import EditProperty, { Property } from "../components/EditProperty";
+import EditProperty from "../components/EditProperty";
+import { Property } from "@/types";
+import PropertyCard from "../components/property/PropertyCard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
@@ -146,28 +148,15 @@ export default function PropertiesEditor({
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {properties.map((property) => (
-            <div
+            <PropertyCard
               key={property.id}
-              className="rounded-2xl border bg-white p-6 shadow-sm"
-            >
-              <h2 className="text-xl font-semibold">
-                {property.name}
-              </h2>
-
-              <div className="mt-4 text-sm text-gray-500">
-                {property.beds} beds ·{" "}
-                {property.max_guests} guests ·{" "}
-                {property.units} units
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setEditingProperty(property)}
-                className="mt-6 rounded-lg border px-4 py-2 text-sm font-medium"
-              >
-                Edit property
-              </button>
-            </div>
+              property={property}
+              onEdit={() => setEditingProperty(property)}
+              onCalendar={() => {
+                window.location.href =
+                  `/properties/${property.id}/calendar`;
+              }}
+            />
           ))}
         </div>
       )}

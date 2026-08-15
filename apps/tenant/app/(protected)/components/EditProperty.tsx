@@ -2,25 +2,12 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import PropertyImagesEditor, { PropertyImage } from "./PropertyImagesEditor";
+import PropertyImagesEditor from "./PropertyImagesEditor";
+import BasePriceEditor, { BasePrice } from "./price/BasePriceEditor";
+import { Property } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
-
-export type Property = {
-  id: string;
-  tenant_id: string;
-  name: string;
-  description: string | null;
-  max_guests: number;
-  bedrooms: number;
-  beds: number;
-  bathrooms: number;
-  units: number;
-  amenities: string[];
-  is_open: boolean;
-  images: PropertyImage[];
-};
 
 type Props = {
   tenantId: string;
@@ -51,6 +38,11 @@ export default function EditProperty({
 }: Props) {
   const [form, setForm] = useState(property);
   const [saving, setSaving] = useState(false);
+  const [basePrice, setBasePrice] = useState<BasePrice>({
+    daily_price: property.base_price?.daily_price ?? 0,
+    weekly_price: property.base_price?.weekly_price ?? null,
+    monthly_price: property.base_price?.monthly_price ?? null,
+  });
 
   function update<K extends keyof Property>(
     key: K,
@@ -100,6 +92,7 @@ export default function EditProperty({
             bathrooms: form.bathrooms,
             units: form.units,
             amenities: form.amenities,
+            images: form.images,
             is_open: form.is_open,
           }),
         }
@@ -110,6 +103,22 @@ export default function EditProperty({
       }
 
       const updated = await response.json();
+
+      const basePriceResponse = await fetch(
+        `${API_URL}v1/tenants/${tenantId}/properties/${property.id}/base-price`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(basePrice),
+        }
+      );
+
+      if (!basePriceResponse.ok) {
+        throw new Error(await basePriceResponse.text());
+      }
 
       onSaved(updated);
       onClose();
@@ -125,7 +134,7 @@ export default function EditProperty({
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-semibold">
-            Edit property
+            Edit propertys
           </h2>
 
           <button
@@ -148,8 +157,10 @@ export default function EditProperty({
           <PropertyImagesEditor
             tenantId={tenantId}
             images={form.images}
-            onChange={(images) =>
-              update("images", images)
+            onChange={(images) => {
+                console.log("NEW IMAGES:", images);
+                update("images", images)
+              }
             }
           />
           <Field label="Description">
@@ -194,7 +205,10 @@ export default function EditProperty({
               onChange={(value) => update("units", value)}
             />
           </div>
-
+          <BasePriceEditor
+            value={basePrice}
+            onChange={setBasePrice}
+          />
           <Field label="Amenities">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {amenities.map((amenity) => (

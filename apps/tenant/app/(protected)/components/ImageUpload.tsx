@@ -98,7 +98,6 @@ export default function ImageUpload({
 
     onChange(undefined);
   }
-  console.log(value)
   return (
     <div className="space-y-3">
       {value?.url && (

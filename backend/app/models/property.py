@@ -104,3 +104,16 @@ class Property(Base):
         nullable=False,
         default=list,
     )
+
+    base_price: Mapped["BasePrice | None"] = relationship(
+        "BasePrice",
+        back_populates="property",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+    blocked_periods: Mapped[list["BlockedPeriod"]] = relationship(
+        "BlockedPeriod",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )

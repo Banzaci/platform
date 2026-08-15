@@ -9,6 +9,8 @@ from app.services.cloudinary import upload_image
 
 router = APIRouter()
 
+class DeleteImageRequest(BaseModel):
+    public_id: str
 
 @router.post("/tenants/{tenant_id}/uploads/image")
 async def upload_tenant_image(
@@ -24,10 +26,6 @@ async def upload_tenant_image(
     )
 
 
-
-
-class DeleteImageRequest(BaseModel):
-    public_id: str
 
 
 @router.delete("/tenants/{tenant_id}/uploads/image")

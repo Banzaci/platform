@@ -1,6 +1,6 @@
 import uuid
 from pydantic import BaseModel, Field
-
+from app.schemas.base_price import BasePriceOut
 
 class PropertyBase(BaseModel):
     name: str
@@ -35,6 +35,7 @@ class PropertyOut(PropertyBase):
     id: uuid.UUID
     tenant_id: uuid.UUID
     images: list[dict]
+    base_price: BasePriceOut | None = None
 
     class Config:
         from_attributes = True

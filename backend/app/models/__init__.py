@@ -1,5 +1,5 @@
 from .tenant import Tenant
-# from .blocked_period import BlockedPeriod
+from .blocked_period import BlockedPeriod, BlockedReason
 from .base_price import BasePrice
 from .price_period import PricePeriod
 from .property import Property
