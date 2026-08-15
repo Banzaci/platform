@@ -1,0 +1,113 @@
+"use client";
+
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+
+type Props = {
+  section: any;
+  sections: any[];
+  pageId: string;
+  tenantId: string;
+};
+
+export default function DeleteSection({
+  section,
+  sections,
+  pageId,
+  tenantId,
+}: Props) {
+  const [open, setOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function remove() {
+    if (!API_URL) return;
+
+    const updatedSections = sections.filter(
+      (item) => item.id !== section.id
+    );
+
+    setDeleting(true);
+
+    try {
+      const token = localStorage.getItem(
+        TOKEN_NAME ?? "token"
+      );
+
+      const response = await fetch(
+        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            sections: updatedSections,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Delete section failed:", error);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Delete section"
+        className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700 absolute bottom-1 right-1"
+      >
+        <Trash2 className="h-4 w-4" />
+      </button>
+
+      {open && (
+        <div className="fixed inset-0 z-400 flex items-center justify-center bg-black/50 p-6 text-black">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 className="text-xl font-semibold">
+              Delete section?
+            </h2>
+
+            <p className="mt-3 text-sm text-gray-600">
+              Are you sure you want to delete this{" "}
+              <strong>{section.type}</strong> section?
+              This cannot be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                disabled={deleting}
+                className="rounded-lg px-5 py-3"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={remove}
+                disabled={deleting}
+                className="rounded-lg bg-red-600 px-5 py-3 text-white disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

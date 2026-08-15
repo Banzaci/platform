@@ -1,0 +1,98 @@
+import AmenitiesEditor from "./editors/AmenitiesEditor";
+import CardGridEditor from "./editors/CardGridEditor";
+import ContactFormEditor from "./editors/ContactFormEditor";
+import ContactInfoEditor from "./editors/ContactInfoEditor";
+import CTAEditor from "./editors/CTAEditor";
+import GalleryEditor from "./editors/GalleryEditor";
+import HeroEditor from "./editors/HeroEditor";
+import ImageTextEditor from "./editors/ImageTextEditor";
+import RoomGridEditor from "./editors/RoomGridEditor";
+
+
+type Props = {
+  section: any;
+  content: any;
+  onChange: (content: any) => void;
+};
+
+export default function ContentEditor({
+  section,
+  content,
+  onChange,
+}: Props) {
+  switch (section.type) {
+    case "hero":
+      return (
+        <HeroEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+
+    case "image-text":
+      return (
+        <ImageTextEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+
+    case "gallery":
+      return (
+        <GalleryEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+  case "amenities":
+    return (
+      <AmenitiesEditor
+        content={content}
+        onChange={onChange}
+      />
+    );
+
+  case "cta":
+    return (
+      <CTAEditor
+        content={content}
+        onChange={onChange}
+      />
+    );
+  
+    case "card-grid":
+      return (
+        <CardGridEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+    case "contact-info":
+      return (
+        <ContactInfoEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+    case "contact-form":
+      return (
+        <ContactFormEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+    case "room-grid":
+      return (
+        <RoomGridEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+    default:
+      return (
+        <div className="text-sm text-gray-500">
+          No editor for {section.type}
+        </div>
+      );
+  }
+}
