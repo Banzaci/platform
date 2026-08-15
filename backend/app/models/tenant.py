@@ -70,3 +70,9 @@ class Tenant(Base):
     pages: Mapped[list["Page"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")
     tenant_features: Mapped[list["TenantFeature"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")
     memberships: Mapped[list["TenantMembership"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")
+
+    bookings: Mapped[list["Booking"]] = relationship(
+        "Booking",
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )

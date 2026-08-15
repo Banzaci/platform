@@ -17,7 +17,11 @@ export function createApi(url: string, tokenName: string) {
     });
     
     if (!res.ok) {
-      throw new Error("API error");
+      throw new Error(await res.text());
+    }
+
+    if (res.status === 204) {
+      return undefined as T;
     }
 
     return res.json();

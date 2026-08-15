@@ -69,3 +69,15 @@ export type Property = {
   is_open: boolean;
   base_price: BasePrice | null;
 };
+
+
+export type PricePeriod = {
+  id: string;
+  property_id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  daily_price: number | null;
+  weekly_price: number | null;
+  monthly_price: number | null;
+};

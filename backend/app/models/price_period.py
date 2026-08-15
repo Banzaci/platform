@@ -29,6 +29,10 @@ class PricePeriod(Base):
 
     daily_price: Mapped[float | None] = mapped_column(Float, nullable=True)
     monthly_price: Mapped[float | None] = mapped_column(Float, nullable=True)
+    weekly_price: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

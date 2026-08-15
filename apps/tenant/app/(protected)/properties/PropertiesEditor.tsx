@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import EditProperty from "../components/EditProperty";
 import { Property } from "@/types";
 import PropertyCard from "../components/property/PropertyCard";
+import { apiClient } from "@/libs/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
@@ -21,67 +22,88 @@ export default function PropertiesEditor({
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
   async function loadProperties() {
-    if (!API_URL) return;
+    try {
+      const data = await apiClient.api<Property[]>(
+        `v1/tenants/${tenantId}/properties`
+      );
 
-    const token = localStorage.getItem(
-      TOKEN_NAME ?? "token"
-    );
-
-    const response = await fetch(
-      `${API_URL}v1/tenants/${tenantId}/properties`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(await response.text());
+      setProperties(data);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-
-    setProperties(data);
-    setLoading(false);
   }
 
   async function createProperties() {
-    if (!API_URL) return;
-
     setCreating(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/bulk`,
+      const data = await apiClient.api<Property[]>(
+        `v1/tenants/${tenantId}/properties/bulk`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            count,
-          }),
+          body: JSON.stringify({ count }),
         }
       );
 
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      const data = await response.json();
-
       setProperties(data);
-    } catch (error) {
-      console.error("Create properties failed:", error);
     } finally {
       setCreating(false);
     }
+  }
+
+  async function copyProperty(propertyId: string) {
+    const copied = await apiClient.api<Property>(
+      `v1/tenants/${tenantId}/properties/${propertyId}/copy`,
+      {
+        method: "POST",
+      }
+    );
+
+    setProperties((current) => [
+      ...current,
+      copied,
+    ]);
+  }
+
+  async function togglePropertyOpen(property: Property) {
+    const updated = await apiClient.api<Property>(
+      `v1/tenants/${tenantId}/properties/${property.id}`,
+      {
+        method: "PUT",
+        body: JSON.stringify({
+          is_open: !property.is_open,
+        }),
+      }
+    );
+
+    setProperties((current) =>
+      current.map((item) =>
+        item.id === updated.id
+          ? updated
+          : item
+      )
+    );
+  }
+
+  async function deleteProperty(property: Property) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${property.name}"? This cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    await apiClient.api<void>(
+      `v1/tenants/${tenantId}/properties/${property.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    setProperties((current) =>
+      current.filter(
+        (item) => item.id !== property.id
+      )
+    );
   }
 
   useEffect(() => {
@@ -152,6 +174,9 @@ export default function PropertiesEditor({
               key={property.id}
               property={property}
               onEdit={() => setEditingProperty(property)}
+              onCopy={() => copyProperty(property.id)}
+              onToggleOpen={() => togglePropertyOpen(property)}
+              onDelete={() => deleteProperty(property)}
               onCalendar={() => {
                 window.location.href =
                   `/properties/${property.id}/calendar`;

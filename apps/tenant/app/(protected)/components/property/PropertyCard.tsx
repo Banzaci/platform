@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Trash2 } from "lucide-react";
 import PropertySlideshow from "./PropertySlideshow";
 import { Property } from "@/types";
 
@@ -8,12 +8,18 @@ type Props = {
   property: Property;
   onEdit: () => void;
   onCalendar: () => void;
+  onCopy: () => void;
+  onToggleOpen: () => void;
+  onDelete: () => void;
 };
 
 export default function PropertyCard({
   property,
   onEdit,
   onCalendar,
+  onCopy,
+  onToggleOpen,
+  onDelete,
 }: Props) {
   const price = property.base_price;
 
@@ -54,12 +60,11 @@ export default function PropertyCard({
       : null;
 
   return (
-    <article className="overflow-hidden rounded-2xl border bg-white shadow-sm">
+    <article className="overflow-hidden rounded-2xl border bg-white shadow-sm relative">
       <PropertySlideshow
         images={property.images ?? []}
         alt={property.name}
       />
-
       <div className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -75,15 +80,17 @@ export default function PropertyCard({
             </p>
           </div>
 
-          <span
-            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+          <button
+            type="button"
+            onClick={onToggleOpen}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
               property.is_open
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-700"
+                ? "bg-green-100 text-green-700 hover:bg-green-200"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
             {property.is_open ? "Open" : "Closed"}
-          </span>
+          </button>
         </div>
 
         {price ? (
@@ -138,6 +145,21 @@ export default function PropertyCard({
             className="rounded-lg border p-2.5 hover:bg-gray-50"
           >
             <CalendarDays className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={onCopy}
+            className="absolute top-1 right-1 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+          >
+            Copy
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+            title="Delete property"
+          >
+            <Trash2 className="h-4 w-4" />
           </button>
         </div>
       </div>

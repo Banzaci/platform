@@ -19,3 +19,7 @@ const { showLoader, hideLoader } = useLoader();
 bg-[var(--primary)]
 text-[var(--text)]
 text-[var(--secondary)]
+
+
+TODO:
+1. Byt ut allt till apiClient.api

@@ -117,3 +117,9 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+
+    bookings: Mapped[list["Booking"]] = relationship(
+        "Booking",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )

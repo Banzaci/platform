@@ -39,3 +39,26 @@ class PropertyOut(PropertyBase):
 
     class Config:
         from_attributes = True
+
+
+from datetime import date
+import uuid
+
+from pydantic import BaseModel
+
+
+class PricePeriodCreate(BaseModel):
+    name: str
+    start_date: date
+    end_date: date
+    daily_price: float | None = None
+    weekly_price: float | None = None
+    monthly_price: float | None = None
+
+
+class PricePeriodOut(PricePeriodCreate):
+    id: uuid.UUID
+    property_id: uuid.UUID
+
+    class Config:
+        from_attributes = True

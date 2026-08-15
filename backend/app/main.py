@@ -30,6 +30,7 @@ app.include_router(features.router, prefix=API_PREFIX)
 app.include_router(memberships.router, prefix=API_PREFIX)
 app.include_router(transactions.router, prefix=API_PREFIX)
 app.include_router(properties.router, prefix=API_PREFIX)
+
 app.include_router(
     uploads.router,
     prefix="/api/v1",
