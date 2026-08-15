@@ -1,10 +1,14 @@
+import ImageUpload from "../../ImageUpload";
+
 type Props = {
   content: any;
+  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function HeroEditor({
   content,
+  tenantId,
   onChange,
 }: Props) {
   function updateLocalized(
@@ -86,21 +90,19 @@ export default function HeroEditor({
 
         <label className="block">
           <span className="mb-2 block text-sm font-medium">
-            Image URL
+            Uplaod image
           </span>
-
-          <input
-            value={content.image ?? ""}
-            onChange={(e) =>
+          <ImageUpload
+            tenantId={tenantId}
+            value={content.image}
+            onChange={(url) =>
               onChange({
                 ...content,
-                image: e.target.value,
+                image: url,
               })
             }
-            className="w-full rounded-lg border px-4 py-3"
           />
         </label>
-
         <label className="block">
           <span className="mb-2 block text-sm font-medium">
             Button text

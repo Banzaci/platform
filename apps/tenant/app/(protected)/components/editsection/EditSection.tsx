@@ -12,13 +12,11 @@ export default function EditSection({
   pageId,
   tenantId,
   sections,
-  children,
 }: {
   section: any;
   pageId: string;
   tenantId: string;
   sections: any[];
-  children?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState(section.content ?? {});
@@ -109,6 +107,7 @@ export default function EditSection({
               section={section}
               content={content}
               onChange={setContent}
+              tenantId={tenantId}
             />
 
             <ThemeEditor

@@ -1,3 +1,5 @@
+import ImageUpload from "../../ImageUpload";
+
 type GalleryImage = {
   image?: string;
   alt?: string;
@@ -11,11 +13,13 @@ type Props = {
     images?: GalleryImage[];
     [key: string]: any;
   };
+  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function GalleryEditor({
   content,
+  tenantId,
   onChange,
 }: Props) {
   const images = content.images ?? [];
@@ -110,20 +114,18 @@ export default function GalleryEditor({
 
             <div className="space-y-3">
               <label className="block">
-                <span className="mb-1 block text-xs text-gray-500">
-                  Image URL
+                <span className="mb-2 block text-sm font-medium">
+                  Uplaod image
                 </span>
-
-                <input
-                  value={image.image ?? ""}
-                  onChange={(e) =>
-                    updateImage(
-                      index,
-                      "image",
-                      e.target.value
-                    )
+                <ImageUpload
+                  tenantId={tenantId}
+                  value={content.image}
+                  onChange={(url) =>
+                    onChange({
+                      ...content,
+                      image: url,
+                    })
                   }
-                  className="w-full rounded-lg border px-3 py-2"
                 />
               </label>
 

@@ -16,11 +16,13 @@ type Props = {
     items?: CardItem[];
     [key: string]: any;
   };
+  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function CardGridEditor({
   content,
+  tenantId,
   onChange,
 }: Props) {
   const items = content.items ?? [];

@@ -23,6 +23,8 @@ class TenantOut(BaseModel):
     location: str | None
     logo_url: str | None
     short_description: str | None
+    latitude: float | None
+    longitude: float | None
     theme: ThemeSchema
 
     class Config:

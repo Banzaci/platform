@@ -49,7 +49,7 @@ export function LoginForm({
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 text-cyan-900">
       <div>
         <label className="mb-2 block text-sm font-medium">
           Email

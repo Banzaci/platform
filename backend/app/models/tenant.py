@@ -1,12 +1,10 @@
 import uuid
 from datetime import datetime
-
-from sqlalchemy import String, DateTime, func
+from sqlalchemy import String, DateTime, Float, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-
 
 class Tenant(Base):
     """One company / customer. Every other tenant-scoped table has a
@@ -28,14 +26,45 @@ class Tenant(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
-    rooms: Mapped[list["Room"]] = relationship(
-        back_populates="tenant",
-        cascade="all, delete-orphan",
-    )
     theme: Mapped[dict] = mapped_column(
         JSONB,
         nullable=False,
         default=dict,
+    )
+    properties: Mapped[list["Property"]] = relationship(
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
+
+    latitude: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
+    longitude: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+    country_id: Mapped[str | None] = mapped_column(
+        String,
+        ForeignKey("countries.id"),
+        nullable=True,
+    )
+
+    city_id: Mapped[str | None] = mapped_column(
+        String,
+        ForeignKey("cities.id"),
+        nullable=True,
+    )
+
+    country_rel: Mapped["Country | None"] = relationship(
+        "Country",
+        lazy="joined",
+    )
+
+    city_rel: Mapped["City | None"] = relationship(
+        "City",
+        lazy="joined",
     )
 
     pages: Mapped[list["Page"]] = relationship(back_populates="tenant", cascade="all, delete-orphan")

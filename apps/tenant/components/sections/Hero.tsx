@@ -4,7 +4,9 @@ type HeroProps = {
   content: {
     heading?: { en?: string };
     text?: { en?: string };
-    image?: string;
+    image?: {
+      url: string
+    };
     button?: {
       label?: { en?: string };
       href?: string;
@@ -25,13 +27,13 @@ export default function Hero({ content, theme }: HeroProps) {
             paddingBottom: theme?.paddingBottom,
           }}
       >
-      {content.image && (
-        <img
-          src={content.image}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-      )}
+     {content.image?.url && (
+      <img
+        src={content.image.url}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+    )}
 
       <div className="relative z-10 mx-auto flex min-h-150 max-w-6xl items-center px-6">
         <div className="max-w-2xl">

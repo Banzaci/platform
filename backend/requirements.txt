@@ -11,3 +11,5 @@ redis
 python-multipart
 email-validator
 greenlet
+cloudinary
+python-multipart

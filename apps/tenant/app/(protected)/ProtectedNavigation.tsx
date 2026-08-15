@@ -3,6 +3,7 @@
 import { useAuth } from "@hotel/hooks";
 import { Loader2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
+import Link from "next/link";
 
 export default function Navigation() {
   const { isError, isLoading, data } = useAuth(apiClient);
@@ -27,6 +28,12 @@ export default function Navigation() {
         >
           Sign out
         </button>
+        <Link
+          href="/properties"
+          className="text-sm font-semibold tracking-tight"
+        >
+          Property
+        </Link>
       </div>
     </header>
   );
