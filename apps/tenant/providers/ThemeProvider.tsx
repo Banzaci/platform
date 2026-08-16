@@ -1,11 +1,11 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 import type { CSSProperties, ReactNode } from "react";
 
 export default function ThemeProvider({
   theme,
   children,
 }: {
-  theme: Theme;
+  theme: SectionTheme;
   children: ReactNode;
 }) {
   const style = {

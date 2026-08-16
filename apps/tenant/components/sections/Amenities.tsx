@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -9,7 +9,7 @@ type Props = {
       text?: { en?: string };
     }[];
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function Amenities({ content, theme }: Props) {

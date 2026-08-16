@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { ReactNode } from "react";
@@ -22,7 +23,7 @@ export default function EditableSection({
   children,
 }: Props) {
   return (
-    <div className="group relative">
+    <div className="group relative z-50">
       {children}
 
       <EditSection

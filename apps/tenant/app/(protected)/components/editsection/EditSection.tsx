@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
 
@@ -87,7 +88,7 @@ export default function EditSection({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-6">
+        <div className="fixed inset-0 z-200 flex items-center justify-center bg-black/50 p-6">
           <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-semibold">
@@ -113,6 +114,7 @@ export default function EditSection({
             <ThemeEditor
               theme={theme}
               onChange={setTheme}
+              sectionType={section.type}
             />
 
             <div className="mt-8 flex justify-end gap-3 border-t pt-6">

@@ -163,7 +163,7 @@ export default function PropertyCalendar({
   }
 
   useEffect(() => {
-    loadPeriods();
+    loadPeriods(); // TODO
     loadPricePeriods();
   }, [tenantId, propertyId]);
 

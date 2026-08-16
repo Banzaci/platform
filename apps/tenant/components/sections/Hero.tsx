@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type HeroProps = {
   content: {
@@ -12,7 +12,7 @@ type HeroProps = {
       href?: string;
     };
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function Hero({ content, theme }: HeroProps) {

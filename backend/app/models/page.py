@@ -71,3 +71,8 @@ class Page(Base):
     tenant: Mapped["Tenant"] = relationship(
         back_populates="pages"
     )
+
+    key: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )

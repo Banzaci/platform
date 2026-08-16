@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AmenitiesEditor from "./editors/AmenitiesEditor";
 import CardGridEditor from "./editors/CardGridEditor";
 import ContactFormEditor from "./editors/ContactFormEditor";
@@ -6,7 +7,9 @@ import CTAEditor from "./editors/CTAEditor";
 import GalleryEditor from "./editors/GalleryEditor";
 import HeroEditor from "./editors/HeroEditor";
 import ImageTextEditor from "./editors/ImageTextEditor";
+import PropertyGridEditor from "./editors/PropertyGridEditor";
 import RoomGridEditor from "./editors/RoomGridEditor";
+import PropertyGrid from "./PropertyGrid";
 
 
 type Props = {
@@ -90,6 +93,13 @@ export default function ContentEditor({
     case "room-grid":
       return (
         <RoomGridEditor
+          content={content}
+          onChange={onChange}
+        />
+      );
+    case "property-grid":
+      return (
+        <PropertyGridEditor
           content={content}
           onChange={onChange}
         />

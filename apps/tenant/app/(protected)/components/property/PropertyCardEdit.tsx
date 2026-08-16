@@ -13,7 +13,7 @@ type Props = {
   onDelete: () => void;
 };
 
-export default function PropertyCard({
+export default function PropertyCardEdit({
   property,
   onEdit,
   onCalendar,

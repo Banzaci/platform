@@ -88,18 +88,18 @@ export default async function RootLayout({
       lang="en"
       className={`${inter.variable} h-full antialiased`}
     >
-          <body className="min-h-full flex flex-col font-sans">
-      <Providers>
-        <ThemeProvider theme={data.tenant.theme}>
-              <Navigation data={data} />
-              <EditorControls
-                tenantId={data.tenant.id}
-                theme={data.tenant.theme}
-              />
-              {children}
-        </ThemeProvider>
-      </Providers>
-          </body>
+      <body className="min-h-full flex flex-col font-sans">
+        <Providers>
+          <ThemeProvider theme={data.tenant.theme}>
+            <Navigation data={data} />
+            <EditorControls
+              tenantId={data.tenant.id}
+              theme={data.tenant.theme}
+            />
+            {children}
+          </ThemeProvider>
+        </Providers>
+      </body>
     </html>
   );
 }

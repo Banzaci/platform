@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Field = {
   id: string;
   type: string;
@@ -13,9 +14,10 @@ export type PageData = {
   layout_variant: string;
   fields: Field[];
   theme: Record<string, unknown>;
+  sections: any[];
 };
 
-export type Theme = {
+export type SectionTheme = {
   backgroundColor?: string;
   textColor?: string;
   primaryColor?: string;
@@ -24,6 +26,42 @@ export type Theme = {
   fontSize?: string;
   paddingTop?: string;
   paddingBottom?: string;
+  headingFontFamily?: string;
+  dateSelector?: {
+    backgroundColor?: string;
+    textColor?: string;
+    secondaryColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+    selectedBackgroundColor?: string;
+    selectedColor?: string;
+    shadow?: "none" | "sm" | "md" | "lg";
+    width?: "50%" | "100%";
+  };
+  card?: {
+    backgroundColor?: string;
+    textColor?: string;
+    secondaryColor?: string;
+    borderColor?: string;
+    borderRadius?: string;
+    padding?: string;
+    shadow?: "none" | "sm" | "md" | "lg";
+  };
+
+  button?: {
+    backgroundColor?: string;
+    textColor?: string;
+    borderRadius?: string;
+  };
+
+  image?: {
+    aspectRatio?: string;
+  };
+
+  layout?: {
+    columns?: number;
+    gap?: string;
+  };
 };
 
 export type TenantResponse = {
@@ -36,7 +74,7 @@ export type TenantResponse = {
     location: string;
     logo_url: string | null;
     short_description: string;
-    theme: Theme;
+    theme: SectionTheme;
   };
   pages: PageData[];
 };
@@ -80,4 +118,21 @@ export type PricePeriod = {
   daily_price: number | null;
   weekly_price: number | null;
   monthly_price: number | null;
+};
+
+export type TenantProperty = {
+  id: string;
+  tenant_id: string;
+  name: string;
+  description: string | null;
+  max_guests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  units: number;
+  amenities: string[];
+  images: PropertyImage[];
+  is_open: boolean;
+  is_available: boolean;
+  base_price: BasePrice | null;
 };

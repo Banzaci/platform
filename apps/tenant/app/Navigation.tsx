@@ -14,6 +14,12 @@ export default function Navigation({ data }: { data: any }) {
 
         {/* Navigation */}
         <div className="flex items-center gap-8">
+          <Link
+            href="/accomondation"
+            className="text-xl font-semibold tracking-tight text-gray-900"
+          >
+            Property
+          </Link>
           {data.pages.map((page: any) => {
             const href =
               page.slug === "index"

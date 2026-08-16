@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -9,7 +9,7 @@ type Props = {
       image?: string;
     }[];
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function CardGrid({ content, theme }: Props) {

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 import EditProperty from "../components/EditProperty";
 import { Property } from "@/types";
-import PropertyCard from "../components/property/PropertyCard";
+import PropertyCardEdit from "../components/property/PropertyCardEdit";
 import { apiClient } from "@/libs/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -170,7 +170,7 @@ export default function PropertiesEditor({
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {properties.map((property) => (
-            <PropertyCard
+            <PropertyCardEdit
               key={property.id}
               property={property}
               onEdit={() => setEditingProperty(property)}

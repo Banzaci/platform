@@ -5,13 +5,10 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@hotel/hooks";
 import { Loader2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
-import ProtectedNavigation from "./ProtectedNavigation";
-import GlobalEditor from "./components/GlobalEditor";
 import { TenantResponse } from "@/types";
 
 export default function ProtectedLayout({
   children,
-  tenant,
 }: {
   children: React.ReactNode;
   tenant: TenantResponse;
@@ -19,7 +16,7 @@ export default function ProtectedLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { isError, isLoading, data } = useAuth(apiClient);
-
+  console.log("ProtectedLayout")
   useEffect(() => {
     if (isError) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);

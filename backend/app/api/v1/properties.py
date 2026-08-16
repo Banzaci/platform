@@ -1,7 +1,6 @@
 import uuid
 
 from sqlalchemy.orm import selectinload
-from sqlalchemy.orm import selectinload
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -14,7 +13,7 @@ from app.db.session import get_db
 from app.models.property import Property
 from app.schemas.property import PropertyOut, PropertyUpdate, PricePeriodOut, PricePeriodCreate
 from app.models.price_period import PricePeriod
-
+from app.helpers.property_helper import get_property_availability
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties",
@@ -467,3 +466,104 @@ async def delete_property(
 
     await db.delete(property)
     await db.commit()
+
+from datetime import date
+
+from fastapi import Query
+from sqlalchemy import func, select
+from sqlalchemy.orm import selectinload
+
+from app.models.booking import Booking, BookingStatus
+from app.models.blocked_period import BlockedPeriod
+
+
+@router.get("/public", response_model=list[PropertyOut])
+async def get_public_properties(
+    tenant_id: uuid.UUID,
+    check_in: date | None = Query(default=None),
+    check_out: date | None = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Property)
+        .where(
+            Property.tenant_id == tenant_id,
+            Property.is_open.is_(True),
+        )
+        .options(
+            selectinload(Property.base_price)
+        )
+        .order_by(Property.created_at)
+    )
+
+    properties = result.scalars().all()
+
+    response: list[PropertyOut] = []
+
+    for property in properties:
+        is_available = await get_property_availability(
+            db=db,
+            property=property,
+            check_in=check_in,
+            check_out=check_out,
+        )
+
+        data = PropertyOut.model_validate(property)
+
+        response.append(
+            data.model_copy(
+                update={
+                    "is_available": is_available,
+                }
+            )
+        )
+
+    return response
+
+
+
+@router.get(
+    "/{property_id}/public",
+    response_model=PropertyOut,
+)
+async def get_public_property(
+    tenant_id: uuid.UUID,
+    property_id: uuid.UUID,
+    check_in: date | None = Query(default=None),
+    check_out: date | None = Query(default=None),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Property)
+        .where(
+            Property.id == property_id,
+            Property.tenant_id == tenant_id,
+            Property.is_open.is_(True),
+        )
+        .options(
+            selectinload(Property.base_price)
+        )
+    )
+
+    property = result.scalar_one_or_none()
+
+    if not property:
+        raise HTTPException(
+            status_code=404,
+            detail="Property not found",
+        )
+
+    is_available = await get_property_availability(
+        db=db,
+        property=property,
+        check_in=check_in,
+        check_out=check_out,
+    )
+
+    data = PropertyOut.model_validate(property)
+
+    return data.model_copy(
+        update={
+            "is_available": is_available,
+        }
+    )

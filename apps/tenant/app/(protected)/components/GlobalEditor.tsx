@@ -1,6 +1,6 @@
 "use client";
 
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 import { useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -12,13 +12,13 @@ export default function GlobalEditor({
   theme,
 }: {
   tenantId: string;
-  theme: Theme;
+  theme: SectionTheme;
 }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(theme);
   const [saving, setSaving] = useState(false);
 
-  function update(key: keyof Theme, value: string) {
+  function update(key: keyof SectionTheme, value: string) {
     setForm((current) => ({
       ...current,
       [key]: value,

@@ -5,9 +5,9 @@ import { Loader2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import Link from "next/link";
 
-export default function Navigation() {
+export default function ProtectedNavigation() {
   const { isError, isLoading, data } = useAuth(apiClient);
-
+  console.log("ProtectedNavigation")
   if (isLoading || isError || !data) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">

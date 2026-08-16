@@ -76,3 +76,8 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
+
+    theme_history: Mapped[list["ThemeHistory"]] = relationship(
+        "ThemeHistory",
+        cascade="all, delete-orphan",
+    )

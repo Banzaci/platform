@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -8,7 +8,7 @@ type Props = {
       alt?: string;
     }[];
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function Gallery({ content, theme }: Props) {

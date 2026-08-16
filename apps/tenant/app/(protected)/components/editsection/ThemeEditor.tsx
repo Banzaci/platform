@@ -1,19 +1,22 @@
 "use client";
 
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
+import DateSelectorThemeEditor from "./DateSelectorThemeEditor";
 
 
 type Props = {
-  theme: Theme;
-  onChange: (theme: Theme) => void;
+  theme: SectionTheme;
+  onChange: (theme: SectionTheme) => void;
+  sectionType?: string;
 };
 
 export default function ThemeEditor({
   theme,
   onChange,
+  sectionType,
 }: Props) {
   function update(
-    key: keyof Theme,
+    key: keyof SectionTheme,
     value: string
   ) {
     onChange({
@@ -22,7 +25,7 @@ export default function ThemeEditor({
     });
   }
 
-  function reset(key: keyof Theme) {
+  function reset(key: keyof SectionTheme) {
     const next = { ...theme };
     delete next[key];
 
@@ -36,7 +39,6 @@ export default function ThemeEditor({
       </h3>
 
       <div className="grid grid-cols-2 gap-5">
-        {/* Background */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -203,8 +205,6 @@ export default function ThemeEditor({
             className="w-full rounded-lg border px-3 py-2"
           />
         </div>
-
-        {/* Padding bottom */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -232,6 +232,12 @@ export default function ThemeEditor({
           />
         </div>
       </div>
+      {sectionType === "property-grid" && (
+        <DateSelectorThemeEditor
+          theme={theme}
+          onChange={onChange}
+        />
+      )}
     </div>
   );
 }

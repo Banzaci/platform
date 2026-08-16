@@ -36,7 +36,7 @@ class PropertyOut(PropertyBase):
     tenant_id: uuid.UUID
     images: list[dict]
     base_price: BasePriceOut | None = None
-
+    is_available: bool = True
     class Config:
         from_attributes = True
 

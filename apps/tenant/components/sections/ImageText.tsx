@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   layout?: "image-left" | "image-right";
@@ -11,7 +11,7 @@ type Props = {
       href?: string;
     };
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function ImageText({ layout, content, theme }: Props) {

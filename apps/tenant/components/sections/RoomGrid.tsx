@@ -1,4 +1,4 @@
-import { Theme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -6,7 +6,7 @@ type Props = {
     text?: { en?: string };
     limit?: number;
   };
-  theme?: Theme;
+  theme?: SectionTheme;
 };
 
 export default function RoomGrid({ content, theme }: Props) {

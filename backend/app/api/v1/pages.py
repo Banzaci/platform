@@ -77,7 +77,7 @@ async def update_page(
         host = request.headers.get("x-forwarded-host") or request.headers.get("host")
         if host:
             # await invalidate_tenant_cache(host)
-            await invalidate_tenant_cache("localhost:3001")
+            await invalidate_tenant_cache("localhost:3000")
         return page
 
     except HTTPException:

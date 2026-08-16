@@ -4,12 +4,13 @@ from fastapi import Request
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
 from app.api.deps import invalidate_tenant_cache, require_tenant_access
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
 from app.core.config import settings
 
+from app.models.theme_history import ThemeHistory
 from app.models.page import Page
 from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
@@ -24,6 +25,30 @@ def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
     contact page, with a couple of placeholder fields the owner can edit
     right away from the admin."""
     return [
+        Page(
+            tenant_id=tenant_id,
+            slug="accomondation",
+            key="accommodation",
+            layout_variant="default",
+            sort_order=1,
+            sections=[
+                {
+                    "id": "property-grid",
+                    "type": "property-grid",
+                    "content": {
+                        "heading": {
+                            "en": "Book your stay"
+                        },
+                        "text": {
+                            "en": "Choose your dates and find the perfect place to stay."
+                        }
+                    },
+                    "layout": None,
+                    "theme": {}
+                }
+            ],
+            theme={},
+        ),
         Page(
             tenant_id=tenant_id,
             slug="index",
@@ -588,15 +613,51 @@ async def update_tenant_theme(
             detail="Tenant not found",
         )
 
+    # Spara nuvarande theme innan vi ändrar det
+    if tenant.theme:
+        history = ThemeHistory(
+            tenant_id=tenant.id,
+            theme=tenant.theme.copy(),
+        )
+
+        db.add(history)
+
+    # Sätt nya temat
     tenant.theme = payload.model_dump()
 
+    # Behåll endast de 20 senaste
+    await db.flush()
+
+    result = await db.execute(
+        select(ThemeHistory.id)
+        .where(
+            ThemeHistory.tenant_id == tenant.id
+        )
+        .order_by(
+            ThemeHistory.created_at.desc()
+        )
+        .offset(20)
+    )
+
+    old_ids = result.scalars().all()
+
+    if old_ids:
+        await db.execute(
+            delete(ThemeHistory).where(
+                ThemeHistory.id.in_(old_ids)
+            )
+        )
+
     await db.commit()
-    host = request.headers.get("x-forwarded-host") or request.headers.get("host")
-    if host:
-        # await invalidate_tenant_cache(host)
-        await invalidate_tenant_cache("localhost:3001")
     await db.refresh(tenant)
 
+    host = (
+        request.headers.get("x-forwarded-host")
+        or request.headers.get("host")
+    )
+
+    if host:
+        await invalidate_tenant_cache(host)
 
     return tenant.theme
 
