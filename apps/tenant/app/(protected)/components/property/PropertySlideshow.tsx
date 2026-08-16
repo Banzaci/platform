@@ -46,7 +46,7 @@ export default function PropertySlideshow({
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+    <div className="relative aspect-[4/3] overflow-hidden">
       <img
         src={images[index].url}
         alt={alt}

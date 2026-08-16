@@ -1,9 +1,12 @@
 import { SectionTheme } from "@/types";
 
 type Props = {
-  layout?: "image-left" | "image-right";
   content: {
-    image?: string;
+    layout?: "image-left" | "image-right";
+    image?: {
+      url: string;
+      publicId: string;
+    };
     heading?: { en?: string };
     text?: { en?: string };
     button?: {
@@ -14,29 +17,25 @@ type Props = {
   theme?: SectionTheme;
 };
 
-export default function ImageText({ layout, content, theme }: Props) {
-  const imageLeft = layout !== "image-right";
-
+export default function ImageText({ content, theme }: Props) {
+  const imageRight = content.layout === "image-right";
   return (
     <section
+      className="py-16"
       style={{
-            backgroundColor: theme?.backgroundColor,
-            color: theme?.textColor,
-            fontFamily: theme?.fontFamily,
-            fontSize: theme?.fontSize,
-            paddingTop: theme?.paddingTop,
-            paddingBottom: theme?.paddingBottom,
-          }}
-      >
+        backgroundColor: theme?.backgroundColor,
+        color: theme?.textColor,
+      }}
+    >
       <div
-        className={`mx-auto grid max-w-6xl items-center gap-12 px-6 md:grid-cols-2 ${
-          imageLeft ? "" : "md:[&>*:first-child]:order-2"
+        className={`mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-2 ${
+          imageRight ? "md:[&>*:first-child]:order-2" : ""
         }`}
       >
-        <div className="aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100">
-          {content.image && (
+        <div className="aspect-4/3 overflow-hidden rounded-2xl bg-gray-100">
+          {content.image?.url && (
             <img
-              src={content.image}
+              src={content.image.url}
               alt=""
               className="h-full w-full object-cover"
             />
@@ -44,21 +43,23 @@ export default function ImageText({ layout, content, theme }: Props) {
         </div>
 
         <div>
-          <h2 className="text-3xl font-bold">
-            {content.heading?.en}
-          </h2>
+          {content.heading?.en && (
+            <h2 className="text-3xl font-semibold md:text-4xl">
+              {content.heading.en}
+            </h2>
+          )}
 
-          <p className="mt-5 text-lg leading-8 text-gray-600">
-            {content.text?.en}
-          </p>
-
-          {content.button?.href && (
-            <a
-              href={content.button.href}
-              className="mt-6 inline-block font-medium underline"
+          {content.text?.en && (
+            <p
+              className="mt-5 leading-7"
+              style={{
+                color:
+                  theme?.secondaryColor ??
+                  theme?.textColor,
+              }}
             >
-              {content.button.label?.en}
-            </a>
+              {content.text.en}
+            </p>
           )}
         </div>
       </div>

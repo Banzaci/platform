@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import EditSection from "./editsection/EditSection";
 import AddSection from "./editsection/AddSection";
 import MoveSection from "./MoveSection";
 import DeleteSection from "./DeleteSection";
+import { apiClient } from "@/libs/api";
+import { useIsEditor } from "@/hooks/useIsEditor";
 
 type Props = {
   section: any;
@@ -22,40 +24,42 @@ export default function EditableSection({
   sections,
   children,
 }: Props) {
+  const isEditor = useIsEditor();
   return (
     <div className="group relative z-50">
       {children}
-
-      <EditSection
-        section={section}
-        pageId={pageId}
-        tenantId={tenantId}
-        sections={sections}
-      />
-      <button
-        type="button"
-        className="absolute -bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-sm text-white shadow-lg opacity-0 transition group-hover:opacity-100"
-      >
-        + Add section
-      </button>
-      <AddSection
-        section={section}
-        sections={sections}
-        pageId={pageId}
-        tenantId={tenantId}
-      />
-      <MoveSection
-        section={section}
-        sections={sections}
-        pageId={pageId}
-        tenantId={tenantId}
-      />
-      <DeleteSection
-        section={section}
-        sections={sections}
-        pageId={pageId}
-        tenantId={tenantId}
-      />
+      { isEditor && (
+        <>
+        <EditSection
+          section={section}
+          pageId={pageId}
+          tenantId={tenantId}
+          sections={sections}
+        />
+        <button
+          type="button"
+          className="absolute -bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-sm text-white shadow-lg opacity-0 transition group-hover:opacity-100"
+        >
+          + Add section
+        </button>
+        <AddSection
+          section={section}
+          sections={sections}
+          pageId={pageId}
+          tenantId={tenantId}
+        />
+        <MoveSection
+          section={section}
+          sections={sections}
+          pageId={pageId}
+          tenantId={tenantId}
+        />
+        <DeleteSection
+          section={section}
+          sections={sections}
+          pageId={pageId}
+          tenantId={tenantId}
+        /></>)}
     </div>
   );
 }

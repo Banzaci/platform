@@ -7,9 +7,6 @@ import { Property } from "@/types";
 import PropertyCardEdit from "../components/property/PropertyCardEdit";
 import { apiClient } from "@/libs/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
-
 export default function PropertiesEditor({
   tenantId,
 }: {

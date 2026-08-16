@@ -19,14 +19,13 @@ export default function PropertyCard({
   theme?: SectionTheme
 }) {
   const href = new URLSearchParams();
-
   if (checkIn) href.set("checkIn", checkIn);
   if (checkOut) href.set("checkOut", checkOut);
 
   const bookingUrl = `/accomondation/${property.id}` + (href.size ? `?${href.toString()}` : "");
-
   return (
-    <article 
+    <article
+      className="overflow-hidden"
       style={{
         backgroundColor: theme?.card?.backgroundColor,
         color: theme?.card?.textColor,
@@ -35,7 +34,7 @@ export default function PropertyCard({
         padding: theme?.card?.padding,
       }}
     >
-      <div className="overflow-hidden">
+      <div className="overflow-hidden" >
         <PropertySlideshow
           images={property.images ?? []}
           alt={property.name}

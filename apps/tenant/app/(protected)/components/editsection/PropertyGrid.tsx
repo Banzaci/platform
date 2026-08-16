@@ -6,7 +6,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import {
-  DayPicker,
   DateRange,
 } from "react-day-picker";
 import "react-day-picker/style.css";

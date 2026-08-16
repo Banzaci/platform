@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Gallery from "@/components/sections/Gallery";
 import Hero from "@/components/sections/Hero";
 import ImageText from "@/components/sections/ImageText";
@@ -28,7 +29,6 @@ export default function PageRenderer({
   globalTheme: any;
   editable?: boolean;
 }) {
-
   return (
     <>
       {page.sections.map((section: any) => {

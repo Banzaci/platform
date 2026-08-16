@@ -31,3 +31,34 @@ export function getGridClass(columns?: number) {
       return "grid grid-cols-1 md:grid-cols-2";
   }
 }
+
+
+export function formatDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function parseDate(value: string | null) {
+  if (!value) return undefined;
+
+  const [year, month, day] = value
+    .split("-")
+    .map(Number);
+
+  if (!year || !month || !day) {
+    return undefined;
+  }
+
+  return new Date(year, month - 1, day);
+}
+
+export function formatDisplayDate(date: Date) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}

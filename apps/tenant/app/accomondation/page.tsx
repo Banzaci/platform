@@ -13,12 +13,12 @@ export default async function PropertiesPage() {
     (section) => section.type === "property-grid"
   );
 
-  if (!pageConfig || !section) {
-    return (
-      <PropertiesPageClient
-        tenantId={data.tenant.id}
-      />
-    );
+  if (!pageConfig) {
+    throw new Error("Accommodation page config not found");
+  }
+
+  if (!section) {
+    throw new Error("Property grid section not found");
   }
 
   return (
@@ -35,6 +35,9 @@ export default async function PropertiesPage() {
           ...data.tenant.theme,
           ...(section.theme ?? {}),
         }}
+        pageId={pageConfig.id}
+        section={section}
+        sections={pageConfig.sections}
       />
     </EditableSection>
   );

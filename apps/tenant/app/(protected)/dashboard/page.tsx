@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/libs/api";
@@ -13,12 +13,6 @@ export default function DashboardPage() {
     queryKey: ["my-tenants"],
     queryFn: () => apiClient.api<Tenant[]>("v1/tenants"),
   });
-  
-  useEffect(() => {
-    if (!isLoading && !tenants?.length) {
-      setIsAddTenantOpen(true);
-    }
-  }, [isLoading, tenants]);
 
   if (isLoading) {
     return null
