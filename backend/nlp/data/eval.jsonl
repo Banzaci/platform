@@ -1,0 +1,46 @@
+{"text": "Hey, do you guys have a room with a queen sized bed?", "intent": "ask_room_feature", "entities": [{"start": 36, "end": 51, "label": "BED_TYPE"}]}
+{"text": "we need somewhere with a proper king bed for our trip", "intent": "ask_room_feature", "entities": [{"start": 32, "end": 40, "label": "BED_TYPE"}]}
+{"text": "Does the room come with air con?", "intent": "ask_room_feature", "entities": [{"start": 24, "end": 31, "label": "FEATURE"}]}
+{"text": "Any chance of getting a room facing the ocean?", "intent": "ask_room_feature", "entities": []}
+{"text": "Got any twin rooms available?", "intent": "ask_room_feature", "entities": [{"start": 8, "end": 12, "label": "BED_TYPE"}]}
+{"text": "I need somewhere with a mosquito net, is that possible?", "intent": "ask_room_feature", "entities": [{"start": 24, "end": 36, "label": "FEATURE"}]}
+{"text": "hi, we're a family of 4 looking to stay from july 3rd for a week", "intent": "check_availability", "entities": [{"start": 22, "end": 23, "label": "GUESTS"}, {"start": 45, "end": 53, "label": "START_DATE"}]}
+{"text": "got space for 2 starting next friday for 3 nights?", "intent": "check_availability", "entities": [{"start": 14, "end": 15, "label": "GUESTS"}, {"start": 41, "end": 42, "label": "NIGHTS"}]}
+{"text": "we're thinking of staying march 12 to march 15", "intent": "check_availability", "entities": [{"start": 26, "end": 34, "label": "START_DATE"}, {"start": 38, "end": 46, "label": "END_DATE"}]}
+{"text": "can we get a spot for tonight", "intent": "check_availability", "entities": []}
+{"text": "I'll take the Ocean View Suite", "intent": "book_room", "entities": [{"start": 14, "end": 30, "label": "ROOM_NAME"}]}
+{"text": "put me down for the Garden Room please", "intent": "book_room", "entities": [{"start": 20, "end": 31, "label": "ROOM_NAME"}]}
+{"text": "my confirmation number is BK998877", "intent": "ask_booking", "entities": [{"start": 26, "end": 34, "label": "BOOKING_ID"}]}
+{"text": "I need to cancel my stay, ref BK112233", "intent": "ask_booking", "entities": [{"start": 30, "end": 38, "label": "BOOKING_ID"}]}
+{"text": "what time can we check into our room", "intent": "ask_check_in", "entities": []}
+{"text": "earliest we can arrive?", "intent": "ask_check_in", "entities": []}
+{"text": "latest we need to be out by?", "intent": "ask_check_out", "entities": []}
+{"text": "when do we need to leave the room", "intent": "ask_check_out", "entities": []}
+{"text": "what's cooking tonight", "intent": "ask_menu", "entities": []}
+{"text": "any veggie options for dinner?", "intent": "ask_menu", "entities": [{"start": 23, "end": 29, "label": "MEAL_TYPE"}]}
+{"text": "is there decent internet here", "intent": "ask_wifi", "entities": []}
+{"text": "wifis working ok?", "intent": "ask_wifi", "entities": []}
+{"text": "does the room rate include morning meal", "intent": "ask_breakfast", "entities": []}
+{"text": "what time can we grab breakfast", "intent": "ask_breakfast", "entities": []}
+{"text": "can the kids swim somewhere", "intent": "ask_pool", "entities": []}
+{"text": "is there somewhere to cool off, like a pool", "intent": "ask_pool", "entities": []}
+{"text": "where do we leave the car", "intent": "ask_parking", "entities": []}
+{"text": "is parking a hassle here", "intent": "ask_parking", "entities": []}
+{"text": "fancy a beer, is there somewhere on site", "intent": "ask_bar", "entities": []}
+{"text": "can we grab drinks in the evening", "intent": "ask_bar", "entities": []}
+{"text": "where's good to eat on site", "intent": "ask_restaurant", "entities": []}
+{"text": "is there somewhere for dinner nearby in the hotel", "intent": "ask_restaurant", "entities": []}
+{"text": "how do we actually get to your place from the airport", "intent": "ask_directions", "entities": []}
+{"text": "what's the easiest route in from town", "intent": "ask_directions", "entities": []}
+{"text": "can you sort us a cab", "intent": "ask_taxi", "entities": []}
+{"text": "is grabbing a taxi easy around here", "intent": "ask_taxi", "entities": []}
+{"text": "how do people usually get around locally", "intent": "ask_transport", "entities": []}
+{"text": "is there a bus we could hop on", "intent": "ask_transport", "entities": []}
+{"text": "anywhere close to grab snacks or supplies", "intent": "ask_nearby_shops", "entities": []}
+{"text": "need to find a pharmacy nearby", "intent": "ask_nearby_shops", "entities": []}
+{"text": "morning!", "intent": "conversation_update", "entities": []}
+{"text": "cheers for that", "intent": "conversation_update", "entities": []}
+{"text": "sounds perfect, thanks", "intent": "conversation_update", "entities": []}
+{"text": "can I bring my dog along", "intent": "unknown", "entities": []}
+{"text": "do you have a crib for the baby", "intent": "unknown", "entities": []}
+{"text": "is late checkout possible", "intent": "unknown", "entities": []}

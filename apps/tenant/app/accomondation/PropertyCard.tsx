@@ -6,6 +6,8 @@ import {
   Bath,
   ChevronRight,
 } from "lucide-react";
+import { getShadow } from "@/helpers";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 export default function PropertyCard({
   property,
@@ -16,37 +18,66 @@ export default function PropertyCard({
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
-  theme?: SectionTheme
+  theme?: SectionTheme;
 }) {
   const href = new URLSearchParams();
-  if (checkIn) href.set("checkIn", checkIn);
-  if (checkOut) href.set("checkOut", checkOut);
 
-  const bookingUrl = `/accomondation/${property.id}` + (href.size ? `?${href.toString()}` : "");
+  if (checkIn) {
+    href.set("checkIn", checkIn);
+  }
+
+  if (checkOut) {
+    href.set("checkOut", checkOut);
+  }
+
+  const bookingUrl =
+    `/accomondation/${property.id}` +
+    (href.size ? `?${href.toString()}` : "");
+
+  const {
+    textColor,
+    secondaryColor,
+    fontFamily,
+    headingFontFamily,
+    cardBackground,
+    cardBorderColor,
+    cardBorderRadius,
+    cardPadding,
+    cardShadow,
+    buttonBackground,
+    buttonTextColor,
+    buttonBorderRadius,
+  } = resolveSectionTheme(theme);
+  console.log(JSON.stringify(theme))
   return (
     <article
-      className="overflow-hidden"
+      className="overflow-hidden border"
       style={{
-        backgroundColor: theme?.card?.backgroundColor,
-        color: theme?.card?.textColor,
-        borderColor: theme?.card?.borderColor,
-        borderRadius: theme?.card?.borderRadius,
-        padding: theme?.card?.padding,
+        backgroundColor: cardBackground,
+        color: textColor,
+        borderColor: cardBorderColor,
+        borderRadius: cardBorderRadius,
+        boxShadow: getShadow(cardShadow),
+        fontFamily,
       }}
     >
-      <div className="overflow-hidden" >
-        <PropertySlideshow
-          images={property.images ?? []}
-          alt={property.name}
-        />
-      </div>
-      <div className="p-7">
+      <PropertySlideshow
+        images={property.images ?? []}
+        alt={property.name}
+      />
+
+      <div
+        style={{
+          padding: cardPadding,
+        }}
+      >
         <div className="flex items-start justify-between gap-6">
           <div>
             <h2
               className="text-2xl font-semibold"
               style={{
-                color: theme?.card?.textColor,
+                color: textColor,
+                fontFamily: headingFontFamily,
               }}
             >
               {property.name}
@@ -56,9 +87,7 @@ export default function PropertyCard({
               <p
                 className="mt-3 line-clamp-3 leading-7"
                 style={{
-                  color:
-                    theme?.card?.secondaryColor ??
-                    theme?.secondaryColor,
+                  color: secondaryColor,
                 }}
               >
                 {property.description}
@@ -68,18 +97,34 @@ export default function PropertyCard({
 
           {property.base_price && (
             <div className="shrink-0 text-right">
-              <div className="text-2xl font-semibold text-gray-950">
+              <div
+                className="text-2xl font-semibold"
+                style={{
+                  color: textColor,
+                }}
+              >
                 ${property.base_price.daily_price}
               </div>
 
-              <div className="text-xs text-gray-500">
+              <div
+                className="text-xs"
+                style={{
+                  color: secondaryColor,
+                }}
+              >
                 per night
               </div>
             </div>
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-5 border-y py-5 text-sm text-gray-600">
+        <div
+          className="mt-6 flex flex-wrap gap-5 border-y py-5 text-sm"
+          style={{
+            color: secondaryColor,
+            borderColor: cardBorderColor,
+          }}
+        >
           <span className="flex items-center gap-2">
             <User className="h-4 w-4" />
             {property.max_guests} guests
@@ -98,31 +143,33 @@ export default function PropertyCard({
 
         {property.amenities?.length > 0 && (
           <div className="mt-5 flex flex-wrap gap-2">
-            {property.amenities.slice(0, 5).map((amenity) => (
-              <span
-                key={amenity}
-                className="rounded-full bg-gray-100 px-3 py-1.5 text-xs text-gray-600"
-              >
-                {amenity}
-              </span>
-            ))}
+            {property.amenities
+              .slice(0, 5)
+              .map((amenity) => (
+                <span
+                  key={amenity}
+                  className="rounded-full border px-3 py-1.5 text-xs"
+                  style={{
+                    color: secondaryColor,
+                    borderColor: cardBorderColor,
+                    backgroundColor: cardBackground,
+                  }}
+                >
+                  {amenity}
+                </span>
+              ))}
           </div>
         )}
 
-       <div className="mt-7">
+        <div className="mt-7">
           {checkIn && checkOut && property.is_available ? (
             <a
               href={bookingUrl}
               className="inline-flex w-full items-center justify-center gap-2 px-5 py-3.5 font-medium transition hover:opacity-90"
               style={{
-                backgroundColor:
-                  theme?.button?.backgroundColor ??
-                  theme?.primaryColor,
-                color:
-                  theme?.button?.textColor ??
-                  "#ffffff",
-                borderRadius:
-                  theme?.button?.borderRadius,
+                backgroundColor: buttonBackground,
+                color: buttonTextColor,
+                borderRadius: buttonBorderRadius,
               }}
             >
               Book now
@@ -133,29 +180,29 @@ export default function PropertyCard({
               <button
                 type="button"
                 disabled
-                className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl px-5 py-3.5 font-medium "
+                className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 px-5 py-3.5 font-medium opacity-50"
                 style={{
-                  backgroundColor:
-                    theme?.button?.backgroundColor ??
-                    theme?.primaryColor,
-
-                  color:
-                    theme?.button?.textColor ??
-                    "#ffffff",
-
-                  borderRadius:
-                    theme?.button?.borderRadius,
+                  backgroundColor: buttonBackground,
+                  color: buttonTextColor,
+                  borderRadius: buttonBorderRadius,
                 }}
               >
                 Book now
                 <ChevronRight className="h-4 w-4" />
               </button>
 
-              {checkIn && checkOut && !property.is_available && (
-                <p className="mt-2 text-center text-sm text-red-600">
-                  Not available for selected dates
-                </p>
-              )}
+              {checkIn &&
+                checkOut &&
+                !property.is_available && (
+                  <p
+                    className="mt-2 text-center text-sm"
+                    style={{
+                      color: secondaryColor,
+                    }}
+                  >
+                    Not available for selected dates
+                  </p>
+                )}
             </>
           )}
         </div>

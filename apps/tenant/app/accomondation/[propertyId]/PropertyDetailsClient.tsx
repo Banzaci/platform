@@ -5,31 +5,36 @@ import { useSearchParams } from "next/navigation";
 import {
   Bath,
   BedDouble,
-  ChevronLeft,
   Users,
 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
-import { TenantProperty } from "@/types";
+import {
+  CancellationPolicy,
+  SectionTheme,
+  TenantProperty,
+} from "@/types";
 import PropertySlideshow from "@/app/(protected)/components/property/PropertySlideshow";
+import { getShadow } from "@/helpers";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = {
   tenantId: string;
   propertyId: string;
+  cancellationPolicy: CancellationPolicy;
+  theme?: SectionTheme;
 };
 
 export default function PropertyDetailsClient({
   tenantId,
   propertyId,
+  cancellationPolicy,
+  theme,
 }: Props) {
   const searchParams = useSearchParams();
-
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
-
-  const [property, setProperty] =
-    useState<TenantProperty | null>(null);
-
+  const [property, setProperty] = useState<TenantProperty | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,13 +69,32 @@ export default function PropertyDetailsClient({
         setLoading(false);
       }
     }
-
-    load();
+    void load();
   }, [tenantId, propertyId, checkIn, checkOut]);
-
+  const {
+    backgroundColor,
+    textColor,
+    secondaryColor,
+    fontFamily,
+    headingFontFamily,
+    fontSize,
+    cardBackground,
+    cardBorderColor,
+    cardPadding,
+    cardBorderRadius,
+    cardShadow,
+    buttonBackground,
+    buttonTextColor,
+    buttonBorderRadius,
+  } = resolveSectionTheme(theme);
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div
+        className="mx-auto max-w-7xl px-6 py-20"
+        style={{
+          color: secondaryColor,
+        }}
+      >
         Loading...
       </div>
     );
@@ -78,7 +102,12 @@ export default function PropertyDetailsClient({
 
   if (!property) {
     return (
-      <div className="mx-auto max-w-7xl px-6 py-20">
+      <div
+        className="mx-auto max-w-7xl px-6 py-20"
+        style={{
+          color: secondaryColor,
+        }}
+      >
         Property not found.
       </div>
     );
@@ -86,110 +115,288 @@ export default function PropertyDetailsClient({
 
   const params = new URLSearchParams();
 
-  if (checkIn) params.set("checkIn", checkIn);
-  if (checkOut) params.set("checkOut", checkOut);
+  if (checkIn) {
+    params.set("checkIn", checkIn);
+  }
+
+  if (checkOut) {
+    params.set("checkOut", checkOut);
+  }
 
   const query = params.toString();
-
-  const bookingUrl =
-    `/booking/${property.id}` +
-    (query ? `?${query}` : "");
-
-  const canBook =
-    !!checkIn &&
-    !!checkOut &&
-    property.is_available;
-
+  const bookingUrl = `/booking/${property.id}` + (query ? `?${query}` : "");
+  const canBook = !!checkIn && !!checkOut && property.is_available;
+  
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
-      <a
-        href={`/properties${query ? `?${query}` : ""}`}
-        className="mb-6 inline-flex items-center gap-2 text-sm"
-      >
-        <ChevronLeft className="h-4 w-4" />
-        All properties
-      </a>
-
-      <div className="overflow-hidden rounded-3xl">
-        <PropertySlideshow
-          images={property.images ?? []}
-          alt={property.name}
-        />
-      </div>
-
-      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]">
-        <div>
-          <h1 className="text-4xl font-semibold tracking-tight">
-            {property.name}
-          </h1>
-
-          <div className="mt-5 flex flex-wrap gap-6 text-sm text-gray-600">
-            <span className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              {property.max_guests} guests
-            </span>
-
-            <span className="flex items-center gap-2">
-              <BedDouble className="h-4 w-4" />
-              {property.beds} beds
-            </span>
-
-            <span className="flex items-center gap-2">
-              <Bath className="h-4 w-4" />
-              {property.bathrooms} bathrooms
-            </span>
+    <main
+      className="mx-auto min-h-screen w-full max-w-6xl"
+      style={{
+        backgroundColor,
+        color: textColor,
+        fontFamily,
+        fontSize,
+      }}
+    >
+      <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {/* COLUMN 1: Image + property information */}
+        <div
+          className="min-w-0 overflow-hidden"
+          style={{
+            backgroundColor: cardBackground,
+            color: textColor,
+            borderColor: cardBorderColor,
+            borderRadius: cardBorderRadius,
+            boxShadow: getShadow(cardShadow),
+          }}
+        >
+          <div className="w-full max-w-200 overflow-hidden">
+            <PropertySlideshow
+              images={property.images ?? []}
+              alt={property.name}
+            />
           </div>
 
-          {property.description && (
-            <p className="mt-8 max-w-3xl whitespace-pre-line text-lg leading-8 text-gray-600">
-              {property.description}
-            </p>
-          )}
+          <div className="mt-10"
+          style={{
+          padding: cardPadding,
+        }}
+          >
+            <h1
+              className="text-4xl font-semibold tracking-tight"
+              style={{
+                color: textColor,
+                fontFamily: headingFontFamily,
+              }}
+            >
+              {property.name}
+            </h1>
 
-          {property.amenities?.length > 0 && (
-            <section className="mt-10 border-t pt-8">
-              <h2 className="text-2xl font-semibold">
-                Amenities
-              </h2>
+            <div
+              className="mt-5 flex flex-wrap gap-6 text-sm"
+              style={{
+                color: secondaryColor,
+              }}
+            >
+              <span className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                {property.max_guests} guests
+              </span>
 
-              <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3">
-                {property.amenities.map((amenity) => (
-                  <div
-                    key={amenity}
-                    className="rounded-xl bg-gray-50 px-4 py-3"
-                  >
-                    {amenity}
-                  </div>
-                ))}
+              <span className="flex items-center gap-2">
+                <BedDouble className="h-4 w-4" />
+                {property.beds} beds
+              </span>
+
+              <span className="flex items-center gap-2">
+                <Bath className="h-4 w-4" />
+                {property.bathrooms} bathrooms
+              </span>
+            </div>
+
+            {property.description && (
+              <p
+                className="mt-8 max-w-3xl whitespace-pre-line text-lg leading-8"
+                style={{
+                  color: secondaryColor,
+                }}
+              >
+                {property.description}
+              </p>
+            )}
+
+            {property.amenities?.length > 0 && (
+              <section
+                className="mt-10 border-t pt-8"
+                style={{
+                  borderColor: cardBorderColor,
+                }}
+              >
+                <h2
+                  className="text-2xl font-semibold"
+                  style={{
+                    color: textColor,
+                    fontFamily: headingFontFamily,
+                  }}
+                >
+                  Amenities
+                </h2>
+
+                <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3">
+                  {property.amenities.map((amenity) => (
+                    <div
+                      key={amenity}
+                      className="border px-4 py-3"
+                      style={{
+                        backgroundColor: cardBackground,
+                        color: secondaryColor,
+                        borderColor: cardBorderColor,
+                        borderRadius: cardBorderRadius,
+                      }}
+                    >
+                      {amenity}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Cancellation policy */}
+            <div
+              className="mt-10 border p-5"
+              style={{
+                backgroundColor: cardBackground,
+                color: textColor,
+                borderColor: cardBorderColor,
+                borderRadius: cardBorderRadius,
+                boxShadow: getShadow(cardShadow),
+              }}
+            >
+              <h3
+                className="font-semibold"
+                style={{
+                  fontFamily: headingFontFamily,
+                }}
+              >
+                Cancellation policy
+              </h3>
+
+              <div
+                className="mt-3 space-y-2 text-sm"
+                style={{
+                  color: secondaryColor,
+                }}
+              >
+                <p>
+                  Free cancellation up to{" "}
+                  {cancellationPolicy.free_cancellation_days} days
+                  before check-in.
+                </p>
+
+                <p>
+                  {cancellationPolicy.partial_refund_percent}% refund
+                  when cancelling at least{" "}
+                  {cancellationPolicy.partial_refund_hours} hours
+                  before check-in.
+                </p>
+
+                <p>
+                  No refund for cancellations made less than{" "}
+                  {cancellationPolicy.partial_refund_hours} hours
+                  before check-in.
+                </p>
               </div>
-            </section>
-          )}
+            </div>
+          </div>
         </div>
 
-        {/* Booking card */}
+        {/* COLUMN 2: Booking */}
         <aside>
-          <div className="sticky top-24 rounded-2xl border bg-white p-6 shadow-lg">
+          <div
+            className="sticky top-24 border p-6"
+            style={{
+              backgroundColor: cardBackground,
+              color: textColor,
+              borderColor: cardBorderColor,
+              borderRadius: cardBorderRadius,
+              boxShadow: getShadow(cardShadow),
+            }}
+          >
             {property.base_price && (
               <div>
-                <span className="text-3xl font-semibold">
+                <span
+                  className="text-3xl font-semibold"
+                  style={{
+                    color: textColor,
+                    fontFamily: headingFontFamily,
+                  }}
+                >
                   ${property.base_price.daily_price}
                 </span>
 
-                <span className="ml-2 text-gray-500">
+                <span
+                  className="ml-2"
+                  style={{
+                    color: secondaryColor,
+                  }}
+                >
                   / night
                 </span>
               </div>
             )}
 
             {checkIn && checkOut && (
-              <div className="mt-6 rounded-xl bg-gray-50 p-4">
-                <div className="text-sm text-gray-500">
+              <div
+                className="mt-6 border p-4"
+                style={{
+                  backgroundColor: cardBackground,
+                  borderColor: cardBorderColor,
+                  borderRadius: cardBorderRadius,
+                }}
+              >
+                <div
+                  className="text-sm"
+                  style={{
+                    color: secondaryColor,
+                  }}
+                >
                   Your stay
                 </div>
 
-                <div className="mt-1 font-medium">
+                <div
+                  className="mt-1 font-medium"
+                  style={{
+                    color: textColor,
+                  }}
+                >
                   {checkIn} → {checkOut}
                 </div>
+
+                {property.nights != null && (
+                  <div
+                    className="mt-4 flex items-center justify-between"
+                    style={{
+                      color: secondaryColor,
+                    }}
+                  >
+                    <span>Nights</span>
+
+                    <span
+                      style={{
+                        color: textColor,
+                      }}
+                    >
+                      {property.nights}
+                    </span>
+                  </div>
+                )}
+
+                {property.total_price != null && (
+                  <div
+                    className="mt-4 flex items-center justify-between border-t pt-4"
+                    style={{
+                      borderColor: cardBorderColor,
+                    }}
+                  >
+                    <span
+                      className="font-semibold"
+                      style={{
+                        color: textColor,
+                      }}
+                    >
+                      Total
+                    </span>
+
+                    <span
+                      className="text-xl font-semibold"
+                      style={{
+                        color: textColor,
+                        fontFamily: headingFontFamily,
+                      }}
+                    >
+                      ${property.total_price}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -197,7 +404,12 @@ export default function PropertyDetailsClient({
               {canBook ? (
                 <a
                   href={bookingUrl}
-                  className="flex w-full justify-center rounded-xl bg-[var(--primary)] px-5 py-4 font-medium text-white"
+                  className="flex w-full justify-center px-5 py-4 font-medium transition hover:opacity-90"
+                  style={{
+                    backgroundColor: buttonBackground,
+                    color: buttonTextColor,
+                    borderRadius: buttonBorderRadius,
+                  }}
                 >
                   Book now
                 </a>
@@ -205,24 +417,15 @@ export default function PropertyDetailsClient({
                 <button
                   type="button"
                   disabled
-                  className="w-full cursor-not-allowed rounded-xl bg-gray-200 px-5 py-4 font-medium text-gray-500"
+                  className="w-full cursor-not-allowed px-5 py-4 font-medium opacity-40"
+                  style={{
+                    backgroundColor: buttonBackground,
+                    color: buttonTextColor,
+                    borderRadius: buttonBorderRadius,
+                  }}
                 >
                   Book now
                 </button>
-              )}
-
-              {checkIn &&
-                checkOut &&
-                !property.is_available && (
-                  <p className="mt-3 text-center text-sm text-red-600">
-                    Not available for selected dates
-                  </p>
-                )}
-
-              {(!checkIn || !checkOut) && (
-                <p className="mt-3 text-center text-sm text-gray-500">
-                  Select your dates to book
-                </p>
               )}
             </div>
           </div>

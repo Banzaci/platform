@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
 from app.core.config import settings
-
+from pydantic import BaseModel
 from app.models.theme_history import ThemeHistory
 from app.models.page import Page
 from app.api.get_current_user import CurrentUser, get_current_user
@@ -19,6 +19,11 @@ from app.models.tenant_membership import TenantMembership
 from app.schemas.entities import TenantCreate, TenantOut, TenantFullOut, ThemeSchema
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
+
+class CancellationPolicyUpdate(BaseModel):
+    free_cancellation_days: int
+    partial_refund_hours: int
+    partial_refund_percent: int
 
 def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
     """Minimal starter template every new tenant gets: an index page and a
@@ -660,4 +665,37 @@ async def update_tenant_theme(
         await invalidate_tenant_cache(host)
 
     return tenant.theme
+
+
+@router.put(
+    "/{tenant_id}/cancellation-policy"
+)
+async def update_cancellation_policy(
+    tenant_id: uuid.UUID,
+    payload: CancellationPolicyUpdate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    tenant.cancellation_policy = (
+        payload.model_dump()
+    )
+
+    await db.commit()
+    await db.refresh(tenant)
+
+    return tenant.cancellation_policy
 

@@ -19,6 +19,7 @@ import { formatDate, getGridClass, parseDate } from "@/helpers";
 import EditablePropertyCard from "../(protected)/components/EditablePropertyCard";
 import DateSelector from "./DateSelector";
 import { useIsEditor } from "@/hooks/useIsEditor";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 export default function PropertiesPageClient({
   tenantId,
@@ -51,6 +52,9 @@ export default function PropertiesPageClient({
   const [localTheme, setLocalTheme] = useState<SectionTheme>(
     theme ?? {}
   );
+
+  const { cardBackground, cardBorderColor, cardBorderRadius, backgroundColor, textColor, secondaryColor, fontFamily, fontSize, headingFontFamily }= resolveSectionTheme(localTheme);
+
   const range = useMemo<DateRange | undefined>(() => {
     const from = parseDate(checkIn);
     const to = parseDate(checkOut);
@@ -147,22 +151,23 @@ export default function PropertiesPageClient({
     <section
       className="min-h-screen"
       style={{
-        backgroundColor: localTheme?.backgroundColor,
-        color: localTheme?.textColor,
-        fontFamily: localTheme?.fontFamily,
-        fontSize: localTheme?.fontSize,
-        paddingTop: localTheme?.paddingTop,
-        paddingBottom: localTheme?.paddingBottom,
+        backgroundColor,
+        color: textColor,
+        fontFamily,
+        fontSize,
+        paddingTop: localTheme.paddingTop,
+        paddingBottom: localTheme.paddingBottom,
       }}
     >
       <div className="mx-auto max-w-6xl px-6 py-12">
-        {(content?.heading?.en || content?.text?.en) && (
+        {/* {(content?.heading?.en || content?.text?.en) && (
           <div className="mb-10 text-center">
             {content?.heading?.en && (
               <h1
                 className="text-3xl font-semibold tracking-tight md:text-4xl"
                 style={{
-                  color: localTheme?.textColor,
+                  color: textColor,
+                  fontFamily: headingFontFamily,
                 }}
               >
                 {content.heading.en}
@@ -173,17 +178,14 @@ export default function PropertiesPageClient({
               <p
                 className="mx-auto mt-3 max-w-2xl"
                 style={{
-                  color:
-                    localTheme?.secondaryColor ??
-                    localTheme?.textColor,
+                  color: secondaryColor,
                 }}
               >
                 {content.text.en}
               </p>
             )}
           </div>
-        )}
-
+        )} */}
         <div className="mb-10 flex justify-center">
           <DateSelector
             range={range}
@@ -191,27 +193,43 @@ export default function PropertiesPageClient({
             theme={localTheme}
           />
         </div>
-
         {loading ? (
           <div
             className="py-20 text-center"
             style={{
-              color: localTheme?.secondaryColor,
+              color: secondaryColor,
             }}
           >
             Loading properties...
           </div>
         ) : properties.length === 0 ? (
-          <div className="rounded-2xl border p-12 text-center">
-            <h2 className="text-xl font-semibold">
+          <div
+            className="border p-12 text-center"
+            style={{
+              backgroundColor: cardBackground,
+              color: textColor,
+              borderColor: cardBorderColor,
+              borderRadius: cardBorderRadius,
+            }}
+          >
+            <h2
+              className="text-xl font-semibold"
+              style={{
+                fontFamily: headingFontFamily,
+              }}
+            >
               No properties available
             </h2>
           </div>
         ) : (
           <div
-            className={getGridClass(localTheme?.layout?.columns)}
+            className={getGridClass(
+              localTheme.layout?.columns
+            )}
             style={{
-              gap: localTheme?.layout?.gap ?? "24px",
+              gap:
+                localTheme.layout?.gap ??
+                "24px",
             }}
           >
             {properties.map((property) => (

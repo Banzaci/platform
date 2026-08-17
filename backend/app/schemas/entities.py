@@ -5,6 +5,11 @@ from app.schemas.page import PageOut
 from pydantic import BaseModel
 
 
+class CancellationPolicy(BaseModel):
+    free_cancellation_days: int = 14
+    partial_refund_hours: int = 48
+    partial_refund_percent: int = 50
+
 class ThemeSchema(BaseModel):
     backgroundColor: str = "#ffffff"
     textColor: str = "#222222"
@@ -26,6 +31,7 @@ class TenantOut(BaseModel):
     latitude: float | None
     longitude: float | None
     theme: ThemeSchema
+    cancellation_policy: CancellationPolicy = CancellationPolicy()
 
     class Config:
         from_attributes = True

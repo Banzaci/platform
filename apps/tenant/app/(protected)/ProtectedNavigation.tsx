@@ -28,6 +28,12 @@ export default function ProtectedNavigation() {
           Sign out
         </button>
         <Link
+          href="/knowledge"
+          className="text-sm font-semibold tracking-tight"
+        >
+          Knowledge
+        </Link>
+         <Link
           href="/properties"
           className="text-sm font-semibold tracking-tight"
         >

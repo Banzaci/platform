@@ -7,3 +7,4 @@ from .city import City
 from .country import Country
 from .booking import Booking, BookingStatus
 from .theme_history import ThemeHistory
+from .tenant_knowledge import TenantKnowledge

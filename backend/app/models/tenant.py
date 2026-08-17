@@ -81,3 +81,13 @@ class Tenant(Base):
         "ThemeHistory",
         cascade="all, delete-orphan",
     )
+
+    cancellation_policy: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=lambda: {
+            "free_cancellation_days": 14,
+            "partial_refund_hours": 48,
+            "partial_refund_percent": 50,
+        },
+    )

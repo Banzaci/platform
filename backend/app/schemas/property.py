@@ -37,6 +37,8 @@ class PropertyOut(PropertyBase):
     images: list[dict]
     base_price: BasePriceOut | None = None
     is_available: bool = True
+    nights: int | None = None
+    total_price: float | None = None
     class Config:
         from_attributes = True
 

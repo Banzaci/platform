@@ -4,6 +4,7 @@ import { CalendarDays, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import ThemedDayPicker from "../(protected)/components/editsection/ThemedDayPicker";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 export default function DateSelector({
   range,
@@ -16,8 +17,31 @@ export default function DateSelector({
   ) => void;
   theme?: SectionTheme;
 }) {
-  const [open, setOpen] = useState(false);
+  const [ open, setOpen ] = useState(false);
+  const {
+    textColor,
+    secondaryColor,
+    primaryColor,
 
+    cardBackground,
+    cardBorderColor,
+    cardBorderRadius,
+
+    buttonBackground,
+    buttonTextColor,
+    buttonBorderRadius,
+
+    dateSelectorBackground,
+    dateSelectorTextColor,
+    dateSelectorBorderColor,
+    dateSelectorBorderRadius,
+    dateSelectorSecondaryColor,
+    dateSelectorShadow,
+    dateSelectorWidth,
+    dateSelectorSelectedBackground,
+    dateSelectorSelectedColor,
+  } = resolveSectionTheme(theme);
+  
   return (
     <div className="relative">
       <div className="flex w-full justify-center">
@@ -28,47 +52,28 @@ export default function DateSelector({
           }
           className="flex items-center justify-between border px-5 py-4 text-left"
           style={{
-            width:
-              theme?.dateSelector?.width ??
-              "50%",
-
-            backgroundColor:
-              theme?.dateSelector?.backgroundColor ??
-              "#ffffff",
-
-            color:
-              theme?.dateSelector?.textColor ??
-              theme?.textColor,
-
-            borderColor:
-              theme?.dateSelector?.borderColor,
-
-            borderRadius:
-              theme?.dateSelector?.borderRadius ??
-              "16px",
-
-            boxShadow: getShadow(
-              theme?.dateSelector?.shadow
-            ),
+            width: dateSelectorWidth,
+            backgroundColor: dateSelectorBackground,
+            color: dateSelectorTextColor,
+            borderColor: dateSelectorBorderColor,
+            borderRadius: dateSelectorBorderRadius,
+            boxShadow: getShadow(dateSelectorShadow),
           }}
         >
           <div className="flex items-center gap-4">
             <CalendarDays
               className="h-5 w-5"
               style={{
-                color:
-                  theme?.dateSelector?.secondaryColor ??
-                  theme?.secondaryColor,
+                color: dateSelectorSecondaryColor,
               }}
             />
+
             <div className="flex gap-8">
               <div>
                 <div
                   className="text-xs uppercase"
                   style={{
-                    color:
-                      theme?.dateSelector?.secondaryColor ??
-                      theme?.secondaryColor,
+                    color: dateSelectorSecondaryColor,
                   }}
                 >
                   Check in
@@ -85,9 +90,7 @@ export default function DateSelector({
                 <div
                   className="text-xs uppercase"
                   style={{
-                    color:
-                      theme?.dateSelector?.secondaryColor ??
-                      theme?.secondaryColor,
+                    color: dateSelectorSecondaryColor,
                   }}
                 >
                   Check out
@@ -105,30 +108,20 @@ export default function DateSelector({
           <ChevronRight
             className="h-5 w-5"
             style={{
-              color:
-                theme?.dateSelector?.secondaryColor ??
-                theme?.secondaryColor,
+              color: dateSelectorSecondaryColor,
             }}
           />
         </button>
       </div>
 
       {open && (
-        <div className="absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2"
+        <div
+          className="absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2 border p-5"
           style={{
-            backgroundColor:
-              theme?.card?.backgroundColor ??
-              theme?.backgroundColor,
-
-            color:
-              theme?.card?.textColor ??
-              theme?.textColor,
-
-            borderColor:
-              theme?.card?.borderColor,
-
-            borderRadius:
-              theme?.card?.borderRadius ?? "16px",
+            backgroundColor: cardBackground,
+            color: textColor,
+            borderColor: cardBorderColor,
+            borderRadius: cardBorderRadius,
           }}
         >
           <div
@@ -136,10 +129,12 @@ export default function DateSelector({
             style={
               {
                 "--rdp-accent-color":
-                  theme?.primaryColor ?? "#111111",
+                  dateSelectorSelectedColor ??
+                  primaryColor,
 
                 "--rdp-accent-background-color":
-                  theme?.secondaryColor ?? "#eeeeee",
+                  dateSelectorSelectedBackground ??
+                  secondaryColor,
               } as React.CSSProperties
             }
           >
@@ -153,7 +148,8 @@ export default function DateSelector({
                 before: new Date(),
               }}
             />
-          </div>d
+          </div>
+
           <div className="mt-4 flex justify-end">
             <button
               type="button"
@@ -161,16 +157,9 @@ export default function DateSelector({
               disabled={!range?.from || !range?.to}
               className="px-5 py-2.5 text-sm disabled:opacity-40"
               style={{
-                backgroundColor:
-                  theme?.button?.backgroundColor ??
-                  theme?.primaryColor,
-
-                color:
-                  theme?.button?.textColor ??
-                  "#ffffff",
-
-                borderRadius:
-                  theme?.button?.borderRadius ?? "8px",
+                backgroundColor: buttonBackground,
+                color: buttonTextColor,
+                borderRadius: buttonBorderRadius,
               }}
             >
               Done

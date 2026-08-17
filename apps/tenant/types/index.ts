@@ -65,6 +65,12 @@ export type SectionTheme = {
   };
 };
 
+export type CancellationPolicy = {
+  free_cancellation_days: number;
+  partial_refund_hours: number;
+  partial_refund_percent: number;
+};
+
 export type TenantResponse = {
   tenant: {
     id: string;
@@ -76,6 +82,7 @@ export type TenantResponse = {
     logo_url: string | null;
     short_description: string;
     theme: SectionTheme;
+    cancellation_policy: CancellationPolicy
   };
   pages: PageData[];
 };
@@ -136,4 +143,11 @@ export type TenantProperty = {
   is_open: boolean;
   is_available: boolean;
   base_price: BasePrice | null;
+  nights?: number | null;
+  total_price?: number | null;
+  cancellation_policy?: {
+    free_cancellation_days: number;
+    partial_refund_hours: number;
+    partial_refund_percent: number;
+  };
 };

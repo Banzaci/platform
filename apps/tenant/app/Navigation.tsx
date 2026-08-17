@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 
 export default function Navigation({ data }: { data: any }) {
@@ -16,9 +17,15 @@ export default function Navigation({ data }: { data: any }) {
         <div className="flex items-center gap-8">
           <Link
             href="/accomondation"
-            className="text-xl font-semibold tracking-tight text-gray-900"
+            className="text-sm font-semibold tracking-tight text-gray-900"
           >
             Property
+          </Link>
+          <Link
+            href="/faq"
+            className="text-sm font-semibold tracking-tight text-gray-900"
+          >
+            FAQ
           </Link>
           {data.pages.map((page: any) => {
             const href =

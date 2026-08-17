@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str = ""
     cloudinary_url: str | None = None
 
+    stripe_secret_key: str = ""
+
     class Config:
         env_file = ".env"
 

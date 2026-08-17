@@ -1,0 +1,13 @@
+# 13 unknown queries, 10 unika
+# Format: <antal>x  <fråga>
+
+3x  do you have food?
+2x  do you have a menu?
+1x  hello
+1x  do you have a room with quees size bed
+1x  when is the checkin
+1x  do you have a double bed?
+1x  queen size bed?
+1x  do you have a menu
+1x  when is the check-in
+1x  hi

@@ -1,0 +1,24 @@
+{
+  "labels":[
+    "ask_bar",
+    "ask_booking",
+    "ask_breakfast",
+    "ask_check_in",
+    "ask_check_out",
+    "ask_directions",
+    "ask_menu",
+    "ask_nearby_shops",
+    "ask_parking",
+    "ask_pool",
+    "ask_restaurant",
+    "ask_room_feature",
+    "ask_taxi",
+    "ask_transport",
+    "ask_wifi",
+    "book_room",
+    "check_availability",
+    "conversation_update"
+  ],
+  "threshold":0.0,
+  "positive_label":null
+}

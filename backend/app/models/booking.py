@@ -20,6 +20,7 @@ from app.db.base import Base
 
 class BookingStatus(str, enum.Enum):
     pending_payment = "pending_payment"
+    payment_processing = "payment_processing"
     payment_success = "payment_success"
     confirmed = "confirmed"
     cancelled = "cancelled"
@@ -169,4 +170,28 @@ class Booking(Base):
     guest = relationship(
         "User",
         foreign_keys=[guest_id],
+    )
+
+    public_token: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        unique=True,
+        index=True,
+        default=lambda: str(uuid.uuid4()),
+    )
+
+    provider_refund_id: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        index=True,
+    )
+
+    refund_status: Mapped[str | None] = mapped_column(
+        String(30),
+        nullable=True,
+    )
+
+    refund_amount: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
     )

@@ -14,6 +14,7 @@ from app.models.property import Property
 from app.schemas.property import PropertyOut, PropertyUpdate, PricePeriodOut, PricePeriodCreate
 from app.models.price_period import PricePeriod
 from app.helpers.property_helper import get_property_availability
+from app.services.ai.booking_service import calculate_booking_price
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties",
@@ -522,10 +523,7 @@ async def get_public_properties(
 
 
 
-@router.get(
-    "/{property_id}/public",
-    response_model=PropertyOut,
-)
+@router.get("/{property_id}/public", response_model=PropertyOut)
 async def get_public_property(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
@@ -560,10 +558,28 @@ async def get_public_property(
         check_out=check_out,
     )
 
+    nights = None
+    total_price = None
+
+    if check_in and check_out:
+        nights = (check_out - check_in).days
+
+        if nights > 0:
+            price = await calculate_booking_price(
+                db=db,
+                property_id=property.id,
+                check_in=check_in,
+                check_out=check_out,
+            )
+
+            total_price = price["total_price"]
+
     data = PropertyOut.model_validate(property)
 
     return data.model_copy(
         update={
             "is_available": is_available,
+            "nights": nights,
+            "total_price": total_price,
         }
     )
