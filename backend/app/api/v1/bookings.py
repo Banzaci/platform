@@ -8,11 +8,89 @@ from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.booking import Booking, BookingStatus
+from app.services.ai.booking_service import calculate_booking_price
+from datetime import date
+from app.services.ai.booking_service import create_booking
+from pydantic import BaseModel
+
+
+class BookingCreatePayload(BaseModel):
+    property_id: uuid.UUID
+    check_in: date
+    check_out: date
+    guests: int
+    units: int = 1
+    guest_name: str
+    guest_email: str
+    guest_phone: str | None = None
+    special_requests: str | None = None
+    payment_method: str = "online"
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/bookings",
     tags=["bookings"],
 )
+
+@router.get("")
+async def get_bookings(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Booking)
+        .options(
+            selectinload(Booking.property)
+        )
+        .where(
+            Booking.tenant_id == tenant_id
+        )
+        .order_by(
+            Booking.created_at.desc()
+        )
+    )
+
+    bookings = result.scalars().all()
+
+    return [
+        {
+            "id": str(booking.id),
+            "public_token": booking.public_token,
+
+            "guest_name": booking.guest_name,
+            "guest_email": booking.guest_email,
+
+            "property": {
+                "id": str(booking.property.id),
+                "name": booking.property.name,
+            }
+            if booking.property
+            else None,
+
+            "check_in": booking.check_in,
+            "check_out": booking.check_out,
+
+            "nights": (
+                booking.check_out -
+                booking.check_in
+            ).days,
+
+            "guests": booking.guests,
+            "units": booking.units,
+
+            "total_price": booking.total_price,
+
+            "status": booking.status.value,
+
+            "payment_method":
+                booking.payment_method,
+
+            "source": booking.source,
+
+            "created_at":
+                booking.created_at,
+        }
+        for booking in bookings
+    ]
 
 @router.get("/public/{public_token}")
 async def get_public_booking(
@@ -69,7 +147,6 @@ async def get_public_booking(
       "refund_status": booking.refund_status,
       "refund_amount": booking.refund_amount,
   }
-
 
 @router.post("/public/{public_token}/cancel")
 async def cancel_public_booking(
@@ -205,3 +282,47 @@ async def cancel_public_booking(
           "provider_status": booking.refund_status,
       },
   }
+
+
+@router.post("")
+async def create_public_booking(
+    tenant_id: uuid.UUID,
+    payload: BookingCreatePayload,
+    db: AsyncSession = Depends(get_db),
+):
+    price = await calculate_booking_price(
+        db=db,
+        property_id=payload.property_id,
+        check_in=payload.check_in,
+        check_out=payload.check_out,
+    )
+
+    try:
+        booking = await create_booking(
+            db=db,
+            tenant_id=tenant_id,
+            property_id=payload.property_id,
+            check_in=payload.check_in,
+            check_out=payload.check_out,
+            guests=payload.guests,
+            units=payload.units,
+            total_price=price["total_price"],
+            guest_name=payload.guest_name,
+            guest_email=payload.guest_email,
+            guest_phone=payload.guest_phone,
+            special_requests=payload.special_requests,
+            payment_method=payload.payment_method,
+            source="direct",
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    return {
+        "id": str(booking.id),
+        "public_token": booking.public_token,
+        "status": booking.status.value,
+        "total_price": booking.total_price,
+    }

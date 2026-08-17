@@ -17,6 +17,7 @@ import {
 import PropertySlideshow from "@/app/(protected)/components/property/PropertySlideshow";
 import { getShadow } from "@/helpers";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
+import BookingSummary from "../BookingSummary";
 
 type Props = {
   tenantId: string;
@@ -122,11 +123,11 @@ export default function PropertyDetailsClient({
   if (checkOut) {
     params.set("checkOut", checkOut);
   }
-
   const query = params.toString();
-  const bookingUrl = `/booking/${property.id}` + (query ? `?${query}` : "");
+  const bookingUrl =
+  `/accomondation/${property.id}/book` +
+  (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
-  
   return (
     <main
       className="mx-auto min-h-screen w-full max-w-6xl"
@@ -288,146 +289,47 @@ export default function PropertyDetailsClient({
             </div>
           </div>
         </div>
-
-        {/* COLUMN 2: Booking */}
-        <aside>
-          <div
-            className="sticky top-24 border p-6"
-            style={{
-              backgroundColor: cardBackground,
-              color: textColor,
-              borderColor: cardBorderColor,
-              borderRadius: cardBorderRadius,
-              boxShadow: getShadow(cardShadow),
-            }}
-          >
-            {property.base_price && (
-              <div>
-                <span
-                  className="text-3xl font-semibold"
-                  style={{
-                    color: textColor,
-                    fontFamily: headingFontFamily,
-                  }}
-                >
-                  ${property.base_price.daily_price}
-                </span>
-
-                <span
-                  className="ml-2"
-                  style={{
-                    color: secondaryColor,
-                  }}
-                >
-                  / night
-                </span>
-              </div>
-            )}
-
-            {checkIn && checkOut && (
-              <div
-                className="mt-6 border p-4"
-                style={{
-                  backgroundColor: cardBackground,
-                  borderColor: cardBorderColor,
-                  borderRadius: cardBorderRadius,
-                }}
-              >
-                <div
-                  className="text-sm"
-                  style={{
-                    color: secondaryColor,
-                  }}
-                >
-                  Your stay
-                </div>
-
-                <div
-                  className="mt-1 font-medium"
-                  style={{
-                    color: textColor,
-                  }}
-                >
-                  {checkIn} → {checkOut}
-                </div>
-
-                {property.nights != null && (
-                  <div
-                    className="mt-4 flex items-center justify-between"
-                    style={{
-                      color: secondaryColor,
-                    }}
-                  >
-                    <span>Nights</span>
-
-                    <span
-                      style={{
-                        color: textColor,
-                      }}
-                    >
-                      {property.nights}
-                    </span>
-                  </div>
-                )}
-
-                {property.total_price != null && (
-                  <div
-                    className="mt-4 flex items-center justify-between border-t pt-4"
-                    style={{
-                      borderColor: cardBorderColor,
-                    }}
-                  >
-                    <span
-                      className="font-semibold"
-                      style={{
-                        color: textColor,
-                      }}
-                    >
-                      Total
-                    </span>
-
-                    <span
-                      className="text-xl font-semibold"
-                      style={{
-                        color: textColor,
-                        fontFamily: headingFontFamily,
-                      }}
-                    >
-                      ${property.total_price}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="mt-6">
-              {canBook ? (
-                <a
-                  href={bookingUrl}
-                  className="flex w-full justify-center px-5 py-4 font-medium transition hover:opacity-90"
-                  style={{
-                    backgroundColor: buttonBackground,
-                    color: buttonTextColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                >
-                  Book now
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="w-full cursor-not-allowed px-5 py-4 font-medium opacity-40"
-                  style={{
-                    backgroundColor: buttonBackground,
-                    color: buttonTextColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                >
-                  Book now
-                </button>
-              )}
-            </div>
+       <aside>
+        {checkIn && checkOut && <BookingSummary
+          property={property}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          cancellationPolicy={cancellationPolicy}
+          textColor={textColor}
+          secondaryColor={secondaryColor}
+          headingFontFamily={headingFontFamily}
+          cardBackground={cardBackground}
+          cardBorderColor={cardBorderColor}
+          cardBorderRadius={cardBorderRadius}
+          cardShadow={cardShadow}
+        />}
+        <div className="mt-6">
+          {canBook ? (
+            <a
+              href={bookingUrl}
+              className="flex w-full justify-center px-5 py-4 font-medium transition hover:opacity-90"
+              style={{
+                backgroundColor: buttonBackground,
+                color: buttonTextColor,
+                borderRadius: buttonBorderRadius,
+              }}
+            >
+              Book now
+            </a>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full cursor-not-allowed px-5 py-4 font-medium opacity-40"
+              style={{
+                backgroundColor: buttonBackground,
+                color: buttonTextColor,
+                borderRadius: buttonBorderRadius,
+              }}
+            >
+              Book now
+            </button>
+          )}
           </div>
         </aside>
       </div>

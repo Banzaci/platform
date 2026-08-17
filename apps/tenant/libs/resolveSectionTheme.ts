@@ -1,16 +1,26 @@
 import { SectionTheme } from "@/types";
 
 export function resolveSectionTheme( theme?: SectionTheme) {
+  const textColor =
+    theme?.textColor ?? "#111111";
+
+  const secondaryColor =
+    theme?.secondaryColor ?? "#6b7280";
+
+  const cardTextColor =
+    theme?.card?.textColor ??
+    textColor;
+
+  const cardSecondaryColor =
+    theme?.card?.secondaryColor ??
+    secondaryColor;
+
   return {
+    textColor,
+    secondaryColor,
+    
     // Section
-    backgroundColor:
-      theme?.backgroundColor ?? "#ffffff",
-
-    textColor:
-      theme?.textColor ?? "#111111",
-
-    secondaryColor:
-      theme?.secondaryColor ?? "#6b7280",
+    backgroundColor: theme?.backgroundColor ?? "#ffffff",
 
     primaryColor:
       theme?.primaryColor ?? "#111111",
@@ -26,6 +36,8 @@ export function resolveSectionTheme( theme?: SectionTheme) {
       theme?.fontSize,
 
     // Card
+    cardTextColor,
+    cardSecondaryColor,
     cardBackground:
       theme?.card?.backgroundColor ??
       "#ffffff",

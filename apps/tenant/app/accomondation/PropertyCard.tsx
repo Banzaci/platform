@@ -21,7 +21,7 @@ export default function PropertyCard({
   theme?: SectionTheme;
 }) {
   const href = new URLSearchParams();
-
+  console.log(JSON.stringify(theme))
   if (checkIn) {
     href.set("checkIn", checkIn);
   }
@@ -43,18 +43,19 @@ export default function PropertyCard({
     cardBorderColor,
     cardBorderRadius,
     cardPadding,
+    cardTextColor,
     cardShadow,
     buttonBackground,
     buttonTextColor,
     buttonBorderRadius,
   } = resolveSectionTheme(theme);
-  console.log(JSON.stringify(theme))
+  
   return (
     <article
       className="overflow-hidden border"
       style={{
         backgroundColor: cardBackground,
-        color: textColor,
+        color: cardTextColor,
         borderColor: cardBorderColor,
         borderRadius: cardBorderRadius,
         boxShadow: getShadow(cardShadow),
@@ -76,7 +77,7 @@ export default function PropertyCard({
             <h2
               className="text-2xl font-semibold"
               style={{
-                color: textColor,
+                color: cardTextColor,
                 fontFamily: headingFontFamily,
               }}
             >

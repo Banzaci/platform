@@ -74,6 +74,46 @@ export default function PropertiesPageClient({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (checkIn || checkOut) {
+      return;
+    }
+
+    const today = new Date();
+    const tomorrow = new Date(today);
+
+    tomorrow.setDate(
+      today.getDate() + 1
+    );
+
+    const params = new URLSearchParams(
+      searchParams.toString()
+    );
+
+    params.set(
+      "checkIn",
+      formatDate(today)
+    );
+
+    params.set(
+      "checkOut",
+      formatDate(tomorrow)
+    );
+
+    router.replace(
+      `${pathname}?${params.toString()}`,
+      {
+        scroll: false,
+      }
+    );
+  }, [
+    checkIn,
+    checkOut,
+    pathname,
+    router,
+    searchParams,
+  ]);
+
+  useEffect(() => {
     async function load() {
       setLoading(true);
 
@@ -110,6 +150,7 @@ export default function PropertiesPageClient({
 
     load();
   }, [tenantId, checkIn, checkOut]);
+
 
   function setRange(
     nextRange: DateRange | undefined

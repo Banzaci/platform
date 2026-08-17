@@ -215,6 +215,11 @@ async def calculate_booking_price(
     return {
         "nights": nights,
         "total_price": total,
+        "average_nightly_price": (
+            round(total / nights, 2)
+            if nights > 0
+            else 0
+        ),
         "breakdown": breakdown,
     }
 

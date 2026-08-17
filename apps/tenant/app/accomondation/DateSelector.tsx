@@ -18,6 +18,13 @@ export default function DateSelector({
   theme?: SectionTheme;
 }) {
   const [ open, setOpen ] = useState(false);
+  const today = new Date();
+
+const tomorrow = new Date(today);
+tomorrow.setDate(today.getDate() + 1);
+
+const displayFrom = range?.from ?? today;
+const displayTo = range?.to ?? tomorrow;
   const {
     textColor,
     secondaryColor,
@@ -80,9 +87,7 @@ export default function DateSelector({
                 </div>
 
                 <div className="font-medium">
-                  {range?.from
-                    ? formatDisplayDate(range.from)
-                    : "Select date"}
+                  {formatDisplayDate(displayFrom)}
                 </div>
               </div>
 
@@ -97,9 +102,7 @@ export default function DateSelector({
                 </div>
 
                 <div className="font-medium">
-                  {range?.to
-                    ? formatDisplayDate(range.to)
-                    : "Select date"}
+                  {formatDisplayDate(displayTo)}
                 </div>
               </div>
             </div>
