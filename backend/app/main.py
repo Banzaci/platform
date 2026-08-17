@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-from app.api.v1 import auth, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods
+from app.api.v1 import auth, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods, property_theme
 
 
 app = FastAPI(title="Platform API", version="0.1.0")
@@ -30,15 +30,9 @@ app.include_router(features.router, prefix=API_PREFIX)
 app.include_router(memberships.router, prefix=API_PREFIX)
 app.include_router(transactions.router, prefix=API_PREFIX)
 app.include_router(properties.router, prefix=API_PREFIX)
-
-app.include_router(
-    uploads.router,
-    prefix="/api/v1",
-)
-app.include_router(
-    blocked_periods.router,
-    prefix="/api/v1",
-)
+app.include_router(property_theme.router, prefix=API_PREFIX)
+app.include_router(uploads.router,prefix=API_PREFIX)
+app.include_router(blocked_periods.router, prefix=API_PREFIX)
 
 @app.get("/health")
 async def health():

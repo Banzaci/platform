@@ -17,8 +17,8 @@ export default function EditSection({
   sections,
 }: {
   section: any;
-  pageId: string;
   tenantId: string;
+  pageId: string;
   sections: any[];
 }) {
   const [open, setOpen] = useState(false);

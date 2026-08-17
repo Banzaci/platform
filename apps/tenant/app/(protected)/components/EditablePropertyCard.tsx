@@ -16,6 +16,9 @@ type Props = {
   theme: SectionTheme;
   tenantId: string;
   editable?: boolean;
+  pageId: string;
+  sections: any[];
+  section: any;
   onThemeChange: (theme: SectionTheme) => void;
 };
 
@@ -26,16 +29,27 @@ export default function EditablePropertyCard({
   theme,
   editable = false,
   tenantId,
+  pageId,
+  sections,
+  section,
   onThemeChange
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [isSaving, setIsSaving] = useState(false);
-
-  async function onSave() {
+  async function save() {
     if (!API_URL) return;
 
-    setIsSaving(true);
+    setSaving(true);
+
+    const updatedSections = sections.map((item) =>
+      item.id === section.id
+        ? {
+            ...item,
+            theme,
+          }
+        : item
+    );
 
     try {
       const token = localStorage.getItem(
@@ -43,7 +57,7 @@ export default function EditablePropertyCard({
       );
 
       const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/property-theme`,
+        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
           headers: {
@@ -51,7 +65,7 @@ export default function EditablePropertyCard({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            theme: theme,
+            sections: updatedSections,
           }),
         }
       );
@@ -63,12 +77,9 @@ export default function EditablePropertyCard({
       setOpen(false);
       window.location.reload();
     } catch (error) {
-      console.error(
-        "Save property card theme failed:",
-        error
-      );
+      console.error("Save section failed:", error);
     } finally {
-      setIsSaving(false);
+      setSaving(false);
     }
   }
 
@@ -95,8 +106,8 @@ export default function EditablePropertyCard({
         <PropertyCardTheme
           theme={theme}
           onChange={onThemeChange}
-          onSave={onSave}
-          isSaving={isSaving}
+          onSave={save}
+          isSaving={saving}
           onClose={() => setOpen(false)}
         />
       )}

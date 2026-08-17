@@ -24,6 +24,9 @@ export default function PropertiesPageClient({
   tenantId,
   content,
   theme,
+  pageId,
+  section,
+  sections
 }: {
   tenantId: string;
   content?: {
@@ -34,6 +37,9 @@ export default function PropertiesPageClient({
       en?: string;
     };
   };
+  pageId: string;
+  sections: any[];
+  section: any;
   theme?: SectionTheme;
 }) {
   const router = useRouter();
@@ -59,8 +65,7 @@ export default function PropertiesPageClient({
     };
   }, [checkIn, checkOut]);
 
-  const [properties, setProperties] =
-    useState<TenantProperty[]>([]);
+  const [properties, setProperties] = useState<TenantProperty[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -218,6 +223,9 @@ export default function PropertiesPageClient({
                 checkOut={checkOut}
                 theme={localTheme}
                 editable={isEditor}
+                pageId={pageId}
+                section={section}
+                sections={sections}
                 onThemeChange={setLocalTheme}
               />
             ))}

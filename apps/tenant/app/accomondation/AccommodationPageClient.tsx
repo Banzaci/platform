@@ -41,6 +41,8 @@ export default function AccommodationPageClient({
             sections={sections}
           >
             {renderSection(
+              pageId,
+              sections,
               section,
               tenantId,
               theme,
@@ -53,6 +55,8 @@ export default function AccommodationPageClient({
 }
 
 function renderSection(
+  pageId: string,
+  sections: any[],
   section: any,
   tenantId: string,
   theme: SectionTheme,
@@ -64,6 +68,9 @@ function renderSection(
           tenantId={tenantId}
           content={section.content}
           theme={theme}
+          pageId={pageId}
+          section={section}
+          sections={sections}
         />
       );
 

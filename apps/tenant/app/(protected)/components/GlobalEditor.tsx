@@ -2,9 +2,7 @@
 
 import { SectionTheme } from "@/types";
 import { useState } from "react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { API_URL, TOKEN_NAME } from "../types";
 
 
 export default function GlobalEditor({
