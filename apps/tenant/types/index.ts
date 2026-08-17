@@ -15,6 +15,7 @@ export type PageData = {
   fields: Field[];
   theme: Record<string, unknown>;
   sections: any[];
+  key: string
 };
 
 export type SectionTheme = {

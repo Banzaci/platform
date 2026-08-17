@@ -24,9 +24,6 @@ export default function PropertiesPageClient({
   tenantId,
   content,
   theme,
-  pageId,
-  section,
-  sections,
 }: {
   tenantId: string;
   content?: {
@@ -38,9 +35,6 @@ export default function PropertiesPageClient({
     };
   };
   theme?: SectionTheme;
-  pageId: string;
-  section: any;
-  sections: any[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -219,14 +213,12 @@ export default function PropertiesPageClient({
               <EditablePropertyCard
                 key={property.id}
                 tenantId={tenantId}
-                pageId={pageId}
-                section={section}
-                sections={sections}
                 property={property}
                 checkIn={checkIn}
                 checkOut={checkOut}
                 theme={localTheme}
                 editable={isEditor}
+                onThemeChange={setLocalTheme}
               />
             ))}
           </div>

@@ -52,7 +52,7 @@ export default function PageRenderer({
           >
             <Component
               content={section.content}
-              layout={section.layout}
+              // layout={section.layout}
               theme={mergedTheme}
             />
           </EditableSection>
@@ -60,7 +60,7 @@ export default function PageRenderer({
           <Component
             key={section.id}
             content={section.content}
-            layout={section.layout}
+            // layout={section.layout}
           />
         );
       })}

@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import EditSection from "./editsection/EditSection";
 import AddSection from "./editsection/AddSection";
 import MoveSection from "./MoveSection";
 import DeleteSection from "./DeleteSection";
-import { apiClient } from "@/libs/api";
 import { useIsEditor } from "@/hooks/useIsEditor";
 
 type Props = {
@@ -25,6 +24,7 @@ export default function EditableSection({
   children,
 }: Props) {
   const isEditor = useIsEditor();
+  const isPropertGrid = section.type === 'property-grid';
   return (
     <div className="group relative z-50">
       {children}
@@ -54,12 +54,14 @@ export default function EditableSection({
           pageId={pageId}
           tenantId={tenantId}
         />
-        <DeleteSection
-          section={section}
-          sections={sections}
-          pageId={pageId}
-          tenantId={tenantId}
-        /></>)}
+        { !isPropertGrid && <DeleteSection
+            section={section}
+            sections={sections}
+            pageId={pageId}
+            tenantId={tenantId}
+          />
+        }
+        </>)}
     </div>
   );
 }

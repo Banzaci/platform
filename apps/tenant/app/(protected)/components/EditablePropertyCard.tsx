@@ -15,10 +15,8 @@ type Props = {
   checkOut: string | null;
   theme: SectionTheme;
   tenantId: string;
-  pageId: string;
-  section: any;
-  sections: any[];
   editable?: boolean;
+  onThemeChange: (theme: SectionTheme) => void;
 };
 
 export default function EditablePropertyCard({
@@ -28,35 +26,16 @@ export default function EditablePropertyCard({
   theme,
   editable = false,
   tenantId,
-  pageId,
-  section,
-  sections,
+  onThemeChange
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [localTheme, setLocalTheme] =
-    useState<SectionTheme>(theme);
 
   const [isSaving, setIsSaving] = useState(false);
-
-  function onThemeChange(nextTheme: SectionTheme) {
-    setLocalTheme(nextTheme);
-  }
 
   async function onSave() {
     if (!API_URL) return;
 
     setIsSaving(true);
-
-    const updatedSections = sections.map((item) => {
-      if (item.id !== section.id) {
-        return item;
-      }
-
-      return {
-        ...item,
-        theme: localTheme,
-      };
-    });
 
     try {
       const token = localStorage.getItem(
@@ -64,7 +43,7 @@ export default function EditablePropertyCard({
       );
 
       const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+        `${API_URL}v1/tenants/${tenantId}/property-theme`,
         {
           method: "PUT",
           headers: {
@@ -72,7 +51,7 @@ export default function EditablePropertyCard({
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            sections: updatedSections,
+            theme: theme,
           }),
         }
       );
@@ -109,12 +88,12 @@ export default function EditablePropertyCard({
         property={property}
         checkIn={checkIn}
         checkOut={checkOut}
-        theme={localTheme}
+        theme={theme}
       />
 
       {open && (
         <PropertyCardTheme
-          theme={localTheme}
+          theme={theme}
           onChange={onThemeChange}
           onSave={onSave}
           isSaving={isSaving}
