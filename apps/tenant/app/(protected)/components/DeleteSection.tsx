@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { API_URL, TOKEN_NAME } from "../types";
 
 type Props = {
   section: any;
