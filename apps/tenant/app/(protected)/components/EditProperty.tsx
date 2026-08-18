@@ -161,7 +161,6 @@ export default function EditProperty({
             tenantId={tenantId}
             images={form.images}
             onChange={(images) => {
-                console.log("NEW IMAGES:", images);
                 update("images", images)
               }
             }

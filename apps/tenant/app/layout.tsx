@@ -4,8 +4,6 @@ import "./globals.css";
 import { Providers } from "@hotel/providers";
 import { getTenant } from "@/libs/tenant";
 import Navigation from "./Navigation";
-import GlobalEditor from "./(protected)/components/GlobalEditor";
-import ProtectedNavigation from "./(protected)/ProtectedNavigation";
 import EditorControls from "./(protected)/components/EditorControls";
 import ThemeProvider from "@/providers/ThemeProvider";
 
@@ -82,7 +80,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = await getTenant();
+  const tenant = await getTenant();
   return (
     <html
       lang="en"
@@ -90,11 +88,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <Providers>
-          <ThemeProvider theme={data.tenant.theme}>
-            <Navigation data={data} />
+          <ThemeProvider theme={tenant.tenant.theme}>
+            <Navigation data={tenant} />
             <EditorControls
-              tenantId={data.tenant.id}
-              theme={data.tenant.theme}
+              tenantId={tenant.tenant.id}
+              theme={tenant.tenant.theme}
             />
             {children}
           </ThemeProvider>

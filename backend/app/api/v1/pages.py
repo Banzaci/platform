@@ -1,7 +1,7 @@
 import json
 import uuid
 from fastapi import Request
-from app.api.deps import invalidate_tenant_cache
+from app.api.deps import invalidate_tenant_cache_for_tenant
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -76,8 +76,7 @@ async def update_page(
         await db.refresh(page)
         host = request.headers.get("x-forwarded-host") or request.headers.get("host")
         if host:
-            # await invalidate_tenant_cache(host)
-            await invalidate_tenant_cache("localhost:3000")
+            await invalidate_tenant_cache_for_tenant(tenant)
         return page
 
     except HTTPException:

@@ -20,27 +20,12 @@ import EditablePropertyCard from "../(protected)/components/EditablePropertyCard
 import DateSelector from "./DateSelector";
 import { useIsEditor } from "@/hooks/useIsEditor";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
-
+import DevLabel from "@/helpers/DevLabel";
 export default function PropertiesPageClient({
   tenantId,
-  content,
   theme,
-  pageId,
-  section,
-  sections
 }: {
   tenantId: string;
-  content?: {
-    heading?: {
-      en?: string;
-    };
-    text?: {
-      en?: string;
-    };
-  };
-  pageId: string;
-  sections: any[];
-  section: any;
   theme?: SectionTheme;
 }) {
   const router = useRouter();
@@ -49,11 +34,22 @@ export default function PropertiesPageClient({
   const isEditor = useIsEditor();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
+  const [properties, setProperties] = useState<TenantProperty[]>([]);
+  const [loading, setLoading] = useState(true);
   const [localTheme, setLocalTheme] = useState<SectionTheme>(
     theme ?? {}
   );
 
-  const { cardBackground, cardBorderColor, cardBorderRadius, backgroundColor, textColor, secondaryColor, fontFamily, fontSize, headingFontFamily }= resolveSectionTheme(localTheme);
+  const {
+    textColor,
+    secondaryColor,
+    fontSize,
+    backgroundColor,
+    card_background_color,
+    card_border_color,
+    card_radius,
+    fontFamily,
+  } = resolveSectionTheme(theme);
 
   const range = useMemo<DateRange | undefined>(() => {
     const from = parseDate(checkIn);
@@ -68,10 +64,6 @@ export default function PropertiesPageClient({
       to,
     };
   }, [checkIn, checkOut]);
-
-  const [properties, setProperties] = useState<TenantProperty[]>([]);
-
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (checkIn || checkOut) {
@@ -200,33 +192,11 @@ export default function PropertiesPageClient({
         paddingBottom: localTheme.paddingBottom,
       }}
     >
+      <DevLabel
+        name="PropertiesPageClient"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/PropertiesPageClient.tsx"
+      />
       <div className="mx-auto max-w-6xl px-6 py-12">
-        {/* {(content?.heading?.en || content?.text?.en) && (
-          <div className="mb-10 text-center">
-            {content?.heading?.en && (
-              <h1
-                className="text-3xl font-semibold tracking-tight md:text-4xl"
-                style={{
-                  color: textColor,
-                  fontFamily: headingFontFamily,
-                }}
-              >
-                {content.heading.en}
-              </h1>
-            )}
-
-            {content?.text?.en && (
-              <p
-                className="mx-auto mt-3 max-w-2xl"
-                style={{
-                  color: secondaryColor,
-                }}
-              >
-                {content.text.en}
-              </p>
-            )}
-          </div>
-        )} */}
         <div className="mb-10 flex justify-center">
           <DateSelector
             range={range}
@@ -247,18 +217,13 @@ export default function PropertiesPageClient({
           <div
             className="border p-12 text-center"
             style={{
-              backgroundColor: cardBackground,
+              backgroundColor: card_background_color,
               color: textColor,
-              borderColor: cardBorderColor,
-              borderRadius: cardBorderRadius,
+              borderColor: card_border_color,
+              borderRadius: card_radius,
             }}
           >
-            <h2
-              className="text-xl font-semibold"
-              style={{
-                fontFamily: headingFontFamily,
-              }}
-            >
+            <h2 className="text-xl font-semibold">
               No properties available
             </h2>
           </div>
@@ -282,9 +247,6 @@ export default function PropertiesPageClient({
                 checkOut={checkOut}
                 theme={localTheme}
                 editable={isEditor}
-                pageId={pageId}
-                section={section}
-                sections={sections}
                 onThemeChange={setLocalTheme}
               />
             ))}

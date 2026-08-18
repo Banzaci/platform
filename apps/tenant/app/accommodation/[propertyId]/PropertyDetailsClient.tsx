@@ -18,6 +18,7 @@ import PropertySlideshow from "@/app/(protected)/components/property/PropertySli
 import { getShadow } from "@/helpers";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import BookingSummary from "../BookingSummary";
+import DevLabel from "@/helpers/DevLabel";
 
 type Props = {
   tenantId: string;
@@ -73,20 +74,20 @@ export default function PropertyDetailsClient({
     void load();
   }, [tenantId, propertyId, checkIn, checkOut]);
   const {
-    backgroundColor,
-    textColor,
-    secondaryColor,
     fontFamily,
-    headingFontFamily,
-    fontSize,
-    cardBackground,
-    cardBorderColor,
-    cardPadding,
-    cardBorderRadius,
-    cardShadow,
-    buttonBackground,
-    buttonTextColor,
-    buttonBorderRadius,
+    textColor,
+    backgroundColor,
+    secondaryColor,
+    card_background_color,
+    card_text_color,
+    card_secondary_color,
+    card_border_color,
+    card_radius,
+    card_shadow,
+    card_padding,
+    button_background,
+    button_text,
+    button_radius,
   } = resolveSectionTheme(theme);
   if (loading) {
     return (
@@ -115,7 +116,6 @@ export default function PropertyDetailsClient({
   }
 
   const params = new URLSearchParams();
-
   if (checkIn) {
     params.set("checkIn", checkIn);
   }
@@ -124,30 +124,31 @@ export default function PropertyDetailsClient({
     params.set("checkOut", checkOut);
   }
   const query = params.toString();
-  const bookingUrl =
-  `/accomondation/${property.id}/book` +
-  (query ? `?${query}` : "");
+  const bookingUrl = `/accomondation/${property.id}/book` + (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
   return (
     <main
       className="mx-auto min-h-screen w-full max-w-6xl"
       style={{
-        backgroundColor,
+        backgroundColor: backgroundColor,
         color: textColor,
         fontFamily,
-        fontSize,
       }}
     >
+      <DevLabel
+        name="PropertyDetailsClient"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/[propertyId]/PropertyDetailsClient.tsx"
+      />
       <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* COLUMN 1: Image + property information */}
         <div
           className="min-w-0 overflow-hidden"
           style={{
-            backgroundColor: cardBackground,
-            color: textColor,
-            borderColor: cardBorderColor,
-            borderRadius: cardBorderRadius,
-            boxShadow: getShadow(cardShadow),
+            backgroundColor: card_background_color,
+            color: card_text_color,
+            borderColor: card_border_color,
+            borderRadius: card_radius,
+            boxShadow: getShadow(card_shadow),
           }}
         >
           <div className="w-full max-w-200 overflow-hidden">
@@ -158,17 +159,12 @@ export default function PropertyDetailsClient({
           </div>
 
           <div className="mt-10"
-          style={{
-          padding: cardPadding,
-        }}
-          >
-            <h1
-              className="text-4xl font-semibold tracking-tight"
-              style={{
-                color: textColor,
-                fontFamily: headingFontFamily,
+            style={{
+                padding: card_padding,
               }}
             >
+            <h1
+              className="text-4xl font-semibold tracking-tight">
               {property.name}
             </h1>
 
@@ -209,16 +205,10 @@ export default function PropertyDetailsClient({
               <section
                 className="mt-10 border-t pt-8"
                 style={{
-                  borderColor: cardBorderColor,
+                  borderColor: card_border_color,
                 }}
               >
-                <h2
-                  className="text-2xl font-semibold"
-                  style={{
-                    color: textColor,
-                    fontFamily: headingFontFamily,
-                  }}
-                >
+                <h2 className="text-2xl font-semibold">
                   Amenities
                 </h2>
 
@@ -228,10 +218,7 @@ export default function PropertyDetailsClient({
                       key={amenity}
                       className="border px-4 py-3"
                       style={{
-                        backgroundColor: cardBackground,
                         color: secondaryColor,
-                        borderColor: cardBorderColor,
-                        borderRadius: cardBorderRadius,
                       }}
                     >
                       {amenity}
@@ -245,19 +232,14 @@ export default function PropertyDetailsClient({
             <div
               className="mt-10 border p-5"
               style={{
-                backgroundColor: cardBackground,
+                backgroundColor: card_background_color,
                 color: textColor,
-                borderColor: cardBorderColor,
-                borderRadius: cardBorderRadius,
-                boxShadow: getShadow(cardShadow),
+                borderColor: card_border_color,
+                borderRadius: card_radius,
+                boxShadow: getShadow(card_shadow),
               }}
             >
-              <h3
-                className="font-semibold"
-                style={{
-                  fontFamily: headingFontFamily,
-                }}
-              >
+              <h3 className="font-semibold">
                 Cancellation policy
               </h3>
 
@@ -297,11 +279,10 @@ export default function PropertyDetailsClient({
           cancellationPolicy={cancellationPolicy}
           textColor={textColor}
           secondaryColor={secondaryColor}
-          headingFontFamily={headingFontFamily}
-          cardBackground={cardBackground}
-          cardBorderColor={cardBorderColor}
-          cardBorderRadius={cardBorderRadius}
-          cardShadow={cardShadow}
+          cardBackground={card_background_color}
+          cardBorderColor={card_border_color}
+          cardBorderRadius={card_radius}
+          cardShadow={card_shadow}
         />}
         <div className="mt-6">
           {canBook ? (
@@ -309,9 +290,9 @@ export default function PropertyDetailsClient({
               href={bookingUrl}
               className="flex w-full justify-center px-5 py-4 font-medium transition hover:opacity-90"
               style={{
-                backgroundColor: buttonBackground,
-                color: buttonTextColor,
-                borderRadius: buttonBorderRadius,
+                backgroundColor: button_background,
+                color: button_text,
+                borderRadius: button_radius,
               }}
             >
               Book now
@@ -322,9 +303,9 @@ export default function PropertyDetailsClient({
               disabled
               className="w-full cursor-not-allowed px-5 py-4 font-medium opacity-40"
               style={{
-                backgroundColor: buttonBackground,
-                color: buttonTextColor,
-                borderRadius: buttonBorderRadius,
+                backgroundColor: button_background,
+                color: button_text,
+                borderRadius: button_radius,
               }}
             >
               Book now

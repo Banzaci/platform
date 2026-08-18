@@ -8,6 +8,7 @@ import CTA from "@/components/sections/CTA";
 import Booking from "@/components/sections/Booking";
 import CardGrid from "@/components/sections/CardGrid";
 import EditableSection from "./(protected)/components/EditableSection";
+import DevLabel from "@/helpers/DevLabel";
 
 const components = {
   hero: Hero,
@@ -32,16 +33,30 @@ export default function PageRenderer({
   return (
     <>
       {page.sections.map((section: any) => {
-        const Component =
-          components[section.type as keyof typeof components];
+        const Component = components[section.type as keyof typeof components];
 
         if (!Component) return null;
 
         const mergedTheme = {
           ...globalTheme,
-          ...(section.theme ?? {}),
-        };
+          ...section.theme,
 
+          card: {
+            ...globalTheme?.card,
+            ...section.theme?.card,
+          },
+
+          button: {
+            ...globalTheme?.button,
+            ...section.theme?.button,
+          },
+
+          dateSelector: {
+            ...globalTheme?.dateSelector,
+            ...section.theme?.dateSelector,
+          },
+        };
+      
         return editable ? (
           <EditableSection
             key={section.id}
@@ -50,17 +65,25 @@ export default function PageRenderer({
             tenantId={page.tenant_id}
             sections={page.sections}
           >
-            <Component
-              content={section.content}
-              // layout={section.layout}
-              theme={mergedTheme}
-            />
+            <div className="relative">
+              <DevLabel
+                name={section.type}
+                file="/Users/michellarsson/Projects/hotels/apps/tenant/app/PageRenderer.tsx"
+              />
+
+              <Component
+                content={section.content}
+                theme={mergedTheme}
+                tenantId={page.tenant_id}
+              />
+            </div>
           </EditableSection>
         ) : (
           <Component
             key={section.id}
+            theme={mergedTheme}
             content={section.content}
-            // layout={section.layout}
+            tenantId={page.tenant_id}
           />
         );
       })}

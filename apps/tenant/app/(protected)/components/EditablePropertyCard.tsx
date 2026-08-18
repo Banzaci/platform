@@ -4,10 +4,10 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 
-import PropertyCard from "@/app/accomondation/PropertyCard";
 import { SectionTheme, TenantProperty } from "@/types";
 import PropertyCardTheme from "./property/PropertyCardTheme";
 import { API_URL, TOKEN_NAME } from "../types";
+import PropertyCard from "@/app/accommodation/PropertyCard";
 
 type Props = {
   property: TenantProperty;
@@ -16,9 +16,6 @@ type Props = {
   theme: SectionTheme;
   tenantId: string;
   editable?: boolean;
-  pageId: string;
-  sections: any[];
-  section: any;
   onThemeChange: (theme: SectionTheme) => void;
 };
 
@@ -29,9 +26,6 @@ export default function EditablePropertyCard({
   theme,
   editable = false,
   tenantId,
-  pageId,
-  sections,
-  section,
   onThemeChange
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -39,17 +33,9 @@ export default function EditablePropertyCard({
 
   async function save() {
     if (!API_URL) return;
+    console.log(JSON.stringify(theme))
 
     setSaving(true);
-
-    const updatedSections = sections.map((item) =>
-      item.id === section.id
-        ? {
-            ...item,
-            theme,
-          }
-        : item
-    );
 
     try {
       const token = localStorage.getItem(
@@ -57,16 +43,14 @@ export default function EditablePropertyCard({
       );
 
       const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+        `${API_URL}v1/tenants/${tenantId}/theme`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            sections: updatedSections,
-          }),
+          body: JSON.stringify(theme),
         }
       );
 
@@ -77,7 +61,10 @@ export default function EditablePropertyCard({
       setOpen(false);
       window.location.reload();
     } catch (error) {
-      console.error("Save section failed:", error);
+      console.error(
+        "Property theme save failed:",
+        error
+      );
     } finally {
       setSaving(false);
     }

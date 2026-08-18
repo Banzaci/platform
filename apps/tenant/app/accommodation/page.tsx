@@ -4,7 +4,7 @@ import AccommodationPageClient from "./AccommodationPageClient";
 export default async function AccommodationPage() {
   const data = await getTenant();
   const pageConfig = data.pages.find(
-    (page) => page.slug === "accomondation"
+    (page) => page.slug === "accommodation"
   );
   
   if (!pageConfig) {

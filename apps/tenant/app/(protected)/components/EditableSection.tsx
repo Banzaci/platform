@@ -36,12 +36,6 @@ export default function EditableSection({
           tenantId={tenantId}
           sections={sections}
         />
-        <button
-          type="button"
-          className="absolute -bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full bg-black px-4 py-2 text-sm text-white shadow-lg opacity-0 transition group-hover:opacity-100"
-        >
-          + Add section
-        </button>
         <AddSection
           section={section}
           sections={sections}

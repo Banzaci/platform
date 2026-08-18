@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTenant } from "@/libs/tenant";
 import PageRenderer from "../PageRenderer";
 
@@ -23,5 +24,5 @@ export default async function Page({
     );
   }
 
-  return <PageRenderer page={page} editable={true} />;
+  return <PageRenderer page={page} editable={true} globalTheme={data.tenant.theme} />;
 }

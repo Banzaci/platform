@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type Props = {
   content: {
     heading?: {
@@ -11,6 +12,7 @@ type Props = {
     };
     [key: string]: any;
   };
+  tenantId: string;
   onChange: (content: any) => void;
 };
 

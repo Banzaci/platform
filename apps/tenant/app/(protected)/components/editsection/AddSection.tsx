@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { createPortal } from "react-dom";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
@@ -221,51 +222,59 @@ export default function AddSection({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="absolute -bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black px-4 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition group-hover:opacity-100"
+        className="cursor-pointer absolute bottom-2 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black px-4 py-2 text-xs font-medium text-white opacity-0 shadow-lg transition group-hover:opacity-100"
       >
         <Plus className="h-4 w-4" />
         Add section
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 p-6 text-black">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                Add section
-              </h2>
+      {open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-99999 flex items-center justify-center bg-black/50 p-6 text-black"
+            onMouseDown={() => setOpen(false)}
+          >
+            <div
+              className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">
+                  Add section
+                </h2>
 
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="text-2xl text-gray-500 hover:text-black"
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {SECTION_TYPES.map((item) => (
                 <button
-                  key={item.type}
                   type="button"
-                  disabled={saving}
-                  onClick={() => addSection(item.type)}
-                  className="rounded-xl border p-4 text-left transition hover:border-black hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => setOpen(false)}
+                  className="text-2xl text-gray-500 hover:text-black"
                 >
-                  <div className="font-medium">
-                    {item.label}
-                  </div>
-
-                  <div className="mt-1 text-xs text-gray-500">
-                    {item.type}
-                  </div>
+                  ×
                 </button>
-              ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {SECTION_TYPES.map((item) => (
+                  <button
+                    key={item.type}
+                    type="button"
+                    disabled={saving}
+                    onClick={() => addSection(item.type)}
+                    className="rounded-xl border p-4 text-left transition hover:border-black hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    <div className="font-medium">
+                      {item.label}
+                    </div>
+
+                    <div className="mt-1 text-xs text-gray-500">
+                      {item.type}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }

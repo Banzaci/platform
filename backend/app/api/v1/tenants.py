@@ -1,8 +1,8 @@
 
 import uuid
-from fastapi import Request
+
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
-from app.api.deps import invalidate_tenant_cache, require_tenant_access
+from app.api.deps import require_tenant_access, invalidate_tenant_cache_for_tenant
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select, delete
 from sqlalchemy.exc import IntegrityError
@@ -31,172 +31,172 @@ def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
     right away from the admin."""
     return [
          Page(
-                    tenant_id=tenant_id,
-                    slug="index",
-                    key="home",
-                    name={
-                        "en": "Home",
-                        "sv": "Hem",
-                    },
-                    sections=[
-                        {
-                            "id": "hero",
-                            "type": "hero",
-                            "content": {
-                                "heading": {
-                                    "en": "Welcome to Laughing Goat Ghana"
-                                },
-                                "text": {
-                                    "en": "A beautiful hotel in Ghana."
-                                },
-                                "image": "",
-                                "button": {
-                                    "label": {
-                                        "en": "Book your stay"
-                                    },
-                                    "href": "/booking"
-                                }
-                            }
+            tenant_id=tenant_id,
+            slug="index",
+            key="home",
+            name={
+                "en": "Home",
+                "sv": "Hem",
+            },
+            sections=[
+                {
+                    "id": "hero",
+                    "type": "hero",
+                    "content": {
+                        "heading": {
+                            "en": "Welcome to Laughing Goat Ghana"
                         },
-                        {
-                            "id": "intro",
-                            "type": "image-text",
-                            "layout": "image-left",
-                            "content": {
-                                "image": "",
-                                "heading": {
-                                    "en": "Relax and enjoy your stay"
-                                },
-                                "text": {
-                                    "en": "Experience a peaceful stay surrounded by beautiful nature in Ghana."
-                                },
-                                "button": {
-                                    "label": {
-                                        "en": "Learn more"
-                                    },
-                                    "href": "/about-us"
-                                }
-                            }
+                        "text": {
+                            "en": "A beautiful hotel in Ghana."
                         },
-                        {
-                            "id": "experience",
-                            "type": "image-text",
-                            "layout": "image-right",
-                            "content": {
-                                "image": "",
-                                "heading": {
-                                    "en": "Experience Ghana"
-                                },
-                                "text": {
-                                    "en": "Discover the beauty, culture and experiences that Ghana has to offer."
-                                },
-                                "button": {
-                                    "label": {
-                                        "en": "Discover Ghana"
-                                    },
-                                    "href": "/activities"
-                                }
-                            }
-                        },
-                        {
-                            "id": "gallery",
-                            "type": "gallery",
-                            "content": {
-                                "heading": {
-                                    "en": "Our Hotel"
-                                },
-                                "images": [
-                                    {
-                                        "image": "",
-                                        "alt": "Hotel"
-                                    },
-                                    {
-                                        "image": "",
-                                        "alt": "Hotel room"
-                                    },
-                                    {
-                                        "image": "",
-                                        "alt": "Hotel surroundings"
-                                    },
-                                    {
-                                        "image": "",
-                                        "alt": "Ghana"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "id": "rooms",
-                            "type": "room-grid",
-                            "content": {
-                                "heading": {
-                                    "en": "Our Rooms"
-                                },
-                                "text": {
-                                    "en": "Choose the perfect room for your stay."
-                                },
-                                "limit": 6
-                            }
-                        },
-                        {
-                            "id": "amenities",
-                            "type": "amenities",
-                            "content": {
-                                "heading": {
-                                    "en": "Hotel Facilities"
-                                },
-                                "items": [
-                                    {
-                                        "icon": "wifi",
-                                        "title": {
-                                            "en": "Free WiFi"
-                                        },
-                                        "text": {
-                                            "en": "Stay connected throughout the hotel."
-                                        }
-                                    },
-                                    {
-                                        "icon": "pool",
-                                        "title": {
-                                            "en": "Swimming Pool"
-                                        },
-                                        "text": {
-                                            "en": "Relax by our swimming pool."
-                                        }
-                                    },
-                                    {
-                                        "icon": "restaurant",
-                                        "title": {
-                                            "en": "Restaurant"
-                                        },
-                                        "text": {
-                                            "en": "Enjoy delicious local and international food."
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "id": "cta",
-                            "type": "cta",
-                            "content": {
-                                "heading": {
-                                    "en": "Ready to stay with us?"
-                                },
-                                "text": {
-                                    "en": "Book your room and experience Laughing Goat Ghana."
-                                },
-                                "button": {
-                                    "label": {
-                                        "en": "Book now"
-                                    },
-                                    "href": "/booking"
-                                }
-                            }
+                        "image": "",
+                        "button": {
+                            "label": {
+                                "en": "Book your stay"
+                            },
+                            "href": "/booking"
                         }
-                    ],
-                    theme={}
-                ),
+                    }
+                },
+                {
+                    "id": "intro",
+                    "type": "image-text",
+                    "layout": "image-left",
+                    "content": {
+                        "image": "",
+                        "heading": {
+                            "en": "Relax and enjoy your stay"
+                        },
+                        "text": {
+                            "en": "Experience a peaceful stay surrounded by beautiful nature in Ghana."
+                        },
+                        "button": {
+                            "label": {
+                                "en": "Learn more"
+                            },
+                            "href": "/about-us"
+                        }
+                    }
+                },
+                {
+                    "id": "experience",
+                    "type": "image-text",
+                    "layout": "image-right",
+                    "content": {
+                        "image": "",
+                        "heading": {
+                            "en": "Experience Ghana"
+                        },
+                        "text": {
+                            "en": "Discover the beauty, culture and experiences that Ghana has to offer."
+                        },
+                        "button": {
+                            "label": {
+                                "en": "Discover Ghana"
+                            },
+                            "href": "/activities"
+                        }
+                    }
+                },
+                {
+                    "id": "gallery",
+                    "type": "gallery",
+                    "content": {
+                        "heading": {
+                            "en": "Our Hotel"
+                        },
+                        "images": [
+                            {
+                                "image": "",
+                                "alt": "Hotel"
+                            },
+                            {
+                                "image": "",
+                                "alt": "Hotel room"
+                            },
+                            {
+                                "image": "",
+                                "alt": "Hotel surroundings"
+                            },
+                            {
+                                "image": "",
+                                "alt": "Ghana"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "rooms",
+                    "type": "room-grid",
+                    "content": {
+                        "heading": {
+                            "en": "Our Rooms"
+                        },
+                        "text": {
+                            "en": "Choose the perfect room for your stay."
+                        },
+                        "limit": 6
+                    }
+                },
+                {
+                    "id": "amenities",
+                    "type": "amenities",
+                    "content": {
+                        "heading": {
+                            "en": "Hotel Facilities"
+                        },
+                        "items": [
+                            {
+                                "icon": "wifi",
+                                "title": {
+                                    "en": "Free WiFi"
+                                },
+                                "text": {
+                                    "en": "Stay connected throughout the hotel."
+                                }
+                            },
+                            {
+                                "icon": "pool",
+                                "title": {
+                                    "en": "Swimming Pool"
+                                },
+                                "text": {
+                                    "en": "Relax by our swimming pool."
+                                }
+                            },
+                            {
+                                "icon": "restaurant",
+                                "title": {
+                                    "en": "Restaurant"
+                                },
+                                "text": {
+                                    "en": "Enjoy delicious local and international food."
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "cta",
+                    "type": "cta",
+                    "content": {
+                        "heading": {
+                            "en": "Ready to stay with us?"
+                        },
+                        "text": {
+                            "en": "Book your room and experience Laughing Goat Ghana."
+                        },
+                        "button": {
+                            "label": {
+                                "en": "Book now"
+                            },
+                            "href": "/booking"
+                        }
+                    }
+                }
+            ],
+            theme={}
+        ),
         
         Page(
             tenant_id=tenant_id,
@@ -424,7 +424,7 @@ async def generate_project(
     pages = [
         Page(
             tenant_id=tenant.id,
-            slug="accomondation",
+            slug="accommodation",
             key="accommodation",
             name={
                 "en": "Accommodation",
@@ -786,8 +786,16 @@ async def resolve_tenant_by_host(
     print("RESOLVE HOST:", host)
     cache_key = f"tenant-resolve:{host}"
     cached = await redis_client.get(cache_key)
+
     if cached:
-        return TenantFullOut.model_validate_json(cached)
+        full = TenantFullOut.model_validate_json(cached)
+
+        await redis_client.sadd(
+            f"tenant-cache-keys:{full.tenant.id}",
+            cache_key,
+        )
+
+        return full
 
     if host.startswith("localhost"):
         subdomain = "laughing-goat-ghana"
@@ -804,8 +812,27 @@ async def resolve_tenant_by_host(
     result = await db.execute(select(Page).where(Page.tenant_id == tenant.id).order_by(Page.sort_order))
     pages = result.scalars().all()
 
-    full = TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)
-    await redis_client.set(cache_key, full.model_dump_json(), ex=settings.cache_ttl_seconds)
+    full = TenantFullOut(
+        tenant=TenantOut.model_validate(tenant),
+        pages=pages,
+    )
+
+    await redis_client.set(
+        cache_key,
+        full.model_dump_json(),
+        ex=settings.cache_ttl_seconds,
+    )
+
+    await redis_client.sadd(
+        f"tenant-cache-keys:{tenant.id}",
+        cache_key,
+    )
+
+    await redis_client.expire(
+        f"tenant-cache-keys:{tenant.id}",
+        settings.cache_ttl_seconds,
+    )
+
     return full
 
 @router.get("/{tenant_id}", response_model=TenantOut)
@@ -839,7 +866,6 @@ async def get_tenant_full(tenant_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
 @router.put("/{tenant_id}/theme", response_model=ThemeSchema)
 async def update_tenant_theme(
-    request: Request,
     tenant_id: uuid.UUID,
     payload: ThemeSchema,
     db: AsyncSession = Depends(get_db),
@@ -857,7 +883,9 @@ async def update_tenant_theme(
             detail="Tenant not found",
         )
 
-    # Spara nuvarande theme innan vi ändrar det
+    print("PAYLOAD:", payload.model_dump())
+    print("BEFORE:", tenant.theme)
+    
     if tenant.theme:
         history = ThemeHistory(
             tenant_id=tenant.id,
@@ -867,7 +895,16 @@ async def update_tenant_theme(
         db.add(history)
 
     # Sätt nya temat
-    tenant.theme = payload.model_dump()
+    incoming = payload.model_dump(
+        exclude_unset=True
+    )
+
+    current = tenant.theme or {}
+
+    tenant.theme = {
+        **current,
+        **incoming,
+    }
 
     # Behåll endast de 20 senaste
     await db.flush()
@@ -894,15 +931,9 @@ async def update_tenant_theme(
 
     await db.commit()
     await db.refresh(tenant)
-
-    host = (
-        request.headers.get("x-forwarded-host")
-        or request.headers.get("host")
+    await invalidate_tenant_cache_for_tenant(
+        tenant
     )
-
-    if host:
-        await invalidate_tenant_cache(host)
-
     return tenant.theme
 
 

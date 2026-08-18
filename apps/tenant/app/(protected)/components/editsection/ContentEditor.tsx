@@ -9,8 +9,6 @@ import HeroEditor from "./editors/HeroEditor";
 import ImageTextEditor from "./editors/ImageTextEditor";
 import PropertyGridEditor from "./editors/PropertyGridEditor";
 import RoomGridEditor from "./editors/RoomGridEditor";
-import PropertyGrid from "./PropertyGrid";
-
 
 type Props = {
   section: any;
@@ -81,6 +79,7 @@ export default function ContentEditor({
         <ContactInfoEditor
           content={content}
           onChange={onChange}
+          tenantId={tenantId}
         />
       );
     case "contact-form":
@@ -88,6 +87,7 @@ export default function ContentEditor({
         <ContactFormEditor
           content={content}
           onChange={onChange}
+          tenantId={tenantId}
         />
       );
     case "room-grid":
@@ -95,6 +95,7 @@ export default function ContentEditor({
         <RoomGridEditor
           content={content}
           onChange={onChange}
+          tenantId={tenantId}
         />
       );
     case "property-grid":
@@ -102,6 +103,7 @@ export default function ContentEditor({
         <PropertyGridEditor
           content={content}
           onChange={onChange}
+          tenantId={tenantId}
         />
       );
     default:

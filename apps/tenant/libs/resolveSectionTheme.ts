@@ -1,26 +1,22 @@
 import { SectionTheme } from "@/types";
 
-export function resolveSectionTheme( theme?: SectionTheme) {
+export function resolveSectionTheme(
+  theme?: SectionTheme
+) {
   const textColor =
     theme?.textColor ?? "#111111";
 
   const secondaryColor =
     theme?.secondaryColor ?? "#6b7280";
 
-  const cardTextColor =
-    theme?.card?.textColor ??
-    textColor;
-
-  const cardSecondaryColor =
-    theme?.card?.secondaryColor ??
-    secondaryColor;
-
   return {
-    textColor,
-    secondaryColor,
-    
     // Section
-    backgroundColor: theme?.backgroundColor ?? "#ffffff",
+    backgroundColor:
+      theme?.backgroundColor ?? "#ffffff",
+
+    textColor,
+
+    secondaryColor,
 
     primaryColor:
       theme?.primaryColor ?? "#111111",
@@ -36,77 +32,82 @@ export function resolveSectionTheme( theme?: SectionTheme) {
       theme?.fontSize,
 
     // Card
-    cardTextColor,
-    cardSecondaryColor,
-    cardBackground:
+    card_background_color:
       theme?.card?.backgroundColor ??
       "#ffffff",
 
-    cardBorderColor:
+    card_text_color:
+      theme?.card?.textColor ??
+      textColor,
+
+    card_secondary_color:
+      theme?.card?.secondaryColor ??
+      secondaryColor,
+
+    card_border_color:
       theme?.card?.borderColor ??
       "#e5e7eb",
 
-    cardBorderRadius:
+    card_radius:
       theme?.card?.borderRadius ??
       "16px",
 
-    cardPadding:
+    card_padding:
       theme?.card?.padding ??
       "24px",
 
-    cardShadow:
+    card_shadow:
       theme?.card?.shadow,
 
+      
     // Button
-    buttonBackground:
+    button_background:
       theme?.button?.backgroundColor ??
       theme?.primaryColor ??
       "#111111",
 
-    buttonTextColor:
+    button_text:
       theme?.button?.textColor ??
       "#ffffff",
 
-    buttonBorderRadius:
+    button_radius:
       theme?.button?.borderRadius ??
       "12px",
 
     // Date selector
-    dateSelectorBackground:
+    date_background:
       theme?.dateSelector?.backgroundColor ??
       "#ffffff",
 
-    dateSelectorTextColor:
+    date_text:
       theme?.dateSelector?.textColor ??
-      theme?.textColor ??
-      "#111111",
+      textColor,
 
-    dateSelectorSecondaryColor:
+    date_secondary:
       theme?.dateSelector?.secondaryColor ??
-      theme?.secondaryColor ??
-      "#6b7280",
+      secondaryColor,
 
-    dateSelectorBorderColor:
+    date_border:
       theme?.dateSelector?.borderColor ??
       "#e5e7eb",
 
-    dateSelectorBorderRadius:
+    date_radius:
       theme?.dateSelector?.borderRadius ??
       "16px",
 
-    dateSelectorShadow:
+    date_shadow:
       theme?.dateSelector?.shadow,
 
-    dateSelectorWidth:
+    date_width:
       theme?.dateSelector?.width ??
       "50%",
 
-    dateSelectorSelectedBackground:
+    date_selected_background:
       theme?.dateSelector?.selectedBackgroundColor ??
       theme?.primaryColor ??
       "#111111",
 
-    dateSelectorSelectedColor:
+    date_selected_color:
       theme?.dateSelector?.selectedColor ??
       "#ffffff",
   };

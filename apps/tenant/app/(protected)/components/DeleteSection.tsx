@@ -67,7 +67,7 @@ export default function DeleteSection({
         type="button"
         onClick={() => setOpen(true)}
         title="Delete section"
-        className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700 absolute bottom-1 right-1"
+        className="cursor-pointer rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700 absolute bottom-1 right-1"
       >
         <Trash2 className="h-4 w-4" />
       </button>

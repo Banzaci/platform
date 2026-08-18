@@ -9,6 +9,7 @@ type Props = {
     };
     [key: string]: any;
   };
+  tenantId: string;
   onChange: (content: any) => void;
 };
 

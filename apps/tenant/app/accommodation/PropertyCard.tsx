@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { getShadow } from "@/helpers";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
+import DevLabel from "@/helpers/DevLabel";
 
 export default function PropertyCard({
   property,
@@ -21,7 +22,6 @@ export default function PropertyCard({
   theme?: SectionTheme;
 }) {
   const href = new URLSearchParams();
-  console.log(JSON.stringify(theme))
   if (checkIn) {
     href.set("checkIn", checkIn);
   }
@@ -35,33 +35,36 @@ export default function PropertyCard({
     (href.size ? `?${href.toString()}` : "");
 
   const {
-    textColor,
-    secondaryColor,
     fontFamily,
-    headingFontFamily,
-    cardBackground,
-    cardBorderColor,
-    cardBorderRadius,
-    cardPadding,
-    cardTextColor,
-    cardShadow,
-    buttonBackground,
-    buttonTextColor,
-    buttonBorderRadius,
+    secondaryColor,
+    card_background_color,
+    card_text_color,
+    card_secondary_color,
+    card_border_color,
+    card_radius,
+    card_shadow,
+    card_padding,
+    button_background,
+    button_text,
+    button_radius,
   } = resolveSectionTheme(theme);
-  
+
   return (
     <article
       className="overflow-hidden border"
       style={{
-        backgroundColor: cardBackground,
-        color: cardTextColor,
-        borderColor: cardBorderColor,
-        borderRadius: cardBorderRadius,
-        boxShadow: getShadow(cardShadow),
+        backgroundColor: card_background_color,
+        color: card_text_color,
+        borderColor: card_border_color,
+        borderRadius: card_radius,
+        boxShadow: getShadow(card_shadow),
         fontFamily,
       }}
     >
+      <DevLabel
+        name="PropertyCard"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/PropertyCard.tsx"
+      />
       <PropertySlideshow
         images={property.images ?? []}
         alt={property.name}
@@ -69,18 +72,13 @@ export default function PropertyCard({
 
       <div
         style={{
-          padding: cardPadding,
+          padding: card_padding,
         }}
       >
         <div className="flex items-start justify-between gap-6">
           <div>
             <h2
-              className="text-2xl font-semibold"
-              style={{
-                color: cardTextColor,
-                fontFamily: headingFontFamily,
-              }}
-            >
+              className="text-2xl font-semibold">
               {property.name}
             </h2>
 
@@ -88,7 +86,7 @@ export default function PropertyCard({
               <p
                 className="mt-3 line-clamp-3 leading-7"
                 style={{
-                  color: secondaryColor,
+                  color: card_secondary_color,
                 }}
               >
                 {property.description}
@@ -99,20 +97,10 @@ export default function PropertyCard({
           {property.base_price && (
             <div className="shrink-0 text-right">
               <div
-                className="text-2xl font-semibold"
-                style={{
-                  color: textColor,
-                }}
-              >
+                className="text-2xl font-semibold">
                 ${property.base_price.daily_price}
               </div>
-
-              <div
-                className="text-xs"
-                style={{
-                  color: secondaryColor,
-                }}
-              >
+              <div className="text-xs">
                 per night
               </div>
             </div>
@@ -120,12 +108,7 @@ export default function PropertyCard({
         </div>
 
         <div
-          className="mt-6 flex flex-wrap gap-5 border-y py-5 text-sm"
-          style={{
-            color: secondaryColor,
-            borderColor: cardBorderColor,
-          }}
-        >
+          className="mt-6 flex flex-wrap gap-5 border-y py-5 text-sm">
           <span className="flex items-center gap-2">
             <User className="h-4 w-4" />
             {property.max_guests} guests
@@ -147,15 +130,7 @@ export default function PropertyCard({
             {property.amenities
               .slice(0, 5)
               .map((amenity) => (
-                <span
-                  key={amenity}
-                  className="rounded-full border px-3 py-1.5 text-xs"
-                  style={{
-                    color: secondaryColor,
-                    borderColor: cardBorderColor,
-                    backgroundColor: cardBackground,
-                  }}
-                >
+                <span key={amenity} className="rounded-full border px-3 py-1.5 text-xs">
                   {amenity}
                 </span>
               ))}
@@ -168,9 +143,9 @@ export default function PropertyCard({
               href={bookingUrl}
               className="inline-flex w-full items-center justify-center gap-2 px-5 py-3.5 font-medium transition hover:opacity-90"
               style={{
-                backgroundColor: buttonBackground,
-                color: buttonTextColor,
-                borderRadius: buttonBorderRadius,
+                backgroundColor: button_background,
+                color: button_text,
+                borderRadius: button_radius,
               }}
             >
               Book now
@@ -183,9 +158,9 @@ export default function PropertyCard({
                 disabled
                 className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 px-5 py-3.5 font-medium opacity-50"
                 style={{
-                  backgroundColor: buttonBackground,
-                  color: buttonTextColor,
-                  borderRadius: buttonBorderRadius,
+                  backgroundColor: button_background,
+                  color: button_text,
+                  borderRadius: button_radius,
                 }}
               >
                 Book now

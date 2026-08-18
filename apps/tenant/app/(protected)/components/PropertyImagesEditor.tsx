@@ -53,7 +53,6 @@ export default function PropertyImagesEditor({
     );
   }
 
-  console.log(images)
   return (
     <div>
       <h3 className="mb-3 text-sm font-medium">
@@ -123,7 +122,6 @@ export default function PropertyImagesEditor({
         tenantId={tenantId}
         onChange={(image) => {
           if (!image) return;
-          console.log("UPLOADED IMAGE:", image);
           onChange([
             ...images,
             image,

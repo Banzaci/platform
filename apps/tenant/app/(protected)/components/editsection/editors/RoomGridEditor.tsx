@@ -10,11 +10,13 @@ type Props = {
     limit?: number;
     [key: string]: any;
   };
+  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function RoomGridEditor({
   content,
+  tenantId,
   onChange,
 }: Props) {
   function updateLocalized(

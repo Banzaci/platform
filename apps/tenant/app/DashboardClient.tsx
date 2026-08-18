@@ -10,7 +10,6 @@ export function DashboardClient({ host }: { host: string }) {
     queryKey: ["tenant", host],
     queryFn: () => apiClient.api<any>(`/tenant-resolve?host=${host}`),
   });
-  console.log(isLoading, data);
 
   if (isLoading) {
     return null;

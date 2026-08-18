@@ -74,7 +74,7 @@ export default function MoveSection({
         type="button"
         onClick={() => move("up")}
         disabled={index === 0}
-        className="rounded-lg bg-black px-3 py-2 text-white disabled:opacity-30"
+        className="cursor-pointer rounded-lg bg-black px-3 py-2 text-white disabled:opacity-30"
       >
         ↑
       </button>
@@ -83,7 +83,7 @@ export default function MoveSection({
         type="button"
         onClick={() => move("down")}
         disabled={index === sections.length - 1}
-        className="rounded-lg bg-black px-3 py-2 text-white disabled:opacity-30"
+        className="cursor-pointer rounded-lg bg-black px-3 py-2 text-white disabled:opacity-30"
       >
         ↓
       </button>

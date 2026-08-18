@@ -105,7 +105,7 @@ export default function PropertiesEditor({
 
   useEffect(() => {
     loadProperties();
-  }, [tenantId]);
+  }, []);
 
   if (loading) {
     return (

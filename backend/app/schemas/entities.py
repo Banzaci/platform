@@ -2,7 +2,7 @@ import uuid
 from datetime import date
 
 from app.schemas.page import PageOut
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CancellationPolicy(BaseModel):
@@ -11,6 +11,9 @@ class CancellationPolicy(BaseModel):
     partial_refund_percent: int = 50
 
 class ThemeSchema(BaseModel):
+    model_config = ConfigDict(
+        extra="allow"
+    )
     backgroundColor: str = "#ffffff"
     textColor: str = "#222222"
     primaryColor: str = "#111111"

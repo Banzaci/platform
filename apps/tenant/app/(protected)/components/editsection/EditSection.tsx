@@ -3,12 +3,10 @@
 
 import { useState } from "react";
 import { Pencil, X } from "lucide-react";
-
+import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { API_URL, TOKEN_NAME } from "../../types";
 
 export default function EditSection({
   section,
@@ -95,6 +93,7 @@ export default function EditSection({
         type="button"
         onClick={openEditor}
         className="
+          cursor-pointer 
           absolute right-4 top-4 z-30
           flex items-center gap-2
           rounded-full
@@ -112,85 +111,85 @@ export default function EditSection({
         <Pencil className="h-4 w-4" />
         Edit
       </button>
-
-      {open && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-          style={{ zIndex: 99999 }}
-          onMouseDown={cancel}
-        >
+      {open &&
+        createPortal(
           <div
-            className="
-              flex max-h-[92vh] w-full max-w-2xl
-              flex-col overflow-hidden
-              rounded-3xl
-              bg-white
-              text-black
-              shadow-2xl
-            "
-            onMouseDown={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+            onMouseDown={cancel}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between border-b px-7 py-5">
-              <div>
-                <div className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                  Section
+            <div
+              className="
+                flex max-h-[92vh] w-full max-w-2xl
+                flex-col overflow-hidden
+                rounded-3xl
+                bg-white
+                text-black
+                shadow-2xl
+              "
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b px-7 py-5">
+                <div>
+                  <div className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                    Section
+                  </div>
+
+                  <h2 className="mt-1 text-xl font-semibold capitalize">
+                    Edit {section.type.replaceAll("-", " ")}
+                  </h2>
                 </div>
 
-                <h2 className="mt-1 text-xl font-semibold capitalize">
-                  Edit {section.type.replaceAll("-", " ")}
-                </h2>
+                <button
+                  type="button"
+                  onClick={cancel}
+                  disabled={saving}
+                  className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-black"
+                >
+                  <X className="h-5 w-5" />
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={cancel}
-                disabled={saving}
-                className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-black"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-7 py-6">
+                <ContentEditor
+                  section={section}
+                  content={content}
+                  onChange={setContent}
+                  tenantId={tenantId}
+                />
+
+                <ThemeEditor
+                  theme={theme}
+                  onChange={setTheme}
+                  sectionType={section.type}
+                />
+              </div>
+
+              {/* Footer */}
+              <div className="flex justify-end gap-3 border-t bg-gray-50 px-7 py-5">
+                <button
+                  type="button"
+                  onClick={cancel}
+                  disabled={saving}
+                  className="rounded-xl px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-200 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={save}
+                  disabled={saving}
+                  className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Save changes"}
+                </button>
+              </div>
             </div>
-
-            {/* Body */}
-            <div className="flex-1 overflow-y-auto px-7 py-6">
-              <ContentEditor
-                section={section}
-                content={content}
-                onChange={setContent}
-                tenantId={tenantId}
-              />
-
-              <ThemeEditor
-                theme={theme}
-                onChange={setTheme}
-                sectionType={section.type}
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-end gap-3 border-t bg-gray-50 px-7 py-5">
-              <button
-                type="button"
-                onClick={cancel}
-                disabled={saving}
-                className="rounded-xl px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-200 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                onClick={save}
-                disabled={saving}
-                className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save changes"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }

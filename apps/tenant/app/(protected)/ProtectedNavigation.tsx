@@ -14,31 +14,47 @@ export default function ProtectedNavigation() {
       </div>
     );
   }
-
   return (
-    <header className="border-b bg-gray-900 text-gray-50">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-        <button
-          onClick={() => {
-            apiClient.removeToken();
-            window.location.href = "/login";
-          }}
-          className="rounded-lg px-4 py-2 text-sm font-medium  hover:bg-gray-100"
-        >
-          Sign out
-        </button>
+    <header className="border-b border-gray-800 bg-gray-950 text-white">
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
+        {/* Brand */}
         <Link
-          href="/knowledge"
-          className="text-sm font-semibold tracking-tight"
+          href="/dashboard"
+          className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
         >
-          Knowledge
+          Dashboard
         </Link>
-         <Link
-          href="/properties"
-          className="text-sm font-semibold tracking-tight"
-        >
-          Property
-        </Link>
+
+        {/* Navigation */}
+        <nav className="flex items-center gap-1">
+          <Link
+            href="/properties"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+          >
+            Properties
+          </Link>
+
+          <Link
+            href="/knowledge"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+          >
+            Knowledge
+          </Link>
+        </nav>
+
+        {/* Account */}
+        <div className="ml-auto">
+          <button
+            type="button"
+            onClick={() => {
+              apiClient.removeToken();
+              window.location.href = "/login";
+            }}
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-400 transition hover:bg-gray-800 hover:text-white"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
     </header>
   );

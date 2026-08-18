@@ -10,5 +10,5 @@ export default async function HomePage() {
   if (!page) {
     notFound();
   }
-  return <PageRenderer page={page} editable={true} />;
+  return <PageRenderer page={page} editable={true} globalTheme={data.tenant.theme} />;
 }

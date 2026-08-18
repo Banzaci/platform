@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import ThemedDayPicker from "../(protected)/components/editsection/ThemedDayPicker";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
+import DevLabel from "@/helpers/DevLabel";
 
 export default function DateSelector({
   range,
@@ -20,37 +21,38 @@ export default function DateSelector({
   const [ open, setOpen ] = useState(false);
   const today = new Date();
 
-const tomorrow = new Date(today);
-tomorrow.setDate(today.getDate() + 1);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
 
-const displayFrom = range?.from ?? today;
-const displayTo = range?.to ?? tomorrow;
+  const displayFrom = range?.from ?? today;
+  const displayTo = range?.to ?? tomorrow;
   const {
     textColor,
     secondaryColor,
     primaryColor,
-
-    cardBackground,
-    cardBorderColor,
-    cardBorderRadius,
-
-    buttonBackground,
-    buttonTextColor,
-    buttonBorderRadius,
-
-    dateSelectorBackground,
-    dateSelectorTextColor,
-    dateSelectorBorderColor,
-    dateSelectorBorderRadius,
-    dateSelectorSecondaryColor,
-    dateSelectorShadow,
-    dateSelectorWidth,
-    dateSelectorSelectedBackground,
-    dateSelectorSelectedColor,
+    card_background_color,
+    card_border_color,
+    card_radius,
+    button_background,
+    button_text,
+    button_radius,
+    date_selected_background,
+    date_selected_color,
+    date_border,
+    date_radius,
+    date_secondary,
+    date_shadow,
+    date_width,
+    date_background,
+    date_text,
   } = resolveSectionTheme(theme);
   
   return (
     <div className="relative">
+      <DevLabel
+        name="DateSelector"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/DateSelector.tsx"
+      />
       <div className="flex w-full justify-center">
         <button
           type="button"
@@ -59,19 +61,19 @@ const displayTo = range?.to ?? tomorrow;
           }
           className="flex items-center justify-between border px-5 py-4 text-left"
           style={{
-            width: dateSelectorWidth,
-            backgroundColor: dateSelectorBackground,
-            color: dateSelectorTextColor,
-            borderColor: dateSelectorBorderColor,
-            borderRadius: dateSelectorBorderRadius,
-            boxShadow: getShadow(dateSelectorShadow),
+            width: date_width,
+            backgroundColor: date_selected_background,
+            color: date_selected_color,
+            borderColor: date_border,
+            borderRadius: date_radius,
+            boxShadow: getShadow(date_shadow),
           }}
         >
           <div className="flex items-center gap-4">
             <CalendarDays
               className="h-5 w-5"
               style={{
-                color: dateSelectorSecondaryColor,
+                color: date_secondary,
               }}
             />
 
@@ -80,7 +82,7 @@ const displayTo = range?.to ?? tomorrow;
                 <div
                   className="text-xs uppercase"
                   style={{
-                    color: dateSelectorSecondaryColor,
+                    color: date_secondary,
                   }}
                 >
                   Check in
@@ -95,7 +97,7 @@ const displayTo = range?.to ?? tomorrow;
                 <div
                   className="text-xs uppercase"
                   style={{
-                    color: dateSelectorSecondaryColor,
+                    color: date_secondary,
                   }}
                 >
                   Check out
@@ -111,7 +113,7 @@ const displayTo = range?.to ?? tomorrow;
           <ChevronRight
             className="h-5 w-5"
             style={{
-              color: dateSelectorSecondaryColor,
+              color: date_secondary,
             }}
           />
         </button>
@@ -121,10 +123,10 @@ const displayTo = range?.to ?? tomorrow;
         <div
           className="absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2 border p-5"
           style={{
-            backgroundColor: cardBackground,
+            backgroundColor: card_background_color,
             color: textColor,
-            borderColor: cardBorderColor,
-            borderRadius: cardBorderRadius,
+            borderColor: card_border_color,
+            borderRadius: card_radius,
           }}
         >
           <div
@@ -132,11 +134,11 @@ const displayTo = range?.to ?? tomorrow;
             style={
               {
                 "--rdp-accent-color":
-                  dateSelectorSelectedColor ??
+                  date_text ??
                   primaryColor,
 
                 "--rdp-accent-background-color":
-                  dateSelectorSelectedBackground ??
+                  date_background ??
                   secondaryColor,
               } as React.CSSProperties
             }
@@ -160,9 +162,9 @@ const displayTo = range?.to ?? tomorrow;
               disabled={!range?.from || !range?.to}
               className="px-5 py-2.5 text-sm disabled:opacity-40"
               style={{
-                backgroundColor: buttonBackground,
-                color: buttonTextColor,
-                borderRadius: buttonBorderRadius,
+                backgroundColor: button_background,
+                color: button_text,
+                borderRadius: button_radius,
               }}
             >
               Done

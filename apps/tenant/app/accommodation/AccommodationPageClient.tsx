@@ -3,7 +3,6 @@
 
 import EditableSection from "@/app/(protected)/components/EditableSection";
 import PropertiesPageClient from "./PropertiesPageClient";
-
 import { SectionTheme } from "@/types";
 import CTA from "@/components/sections/CTA";
 import ImageText from "@/components/sections/ImageText";
@@ -27,11 +26,6 @@ export default function AccommodationPageClient({
   return (
     <>
       {sections.map((section) => {
-        const theme = {
-          ...globalTheme,
-          ...(section.theme ?? {}),
-        };
-
         return (
           <EditableSection
             key={section.id}
@@ -41,11 +35,9 @@ export default function AccommodationPageClient({
             sections={sections}
           >
             {renderSection(
-              pageId,
-              sections,
               section,
               tenantId,
-              theme,
+              globalTheme
             )}
           </EditableSection>
         );
@@ -55,8 +47,6 @@ export default function AccommodationPageClient({
 }
 
 function renderSection(
-  pageId: string,
-  sections: any[],
   section: any,
   tenantId: string,
   theme: SectionTheme,
@@ -66,11 +56,7 @@ function renderSection(
       return (
         <PropertiesPageClient
           tenantId={tenantId}
-          content={section.content}
           theme={theme}
-          pageId={pageId}
-          section={section}
-          sections={sections}
         />
       );
 

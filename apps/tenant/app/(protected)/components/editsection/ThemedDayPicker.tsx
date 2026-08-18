@@ -17,7 +17,6 @@ export default function ThemedDayPicker({
   theme,
   ...props
 }: Props) {
-  console.log(theme)
   return (
     <div
       className="border p-5"

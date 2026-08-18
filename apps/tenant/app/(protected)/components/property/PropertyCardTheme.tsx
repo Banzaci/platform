@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { SectionTheme } from "@/types";
+import DevLabel from "@/helpers/DevLabel";
 
 type Props = {
   theme: SectionTheme;
@@ -11,6 +12,11 @@ type Props = {
   onClose: () => void;
 };
 
+type ThemeGroup =
+  | "card"
+  | "button"
+  | "dateSelector";
+
 export default function PropertyCardTheme({
   theme,
   onChange,
@@ -18,14 +24,12 @@ export default function PropertyCardTheme({
   onSave,
   isSaving,
 }: Props) {
-  function updateCard(
-    key: keyof NonNullable<SectionTheme["card"]>,
-    value: string
-  ) {
+  
+  function updateThemeGroup(group: ThemeGroup, key: string, value: string) {
     onChange({
       ...theme,
-      card: {
-        ...theme.card,
+      [group]: {
+        ...(theme[group] ?? {}),
         [key]: value,
       },
     });
@@ -33,13 +37,17 @@ export default function PropertyCardTheme({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4"
       onMouseDown={onClose}
     >
       <div
         className="w-full max-w-md rounded-2xl bg-white p-6 text-black shadow-2xl"
         onMouseDown={(e) => e.stopPropagation()}
       >
+        <DevLabel
+          name="PropertyCardTheme"
+          file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardTheme.tsx"
+        />
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-semibold">
             Property card design
@@ -62,7 +70,11 @@ export default function PropertyCardTheme({
               "#ffffff"
             }
             onChange={(value) =>
-              updateCard("backgroundColor", value)
+              updateThemeGroup(
+                "card",
+                "backgroundColor",
+                value
+              )
             }
           />
 
@@ -73,7 +85,11 @@ export default function PropertyCardTheme({
               "#111111"
             }
             onChange={(value) =>
-              updateCard("textColor", value)
+              updateThemeGroup(
+                "card",
+                "textColor",
+                value
+              )
             }
           />
 
@@ -84,7 +100,11 @@ export default function PropertyCardTheme({
               "#666666"
             }
             onChange={(value) =>
-              updateCard("secondaryColor", value)
+              updateThemeGroup(
+                "card",
+                "secondaryColor",
+                value
+              )
             }
           />
 
@@ -95,7 +115,11 @@ export default function PropertyCardTheme({
               "#e5e7eb"
             }
             onChange={(value) =>
-              updateCard("borderColor", value)
+              updateThemeGroup(
+                "card",
+                "borderColor",
+                value
+              )
             }
           />
 
@@ -110,7 +134,8 @@ export default function PropertyCardTheme({
                 "16px"
               }
               onChange={(e) =>
-                updateCard(
+                updateThemeGroup(
+                  "card",
                   "borderRadius",
                   e.target.value
                 )
@@ -144,6 +169,62 @@ export default function PropertyCardTheme({
               <option value="sm">Small</option>
               <option value="md">Medium</option>
               <option value="lg">Large</option>
+            </select>
+          </div>
+          <ColorField
+            label="Button background"
+            value={
+              theme.button?.backgroundColor ??
+              "#111111"
+            }
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "backgroundColor",
+                value
+              )
+            }
+          />
+
+          <ColorField
+            label="Button text"
+            value={
+              theme.button?.textColor ??
+              "#ffffff"
+            }
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "textColor",
+                value
+              )
+            }
+          />
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Button radius
+            </label>
+
+            <select
+              value={
+                theme.button?.borderRadius ??
+                "12px"
+              }
+              onChange={(e) =>
+                updateThemeGroup(
+                  "button",
+                  "textColor",
+                  e.target.value
+                )
+              }
+              className="w-full rounded-lg border px-3 py-2"
+            >
+              <option value="0px">None</option>
+              <option value="8px">Small</option>
+              <option value="12px">Medium</option>
+              <option value="16px">Large</option>
+              <option value="24px">Extra large</option>
             </select>
           </div>
         </div>

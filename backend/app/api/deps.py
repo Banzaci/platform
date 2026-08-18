@@ -6,20 +6,33 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
 
+from app.models.tenant import Tenant
 from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.tenant_membership import TenantMembership, TenantRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-async def invalidate_tenant_cache(host: str):
-    key = f"tenant-resolve:{host}"
+async def invalidate_tenant_cache_for_tenant(
+    tenant: Tenant,
+):
+    keys = []
 
-    print("INVALIDATING REDIS KEY:", key)
+    if tenant.custom_domain:
+        keys.append(
+            f"tenant-resolve:{tenant.custom_domain}"
+        )
 
-    result = await redis_client.delete(key)
+    if tenant.subdomain:
+        keys.append(
+            f"tenant-resolve:{tenant.subdomain}"
+        )
 
-    print("REDIS DELETED:", result)
+    # Development
+    keys.append("tenant-resolve:localhost:3000")
+
+    for key in keys:
+        await redis_client.delete(key)
 
 async def require_owner(
     tenant_id: uuid.UUID,
