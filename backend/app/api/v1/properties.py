@@ -73,20 +73,24 @@ async def create_properties_bulk(
 
         await db.commit()
 
-        for property in properties:
-            await db.refresh(property)
-
-        return properties
-
-    except Exception as e:
-        await db.rollback()
-
-        print("CREATE PROPERTIES ERROR:", repr(e))
-
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to create properties",
+        result = await db.execute(
+            select(Property)
+            .options(
+                selectinload(Property.base_price)
+            )
+            .where(
+                Property.tenant_id == tenant_id,
+                Property.id.in_(
+                    [property.id for property in properties]
+                ),
+            )
         )
+
+        return result.scalars().all()
+
+    except Exception:
+        await db.rollback()
+        raise
 
 @router.put("/{property_id}", response_model=PropertyOut)
 async def update_property(

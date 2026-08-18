@@ -1,5 +1,5 @@
 import { getTenant } from "@/libs/tenant";
-import BookingList from "./components/BookingList";
+// import BookingList from "./components/BookingList";
 
 export default async function DashboardPage() {
   const data = await getTenant();
@@ -16,7 +16,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <BookingList tenantId={data.tenant.id} />
+      {/* <BookingList tenantId={data.tenant.id} /> */}
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import String, DateTime, func, ForeignKey, UniqueConstraint
+from sqlalchemy import String, DateTime, func, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,6 +30,12 @@ class Page(Base):
         ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+
+    name: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True,
+        default=None,
     )
 
     slug: Mapped[str] = mapped_column(
@@ -75,4 +81,22 @@ class Page(Base):
     key: Mapped[str] = mapped_column(
         String,
         nullable=False,
+    )
+
+    is_visible: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+    )
+
+    is_system: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
     )

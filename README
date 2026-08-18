@@ -23,3 +23,11 @@ text-[var(--secondary)]
 
 TODO:
 1. Byt ut allt till apiClient.api
+
+Tömma i databasen:
+TRUNCATE TABLE
+    tenant_property_themes,
+    tenant_knowledge,
+    pages,
+    tenants
+RESTART IDENTITY CASCADE;

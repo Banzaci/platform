@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import String, DateTime, Float, ForeignKey, func
+from sqlalchemy import String, DateTime, Float, ForeignKey, func, Boolean
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -80,6 +80,12 @@ class Tenant(Base):
     theme_history: Mapped[list["ThemeHistory"]] = relationship(
         "ThemeHistory",
         cascade="all, delete-orphan",
+    )
+
+    deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
     )
 
     cancellation_policy: Mapped[dict] = mapped_column(

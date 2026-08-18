@@ -1,10 +1,23 @@
 "use client";
 
 export type BasePrice = {
-  daily_price: number;
+  daily_price: number | null;
   weekly_price: number | null;
   monthly_price: number | null;
 };
+
+export function isValidBasePrice(
+  value: BasePrice
+) {
+  return (
+    value.daily_price != null &&
+    value.daily_price > 0 &&
+    value.weekly_price != null &&
+    value.weekly_price > 0 &&
+    value.monthly_price != null &&
+    value.monthly_price > 0
+  );
+}
 
 type Props = {
   value: BasePrice;
@@ -64,7 +77,7 @@ export default function BasePriceEditor({
           label="Daily price"
           value={value.daily_price}
           onChange={(price) =>
-            update("daily_price", price ?? 0)
+            update("daily_price", price)
           }
         />
 

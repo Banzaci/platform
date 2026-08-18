@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import PropertyImagesEditor from "./PropertyImagesEditor";
-import BasePriceEditor, { BasePrice } from "./price/BasePriceEditor";
+import BasePriceEditor, { BasePrice, isValidBasePrice } from "./price/BasePriceEditor";
 import { Property } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -122,12 +122,15 @@ export default function EditProperty({
 
       onSaved(updated);
       onClose();
+      window.location.reload();
     } catch (error) {
       console.error("Update property failed:", error);
     } finally {
       setSaving(false);
     }
   }
+
+  const canSave = isValidBasePrice(basePrice);
 
   return (
     <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/50 p-6">
@@ -242,7 +245,7 @@ export default function EditProperty({
           <button
             type="button"
             onClick={save}
-            disabled={saving}
+            disabled={!canSave || saving}
             className="rounded-lg bg-black px-5 py-3 text-white disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save property"}
