@@ -7,6 +7,9 @@ from app.services.ai.session_service import (
     save_chat_session,
     clear_chat_session,
 )
+from app.services.ai.find_custom_answer import find_custom_answer
+from app.services.ai.save_unanswered_question import save_unanswered_question
+
 from app.services.ai.nlp_service import analyze_message
 from app.services.ai.knowledge_service import get_answer_for_intent
 from app.services.ai.booking_service import (
@@ -56,7 +59,6 @@ def find_missing_slot(slots: dict) -> str | None:
 
     return None
 
-
 async def handle_chat_message(
     db: AsyncSession,
     tenant_id: uuid.UUID,
@@ -69,8 +71,6 @@ async def handle_chat_message(
     slots = session.get("slots", {})
     pending_slot = session.get("pending_slot")
 
-    print(text, tenant_id, session_id)
-    # Gästuppgifter efter att property har valts
     if pending_slot in {
         "GUEST_NAME",
         "GUEST_EMAIL",
@@ -395,25 +395,53 @@ async def handle_chat_message(
 
     else:
         analysis = analyze_message(text)
-
         intent = analysis["intent"]
         print("INTENT:", intent)
         confidence = analysis["confidence"]
         entities = analysis["entities"]
 
-        if confidence < 0.60:
+        # Om NLP faktiskt känner igen intentet,
+        # fortsätt som vanligt.
+        if confidence >= 0.60:
+            slots.update(entities)
+
+            session["slots"] = slots
+            session["intent"] = intent
+
+        else:
+            # NLP kunde inte identifiera frågan.
+            # Testa tenantens custom questions.
+            custom_answer = await find_custom_answer(
+                db=db,
+                tenant_id=tenant_id,
+                text=text,
+                language=language,
+            )
+
+            if custom_answer:
+                return {
+                    "status": "faq",
+                    "intent": "custom",
+                    "answer": custom_answer,
+                }
+
+            # Fortfarande inget svar.
+            await save_unanswered_question(
+                db=db,
+                tenant_id=tenant_id,
+                question=text,
+                language=language,
+            )
+
             return {
                 "status": "unknown",
                 "intent": intent,
                 "confidence": confidence,
-                "message": "I'm not sure about that.",
+                "message": (
+                    "I don't have information about that yet. "
+                    "Please contact us on WhatsApp: ..."
+                ),
             }
-
-        # Spara entities som booking-slots.
-        slots.update(entities)
-
-        session["slots"] = slots
-        session["intent"] = intent
 
     # FAQ / tenant knowledge
     #

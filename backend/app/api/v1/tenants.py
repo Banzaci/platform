@@ -1,10 +1,11 @@
 
 import uuid
 
+from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
 from app.api.deps import require_tenant_access, invalidate_tenant_cache_for_tenant
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, delete
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy import select, delete, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
@@ -882,9 +883,6 @@ async def update_tenant_theme(
             status_code=404,
             detail="Tenant not found",
         )
-
-    print("PAYLOAD:", payload.model_dump())
-    print("BEFORE:", tenant.theme)
     
     if tenant.theme:
         history = ThemeHistory(
@@ -937,9 +935,7 @@ async def update_tenant_theme(
     return tenant.theme
 
 
-@router.put(
-    "/{tenant_id}/cancellation-policy"
-)
+@router.put("/{tenant_id}/cancellation-policy")
 async def update_cancellation_policy(
     tenant_id: uuid.UUID,
     payload: CancellationPolicyUpdate,
@@ -999,3 +995,75 @@ async def soft_delete_tenant(
         "id": str(tenant.id),
         "deleted": True,
     }
+
+
+@router.get("/{tenant_id}/unanswered-questions")
+async def get_unanswered_questions(
+    tenant_id: uuid.UUID,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    offset = (page - 1) * page_size
+
+    total_result = await db.execute(
+        select(func.count(UnansweredQuestion.id)).where(
+            UnansweredQuestion.tenant_id == tenant_id
+        )
+    )
+
+    total = total_result.scalar_one()
+
+    result = await db.execute(
+        select(UnansweredQuestion)
+        .where(
+            UnansweredQuestion.tenant_id == tenant_id
+        )
+        .order_by(
+            UnansweredQuestion.count.desc(),
+        )
+        .offset(offset)
+        .limit(page_size)
+    )
+
+    items = result.scalars().all()
+
+    return {
+        "items": items,
+        "page": page,
+        "page_size": page_size,
+        "total": total,
+        "pages": max(
+            1,
+            (total + page_size - 1) // page_size,
+        ),
+    }
+
+
+@router.delete("/{tenant_id}/unanswered-questions/{question_id}", status_code=204)
+async def delete_unanswered_question(
+    tenant_id: uuid.UUID,
+    question_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(UnansweredQuestion).where(
+            UnansweredQuestion.id == question_id,
+            UnansweredQuestion.tenant_id == tenant_id,
+        )
+    )
+
+    item = result.scalar_one_or_none()
+
+    if not item:
+        raise HTTPException(
+            status_code=404,
+            detail="Unanswered question not found",
+        )
+
+    await db.delete(item)
+    await db.commit()

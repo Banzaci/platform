@@ -4,7 +4,6 @@ import os
 
 from app.api.v1 import stripe_webhook, calendar, auth, payments, bookings, ai_chat, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods, property_theme, tenant_knowledge
 
-
 app = FastAPI(title="Platform API", version="0.1.0")
 
 API_PREFIX = "/api/v1"

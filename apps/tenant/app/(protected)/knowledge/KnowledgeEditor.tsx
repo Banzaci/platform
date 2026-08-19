@@ -5,6 +5,7 @@ import { Trash2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import KnowledgeWizard from "./KnowledgeWizard";
 import CustomQuestionModal from "./CustomQuestionModal";
+import UnansweredQuestions from "../components/UnansweredQuestions";
 
 export type LocalizedText = Record<string, string>;
 
@@ -309,6 +310,7 @@ export default function KnowledgeEditor({
           }}
         />
       )}
+      <UnansweredQuestions tenantId={tenantId} />
     </main>
   );
 }
