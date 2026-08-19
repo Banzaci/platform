@@ -54,8 +54,6 @@ export default function ThemeEditor({
     delete next[key];
     onChange(next);
   }
-  console.log("ThemeEditor")
-  console.log(theme)
   return (
     <div className="relative mt-8 border-t pt-6 text-black">
       <DevLabel

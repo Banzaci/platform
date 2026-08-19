@@ -33,25 +33,25 @@ export default function EditableSection({
       {children}
       { isEditor && (
         <>
-        <EditSection
-          section={section}
-          pageId={pageId}
-          tenantId={tenantId}
-          sections={sections}
-          theme={theme}
-        />
-        <AddSection
-          section={section}
-          sections={sections}
-          pageId={pageId}
-          tenantId={tenantId}
-        />
-        <MoveSection
-          section={section}
-          sections={sections}
-          pageId={pageId}
-          tenantId={tenantId}
-        />
+          <EditSection
+            section={section}
+            pageId={pageId}
+            tenantId={tenantId}
+            sections={sections}
+            theme={theme}
+          />
+          <AddSection
+            section={section}
+            sections={sections}
+            pageId={pageId}
+            tenantId={tenantId}
+          />
+          <MoveSection
+            section={section}
+            sections={sections}
+            pageId={pageId}
+            tenantId={tenantId}
+          />
         { !isPropertGrid && <DeleteSection
             section={section}
             sections={sections}

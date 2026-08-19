@@ -1,11 +1,14 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-
+import { ArrowLeft } from "lucide-react";
 import { apiClient } from "@/libs/api";
+import {
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import {
   CancellationPolicy,
   SectionTheme,
@@ -15,6 +18,7 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { getShadow } from "@/helpers";
 import PaymentForm from "@/app/booking/[bookingId]/payment/PaymentForm";
 import BookingSummary from "../../BookingSummary";
+import DevLabel from "@/helpers/DevLabel";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -51,8 +55,8 @@ export default function BookingPageClient({
   cancellationPolicy,
   theme,
 }: Props) {
+  const router = useRouter();
   const searchParams = useSearchParams();
-
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
 
@@ -79,20 +83,21 @@ export default function BookingPageClient({
   const [error, setError] =
     useState<string | null>(null);
 
-  const {
-    backgroundColor,
-    textColor,
-    secondaryColor,
+    const {
     fontFamily,
-    headingFontFamily,
-    fontSize,
-    cardBackground,
-    cardBorderColor,
-    cardBorderRadius,
-    cardShadow,
-    buttonBackground,
-    buttonTextColor,
-    buttonBorderRadius,
+    textColor,
+    backgroundColor,
+    secondaryColor,
+    card_background_color,
+    card_secondary_color,
+    card_text_color,
+    card_border_color,
+    card_radius,
+    card_shadow,
+    card_padding,
+    button_background,
+    button_text,
+    button_radius,
   } = resolveSectionTheme(theme);
 
   useEffect(() => {
@@ -257,181 +262,266 @@ export default function BookingPageClient({
 
   return (
     <main
-      className="min-h-screen px-6 py-12"
+      className="relative min-h-screen px-5 py-8 sm:px-6 lg:py-10"
       style={{
         backgroundColor,
         color: textColor,
         fontFamily,
-        fontSize,
       }}
     >
-      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1fr_380px]">
+      <DevLabel
+        name="BookingPageClient"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/[propertyId]/book/BookingPageClient.tsx"
+      />
+    <div className="mx-auto max-w-6xl">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="mb-6 inline-flex items-center gap-2 text-sm font-medium transition hover:opacity-60"
+        style={{
+          color: secondaryColor,
+        }}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </button>
+      <div className="mb-2 ">
+        <p
+          className="text-xs font-medium uppercase tracking-[0.18em]"
+          style={{
+            color: secondaryColor,
+          }}
+        >
+          Complete your booking
+        </p>
+
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          {property.name}
+        </h1>
+
+        <p
+          className="mt-2 text-sm"
+          style={{
+            color: secondaryColor,
+          }}
+        >
+          Enter your details below to secure your stay.
+        </p>
+      </div>
+      <div className="grid items-start gap-7 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* Guest / payment */}
-        <div>
-          <h1
-            className="text-3xl font-semibold"
+        <section
+          className="overflow-hidden border"
+          style={{
+            backgroundColor: card_background_color,
+            color: card_text_color,
+            borderColor: card_border_color,
+            borderRadius: card_radius,
+            boxShadow: getShadow(card_shadow),
+          }}
+        >
+          <div
+            className="border-b px-6 py-5"
             style={{
-              fontFamily: headingFontFamily,
+              borderColor: card_border_color,
             }}
           >
-            {property.name}
-          </h1>
+            <h2 className="text-lg font-semibold">
+              Guest details
+            </h2>
 
-          {!clientSecret ? (
-            <form
-              onSubmit={startPayment}
-              className="mt-8 space-y-5"
-            >
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Full name
-                </label>
-
-                <input
-                  required
-                  value={guestName}
-                  onChange={(event) =>
-                    setGuestName(event.target.value)
-                  }
-                  className="w-full border px-4 py-3 outline-none"
-                  style={{
-                    backgroundColor: cardBackground,
-                    color: textColor,
-                    borderColor: cardBorderColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Email
-                </label>
-
-                <input
-                  required
-                  type="email"
-                  value={guestEmail}
-                  onChange={(event) =>
-                    setGuestEmail(event.target.value)
-                  }
-                  className="w-full border px-4 py-3 outline-none"
-                  style={{
-                    backgroundColor: cardBackground,
-                    color: textColor,
-                    borderColor: cardBorderColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Phone
-                </label>
-
-                <input
-                  value={guestPhone}
-                  onChange={(event) =>
-                    setGuestPhone(event.target.value)
-                  }
-                  className="w-full border px-4 py-3 outline-none"
-                  style={{
-                    backgroundColor: cardBackground,
-                    color: textColor,
-                    borderColor: cardBorderColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Guests
-                </label>
-
-                <input
-                  required
-                  type="number"
-                  min={1}
-                  max={property.max_guests}
-                  value={guests}
-                  onChange={(event) =>
-                    setGuests(
-                      Number(event.target.value)
-                    )
-                  }
-                  className="w-full border px-4 py-3 outline-none"
-                  style={{
-                    backgroundColor: cardBackground,
-                    color: textColor,
-                    borderColor: cardBorderColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Special requests
-                </label>
-
-                <textarea
-                  value={specialRequests}
-                  onChange={(event) =>
-                    setSpecialRequests(
-                      event.target.value
-                    )
-                  }
-                  rows={4}
-                  className="w-full resize-none border px-4 py-3 outline-none"
-                  style={{
-                    backgroundColor: cardBackground,
-                    color: textColor,
-                    borderColor: cardBorderColor,
-                    borderRadius: buttonBorderRadius,
-                  }}
-                />
-              </div>
-
-              {error && (
-                <p className="text-sm text-red-600">
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={creatingPayment}
-                className="w-full px-5 py-4 font-medium disabled:opacity-50"
-                style={{
-                  backgroundColor:
-                    buttonBackground,
-                  color: buttonTextColor,
-                  borderRadius:
-                    buttonBorderRadius,
-                }}
-              >
-                {creatingPayment
-                  ? "Preparing payment..."
-                  : `Pay $${property.total_price}`}
-              </button>
-            </form>
-          ) : (
-            <Elements
-              stripe={stripePromise}
-              options={{
-                clientSecret,
+            <p
+              className="mt-1 text-sm"
+              style={{
+                color: card_secondary_color,
               }}
             >
-              <PaymentForm
-                returnUrl={`${window.location.origin}/booking/${publicToken}/payment/success`}
-              />
-            </Elements>
-          )}
-        </div>
+              Please enter the information for the primary guest.
+            </p>
+          </div>
 
-        <aside>
+          <div
+            style={{
+              padding: card_padding,
+            }}
+          >
+            {!clientSecret ? (
+              <form
+                onSubmit={startPayment}
+                className="space-y-5"
+              >
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="mb-2 block text-sm font-medium">
+                      Full name
+                    </label>
+
+                    <input
+                      required
+                      value={guestName}
+                      onChange={(event) =>
+                        setGuestName(event.target.value)
+                      }
+                      placeholder="Your full name"
+                      className="w-full border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-black/10"
+                      style={{
+                        backgroundColor: card_background_color,
+                        color: textColor,
+                        borderColor: card_border_color,
+                        borderRadius: card_radius,
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      Email
+                    </label>
+
+                    <input
+                      required
+                      type="email"
+                      value={guestEmail}
+                      onChange={(event) =>
+                        setGuestEmail(event.target.value)
+                      }
+                      placeholder="you@example.com"
+                      className="w-full border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-black/10"
+                      style={{
+                        backgroundColor: card_background_color,
+                        color: textColor,
+                        borderColor: card_border_color,
+                        borderRadius: card_radius,
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      Phone
+                    </label>
+
+                    <input
+                      value={guestPhone}
+                      onChange={(event) =>
+                        setGuestPhone(event.target.value)
+                      }
+                      placeholder="+46..."
+                      className="w-full border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-black/10"
+                      style={{
+                        backgroundColor: card_background_color,
+                        color: textColor,
+                        borderColor: card_border_color,
+                        borderRadius: card_radius,
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      Guests
+                    </label>
+
+                    <input
+                      required
+                      type="number"
+                      min={1}
+                      max={property.max_guests}
+                      value={guests}
+                      onChange={(event) =>
+                        setGuests(
+                          Number(event.target.value)
+                        )
+                      }
+                      className="w-full border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-black/10"
+                      style={{
+                        backgroundColor: card_background_color,
+                        color: textColor,
+                        borderColor: card_border_color,
+                        borderRadius: card_radius,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Special requests
+                  </label>
+
+                  <textarea
+                    value={specialRequests}
+                    onChange={(event) =>
+                      setSpecialRequests(
+                        event.target.value
+                      )
+                    }
+                    rows={4}
+                    placeholder="Optional"
+                    className="w-full resize-none border px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-black/10"
+                    style={{
+                      backgroundColor: card_background_color,
+                      color: textColor,
+                      borderColor: card_border_color,
+                      borderRadius: card_radius,
+                    }}
+                  />
+                </div>
+
+                {error && (
+                  <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                    {error}
+                  </div>
+                )}
+
+                <div
+                  className="border-t pt-5"
+                  style={{
+                    borderColor: card_border_color,
+                  }}
+                >
+                  <button
+                    type="submit"
+                    disabled={creatingPayment}
+                    className="w-full px-5 py-3.5 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
+                    style={{
+                      backgroundColor: button_background,
+                      color: button_text,
+                      borderRadius: button_radius,
+                    }}
+                  >
+                    {creatingPayment
+                      ? "Preparing payment..."
+                      : `Pay $${property.total_price}`}
+                  </button>
+
+                  <p
+                    className="mt-3 text-center text-xs"
+                    style={{
+                      color: card_secondary_color,
+                    }}
+                  >
+                    You will be redirected to secure payment.
+                  </p>
+                </div>
+              </form>
+            ) : (
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret,
+                }}
+              >
+                <PaymentForm
+                  returnUrl={`${window.location.origin}/booking/${publicToken}/payment/success`}
+                />
+              </Elements>
+            )}
+          </div>
+        </section>
+
+        {/* Booking summary */}
+        <aside className="lg:sticky lg:top-6">
           <BookingSummary
             property={property}
             checkIn={checkIn}
@@ -439,14 +529,14 @@ export default function BookingPageClient({
             cancellationPolicy={cancellationPolicy}
             textColor={textColor}
             secondaryColor={secondaryColor}
-            headingFontFamily={headingFontFamily}
-            cardBackground={cardBackground}
-            cardBorderColor={cardBorderColor}
-            cardBorderRadius={cardBorderRadius}
-            cardShadow={cardShadow}
+            cardBackground={card_background_color}
+            cardBorderColor={card_border_color}
+            cardBorderRadius={card_radius}
+            cardShadow={card_shadow}
           />
         </aside>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
 }

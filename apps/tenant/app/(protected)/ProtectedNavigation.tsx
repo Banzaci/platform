@@ -16,7 +16,7 @@ export default function ProtectedNavigation() {
   }
   return (
     <header className="border-b border-gray-800 bg-gray-950 text-white">
-      <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center px-2">
         {/* Brand */}
         <Link
           href="/dashboard"

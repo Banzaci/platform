@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, X } from "lucide-react";
+import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
@@ -15,7 +15,6 @@ export default function EditSection({
   pageId,
   tenantId,
   sections,
-  theme
 }: {
   section: any;
   tenantId: string;

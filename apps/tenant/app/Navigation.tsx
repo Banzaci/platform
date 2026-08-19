@@ -15,18 +15,6 @@ export default function Navigation({ data }: { data: any }) {
 
         {/* Navigation */}
         <div className="flex items-center gap-8">
-          <Link
-            href="/accommodation"
-            className="text-sm font-semibold tracking-tight text-gray-900"
-          >
-            Property
-          </Link>
-          <Link
-            href="/faq"
-            className="text-sm font-semibold tracking-tight text-gray-900"
-          >
-            FAQ
-          </Link>
           {data.pages.map((page: any) => {
             const href = page.slug === "index" ? "/" : `/${page.slug}`;
 
@@ -40,6 +28,12 @@ export default function Navigation({ data }: { data: any }) {
               </Link>
             );
           })}
+          <Link
+            href="/faq"
+            className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+          >
+            FAQ
+          </Link>
         </div>
       </div>
     </nav>

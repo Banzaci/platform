@@ -10,9 +10,7 @@ export default async function AccommodationPage() {
   if (!pageConfig) {
     throw new Error("Accommodation page config not found");
   }
-  console.log('START---------------------')
-  console.log(data.tenant.theme)
-  console.log('START---------------------')
+
   return (
     <AccommodationPageClient
       tenantId={data.tenant.id}

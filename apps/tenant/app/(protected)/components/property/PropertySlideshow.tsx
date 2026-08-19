@@ -15,16 +15,20 @@ type PropertyImage = {
 export default function PropertySlideshow({
   images,
   alt,
+  className = "h-40",
 }: {
   images: PropertyImage[];
   alt: string;
+  className?: string;
 }) {
   const [index, setIndex] = useState(0);
 
   if (!images?.length) {
     return (
-      <div className="flex aspect-4/3 items-center justify-center bg-gray-100">
-        <ImageIcon className="h-8 w-8 text-gray-400" />
+      <div
+        className={`flex items-center justify-center overflow-hidden bg-gray-100 ${className}`}
+      >
+        <ImageIcon className="h-7 w-7 text-gray-300" />
       </div>
     );
   }
@@ -46,7 +50,9 @@ export default function PropertySlideshow({
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden">
+    <div
+      className={`group relative overflow-hidden bg-gray-100 ${className}`}
+    >
       <img
         src={images[index].url}
         alt={alt}
@@ -58,7 +64,8 @@ export default function PropertySlideshow({
           <button
             type="button"
             onClick={previous}
-            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white"
+            aria-label="Previous image"
+            className="absolute left-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/65"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -66,21 +73,25 @@ export default function PropertySlideshow({
           <button
             type="button"
             onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/60 p-2 text-white"
+            aria-label="Next image"
+            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:bg-black/65"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
             {images.map((_, imageIndex) => (
               <button
                 key={imageIndex}
                 type="button"
-                onClick={() => setIndex(imageIndex)}
-                className={`h-2 w-2 rounded-full ${
+                onClick={() =>
+                  setIndex(imageIndex)
+                }
+                aria-label={`Image ${imageIndex + 1}`}
+                className={`rounded-full transition-all ${
                   imageIndex === index
-                    ? "bg-white"
-                    : "bg-white/50"
+                    ? "h-1.5 w-4 bg-white"
+                    : "h-1.5 w-1.5 bg-white/60 hover:bg-white"
                 }`}
               />
             ))}

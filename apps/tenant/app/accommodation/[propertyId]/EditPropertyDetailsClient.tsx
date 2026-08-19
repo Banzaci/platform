@@ -2,50 +2,69 @@
 "use client";
 
 import EditableSection from "@/app/(protected)/components/EditableSection";
-import PropertiesPageClient from "./PropertiesPageClient";
-import { SectionTheme } from "@/types";
+import PropertyDetailsClient from "./PropertyDetailsClient";
+import { CancellationPolicy, SectionTheme } from "@/types";
 
 type Props = {
   tenantId: string;
+  propertyId: string;
   pageId: string;
   sections: any[];
   globalTheme: SectionTheme;
-};
-
-export default function AccommodationPageClient({
+  cancellationPolicy: CancellationPolicy
+}
+export default function EditPropertyDetailsClient({
   tenantId,
   pageId,
   sections,
   globalTheme,
+  cancellationPolicy,
+  propertyId
 }: Props) {
-  return (
-    <>
-      {sections.map((section) => {
-        const mergedTheme = {
-          ...(section.theme ?? {}),
-          global: {
-            ...(globalTheme ?? {}),
-          },
-        };
-        return (
-          <EditableSection
-            key={section.id}
-            theme={section.theme}
-            section={section}
-            pageId={pageId}
-            tenantId={tenantId}
-            sections={sections}
-          >
-            <PropertiesPageClient
+    return (
+      <>
+        {sections.map((section) => {
+          const mergedTheme = {
+            ...(section.theme ?? {}),
+            global: {
+              ...(globalTheme ?? {}),
+            },
+          };
+          console.log(mergedTheme)
+          return (
+            <EditableSection
+              key={section.id}
+              theme={section.theme}
+              section={section}
+              pageId={pageId}
               tenantId={tenantId}
-              globalTheme={mergedTheme}
-            />
-          </EditableSection>
-        );
-      })}
-    </>
-  );
-}
+              sections={sections}
+            >
+              <PropertyDetailsClient
+                tenantId={tenantId}
+                propertyId={propertyId}
+                cancellationPolicy={cancellationPolicy}
+                theme={mergedTheme}
+              />
+            </EditableSection>
+          );
+        })}
+      </>
+    );
+  }
+//   return (
+//     <EditableSection
+//       key={section.id}
+//       theme={section.theme}
+//       section={section}
+//       pageId={pageId}
+//       tenantId={tenantId}
+//       sections={sections}
+//     >
+      
+//     </EditableSection>
+//   );
+// }
 
 // function renderSection(
 //   section: any,

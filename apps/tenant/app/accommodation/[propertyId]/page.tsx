@@ -1,5 +1,5 @@
 import { getTenant } from "@/libs/tenant";
-import PropertyDetailsClient from "./PropertyDetailsClient";
+import EditPropertyDetailsClient from "./EditPropertyDetailsClient";
 
 export default async function PropertyPage({
   params,
@@ -13,21 +13,16 @@ export default async function PropertyPage({
     (page) => page.slug === "accommodation"
   );
 
-  const propertyGridSection = pageConfig?.sections?.find(
-    (section) => section.type === "property-grid"
-  );
-
-  const theme = {
-    ...data.tenant.theme,
-    ...(propertyGridSection?.theme ?? {}),
-  };
+  if(!pageConfig) return null
 
   return (
-    <PropertyDetailsClient
+    <EditPropertyDetailsClient
       tenantId={data.tenant.id}
       propertyId={propertyId}
       cancellationPolicy={data.tenant.cancellation_policy}
-      theme={theme}
+      globalTheme={{}}
+      pageId={pageConfig.id}
+      sections={pageConfig.sections}
     />
   );
 }
