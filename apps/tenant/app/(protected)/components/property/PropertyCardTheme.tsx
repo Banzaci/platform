@@ -3,9 +3,10 @@
 import { X } from "lucide-react";
 import { SectionTheme } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = {
-  theme: SectionTheme;
+  globalTheme: SectionTheme;
   onChange: (theme: SectionTheme) => void;
   onSave: () => Promise<void>;
   isSaving: boolean;
@@ -18,7 +19,7 @@ type ThemeGroup =
   | "dateSelector";
 
 export default function PropertyCardTheme({
-  theme,
+  globalTheme,
   onChange,
   onClose,
   onSave,
@@ -27,13 +28,25 @@ export default function PropertyCardTheme({
   
   function updateThemeGroup(group: ThemeGroup, key: string, value: string) {
     onChange({
-      ...theme,
+      ...globalTheme,
       [group]: {
-        ...(theme[group] ?? {}),
+        ...(globalTheme[group] ?? {}),
         [key]: value,
       },
     });
   }
+
+  const {
+    card_text_color,
+    card_background_color,
+    card_secondary_color,
+    card_border_color,
+    card_radius,
+    card_shadow,
+    button_background,
+    button_radius,
+    button_text,
+  } = resolveSectionTheme(globalTheme);
 
   return (
     <div
@@ -66,7 +79,7 @@ export default function PropertyCardTheme({
           <ColorField
             label="Background"
             value={
-              theme.card?.backgroundColor ??
+              card_background_color ??
               "#ffffff"
             }
             onChange={(value) =>
@@ -80,10 +93,7 @@ export default function PropertyCardTheme({
 
           <ColorField
             label="Text"
-            value={
-              theme.card?.textColor ??
-              "#111111"
-            }
+            value={ card_text_color ?? "#111111" }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -95,10 +105,7 @@ export default function PropertyCardTheme({
 
           <ColorField
             label="Secondary text"
-            value={
-              theme.card?.secondaryColor ??
-              "#666666"
-            }
+            value={ card_secondary_color ?? "#666666" }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -110,10 +117,7 @@ export default function PropertyCardTheme({
 
           <ColorField
             label="Border"
-            value={
-              theme.card?.borderColor ??
-              "#e5e7eb"
-            }
+            value={ card_border_color ?? "#e5e7eb" }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -129,10 +133,7 @@ export default function PropertyCardTheme({
             </label>
 
             <select
-              value={
-                theme.card?.borderRadius ??
-                "16px"
-              }
+              value={ card_radius ?? 0 }
               onChange={(e) =>
                 updateThemeGroup(
                   "card",
@@ -156,9 +157,10 @@ export default function PropertyCardTheme({
             </label>
 
             <select
-              value={theme.card?.shadow ?? "sm"}
+              value={card_shadow ?? "sm"}
               onChange={(e) =>
-                updateCard(
+                updateThemeGroup(
+                  "card",
                   "shadow",
                   e.target.value
                 )
@@ -173,10 +175,7 @@ export default function PropertyCardTheme({
           </div>
           <ColorField
             label="Button background"
-            value={
-              theme.button?.backgroundColor ??
-              "#111111"
-            }
+            value={ button_background ?? "#111111" }
             onChange={(value) =>
               updateThemeGroup(
                 "button",
@@ -189,7 +188,7 @@ export default function PropertyCardTheme({
           <ColorField
             label="Button text"
             value={
-              theme.button?.textColor ??
+              button_text ??
               "#ffffff"
             }
             onChange={(value) =>
@@ -207,10 +206,7 @@ export default function PropertyCardTheme({
             </label>
 
             <select
-              value={
-                theme.button?.borderRadius ??
-                "12px"
-              }
+              value={ button_radius ?? 0 }
               onChange={(e) =>
                 updateThemeGroup(
                   "button",
@@ -256,7 +252,7 @@ function ColorField({
   return (
     <div>
       <label className="mb-2 block text-sm font-medium">
-        {label}
+        {label} {value}
       </label>
 
       <input

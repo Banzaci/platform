@@ -72,6 +72,12 @@ class TenantKnowledge(Base):
         default="manual",
         nullable=False,
     )
+    
+    template_key: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        index=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

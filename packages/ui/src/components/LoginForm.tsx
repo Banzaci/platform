@@ -29,7 +29,6 @@ export function LoginForm({
   } = useForm<LoginFormData>();
 
   async function onSubmit(data: LoginFormData) {
-    console.log(apiClient);
     try {
       const result = await apiClient.api<LoginResponse>(
         "v1/auth/login",
@@ -41,7 +40,6 @@ export function LoginForm({
       apiClient.setToken(result.access_token);
       onSuccess?.();
     } catch(error) {
-      console.log(error);
       setError("root", {
         message: "Invalid email or password",
       });

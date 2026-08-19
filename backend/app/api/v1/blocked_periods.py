@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from app.models.property_block import PropertyBlock
 from app.api.deps import require_tenant_access
 from app.api.get_current_user import get_current_user
 from app.db.session import get_db
@@ -40,7 +40,7 @@ class BlockedPeriodOut(BaseModel):
     class Config:
         from_attributes = True
 
-@router.get("", response_model=list[BlockedPeriodOut])
+@router.get("")
 async def get_blocked_periods(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
@@ -61,13 +61,46 @@ async def get_blocked_periods(
             detail="Property not found",
         )
 
-    result = await db.execute(
+    blocked_result = await db.execute(
         select(BlockedPeriod)
-        .where(BlockedPeriod.property_id == property_id)
+        .where(
+            BlockedPeriod.property_id == property_id
+        )
         .order_by(BlockedPeriod.start_date)
     )
 
-    return result.scalars().all()
+    blocked_periods = blocked_result.scalars().all()
+
+    external_result = await db.execute(
+        select(PropertyBlock)
+        .where(
+            PropertyBlock.property_id == property_id
+        )
+        .order_by(PropertyBlock.start_date)
+    )
+
+    property_blocks = external_result.scalars().all()
+
+    return [
+        *[
+            {
+                "id": str(block.id),
+                "start_date": block.start_date,
+                "end_date": block.end_date,
+                "source": "manual",
+            }
+            for block in blocked_periods
+        ],
+        *[
+            {
+                "id": str(block.id),
+                "start_date": block.start_date,
+                "end_date": block.end_date,
+                "source": "external",
+            }
+            for block in property_blocks
+        ],
+    ]
 
 @router.post("", response_model=BlockedPeriodOut)
 async def create_blocked_period(
@@ -111,7 +144,6 @@ async def create_blocked_period(
     await db.refresh(blocked_period)
 
     return blocked_period
-
 
 
 @router.delete("/{blocked_period_id}", status_code=204)

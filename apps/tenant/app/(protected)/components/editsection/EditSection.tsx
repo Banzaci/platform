@@ -7,36 +7,33 @@ import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
 import { API_URL, TOKEN_NAME } from "../../types";
+import { SectionTheme } from "@/types";
+import EditButton from "../EditButton";
 
 export default function EditSection({
   section,
   pageId,
   tenantId,
   sections,
+  theme
 }: {
   section: any;
   tenantId: string;
   pageId: string;
   sections: any[];
+  theme: SectionTheme
 }) {
   const [open, setOpen] = useState(false);
-  const [content, setContent] = useState(
-    section.content ?? {}
-  );
-  const [theme, setTheme] = useState(
-    section.theme ?? {}
-  );
+  const [content, setContent] = useState(section.content ?? {});
+  const [localTheme, setLocalTheme] = useState(section.theme ?? {});
   const [saving, setSaving] = useState(false);
-
   function openEditor() {
     setContent(section.content ?? {});
-    setTheme(section.theme ?? {});
     setOpen(true);
   }
 
   function cancel() {
     setContent(section.content ?? {});
-    setTheme(section.theme ?? {});
     setOpen(false);
   }
 
@@ -50,7 +47,7 @@ export default function EditSection({
         ? {
             ...item,
             content,
-            theme,
+            theme: localTheme,
           }
         : item
     );
@@ -89,28 +86,7 @@ export default function EditSection({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={openEditor}
-        className="
-          cursor-pointer 
-          absolute right-4 top-4 z-30
-          flex items-center gap-2
-          rounded-full
-          bg-black/90
-          px-4 py-2
-          text-sm font-medium text-white
-          shadow-lg
-          opacity-0
-          backdrop-blur
-          transition
-          hover:bg-black
-          group-hover:opacity-100
-        "
-      >
-        <Pencil className="h-4 w-4" />
-        Edit
-      </button>
+      <EditButton onClick={openEditor} />
       {open &&
         createPortal(
           <div
@@ -158,14 +134,11 @@ export default function EditSection({
                   onChange={setContent}
                   tenantId={tenantId}
                 />
-
                 <ThemeEditor
-                  theme={theme}
-                  onChange={setTheme}
-                  sectionType={section.type}
+                  theme={localTheme}
+                  onChange={setLocalTheme}
                 />
               </div>
-
               {/* Footer */}
               <div className="flex justify-end gap-3 border-t bg-gray-50 px-7 py-5">
                 <button

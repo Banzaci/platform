@@ -6,6 +6,7 @@ import { getTenant } from "@/libs/tenant";
 import Navigation from "./Navigation";
 import EditorControls from "./(protected)/components/EditorControls";
 import ThemeProvider from "@/providers/ThemeProvider";
+import DevLabelToggle from "@/helpers/DevLabelToggle";
 
 export const metadata: Metadata = {
   title: {
@@ -95,6 +96,7 @@ export default async function RootLayout({
               theme={tenant.tenant.theme}
             />
             {children}
+            <DevLabelToggle />
           </ThemeProvider>
         </Providers>
       </body>

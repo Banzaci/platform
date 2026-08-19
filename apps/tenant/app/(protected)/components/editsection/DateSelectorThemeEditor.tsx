@@ -1,12 +1,15 @@
+import DevLabel from "@/helpers/DevLabel";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { SectionTheme } from "@/types";
+import { ColorField } from "../ColorField";
 
 type Props = {
-  theme: SectionTheme;
-  onChange: (theme: SectionTheme) => void;
+  globalTheme: SectionTheme;
+  onChange: (globalTheme: SectionTheme) => void;
 };
 
 export default function DateSelectorThemeEditor({
-  theme,
+  globalTheme,
   onChange,
 }: Props) {
   function update(
@@ -14,134 +17,101 @@ export default function DateSelectorThemeEditor({
     value: string
   ) {
     onChange({
-      ...theme,
+      ...globalTheme,
       dateSelector: {
-        ...theme.dateSelector,
+        ...globalTheme.dateSelector,
         [key]: value,
       },
     });
   }
 
+  const {
+    date_background,
+    date_border,
+    date_secondary,
+    date_selected_background,
+    date_selected_color,
+    date_shadow, 
+    date_text, 
+    date_width,
+  } = resolveSectionTheme(globalTheme);
   return (
-    <div className="mt-8 border-t pt-6">
+    <div className="relative mt-8 border-t pt-6">
+      <DevLabel
+        name="DateSelectorThemeEditor"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/DateSelectorThemeEditor.tsx"
+      />
       <h4 className="mb-5 font-semibold">
         Date selector
       </h4>
 
       <div className="grid grid-cols-2 gap-5">
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Selected date
-          </span>
-          <input
-            type="color"
-            value={
-              theme.dateSelector?.selectedColor ??
-              "#111111"
-            }
-            onChange={(e) =>
-              update(
-                "selectedColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Selected background
-          </span>
-
-          <input
-            type="color"
-            value={
-              theme.dateSelector?.selectedBackgroundColor ??
-              "#eeeeee"
-            }
-            onChange={(e) =>
-              update(
-                "selectedBackgroundColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </label>
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Background
-          </span>
-
-          <input
-            type="color"
-            value={
-              theme.dateSelector?.backgroundColor ??
-              "#ffffff"
-            }
-            onChange={(e) =>
-              update(
-                "backgroundColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Text color
-          </span>
-
-          <input
-            type="color"
-            value={
-              theme.dateSelector?.textColor ??
-              "#111111"
-            }
-            onChange={(e) =>
-              update(
-                "textColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Border color
-          </span>
-
-          <input
-            type="color"
-            value={
-              theme.dateSelector?.borderColor ??
-              "#dddddd"
-            }
-            onChange={(e) =>
-              update(
-                "borderColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </label>
-
+        <ColorField
+          label="Selected color"
+          value={date_selected_color}
+          onChange={(value) =>
+            update(
+              "selectedColor",
+              value
+            )
+          }
+        />
+        <ColorField
+          label="Secondary color"
+          value={date_secondary}
+          onChange={(value) =>
+            update(
+              "secondaryColor",
+              value
+            )
+          }
+        />
+        <ColorField
+          label="Selected background color"
+          value={date_selected_background}
+          onChange={(value) =>
+            update(
+              "selectedBackgroundColor",
+              value
+            )
+          }
+        />
+        <ColorField
+          label="Background color"
+          value={date_background}
+          onChange={(value) =>
+            update(
+              "backgroundColor",
+              value
+            )
+          }
+        />
+        <ColorField
+          label="Text color"
+          value={date_text}
+          onChange={(value) =>
+            update(
+              "textColor",
+              value
+            )
+          }
+        />
+        <ColorField
+          label="Border color"
+          value={date_border}
+          onChange={(value) =>
+            update(
+              "borderColor",
+              value
+            )
+          }
+        />
         <label>
           <span className="mb-2 block text-sm font-medium">
             Width
           </span>
-
           <select
-            value={
-              theme.dateSelector?.width ??
-              "50%"
-            }
+            value={ date_width ?? "50%" }
             onChange={(e) =>
               update(
                 "width",
@@ -159,12 +129,8 @@ export default function DateSelectorThemeEditor({
           <span className="mb-2 block text-sm font-medium">
             Shadow
           </span>
-
           <select
-            value={
-              theme.dateSelector?.shadow ??
-              "sm"
-            }
+            value={ date_shadow ?? "sm" }
             onChange={(e) =>
               update(
                 "shadow",

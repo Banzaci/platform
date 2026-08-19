@@ -81,6 +81,13 @@ class Property(Base):
         onupdate=datetime.utcnow,
     )
 
+    calendar_token: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+
     tenant = relationship(
         "Tenant",
         back_populates="properties",

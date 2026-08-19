@@ -1,20 +1,45 @@
 "use client";
 
 import { SectionTheme } from "@/types";
-import DateSelectorThemeEditor from "./DateSelectorThemeEditor";
+import DevLabel from "@/helpers/DevLabel";
 
 
 type Props = {
   theme: SectionTheme;
   onChange: (theme: SectionTheme) => void;
-  sectionType?: string;
 };
 
 export default function ThemeEditor({
   theme,
   onChange,
-  sectionType,
 }: Props) {
+  function updateButton(
+    key: keyof NonNullable<SectionTheme["button"]>,
+    value: string
+  ) {
+    onChange({
+      ...theme,
+      button: {
+        ...theme.button,
+        [key]: value,
+      },
+    });
+  }
+
+  function resetButton(
+    key: keyof NonNullable<SectionTheme["button"]>
+  ) {
+    const nextButton = {
+      ...(theme.button ?? {}),
+    };
+
+    delete nextButton[key];
+
+    onChange({
+      ...theme,
+      button: nextButton,
+    });
+  }
   function update(
     key: keyof SectionTheme,
     value: string
@@ -24,16 +49,19 @@ export default function ThemeEditor({
       [key]: value,
     });
   }
-
   function reset(key: keyof SectionTheme) {
     const next = { ...theme };
     delete next[key];
-
     onChange(next);
   }
-
+  console.log("ThemeEditor")
+  console.log(theme)
   return (
-    <div className="mt-8 border-t pt-6 text-black">
+    <div className="relative mt-8 border-t pt-6 text-black">
+      <DevLabel
+        name="ThemeEditor"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/ThemeEditor.tsx"
+      />
       <h3 className="mb-5 text-lg font-semibold">
         Theme
       </h3>
@@ -42,7 +70,7 @@ export default function ThemeEditor({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Background
+              Background {theme.backgroundColor}
             </span>
 
             {theme.backgroundColor && (
@@ -70,7 +98,7 @@ export default function ThemeEditor({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Text color
+              Text color {theme.textColor}
             </span>
 
             {theme.textColor && (
@@ -98,7 +126,7 @@ export default function ThemeEditor({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Primary color
+              Primary color {theme.primaryColor}
             </span>
 
             {theme.primaryColor && (
@@ -126,7 +154,7 @@ export default function ThemeEditor({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Secondary color
+              Secondary color {theme.secondaryColor}
             </span>
 
             {theme.secondaryColor && (
@@ -149,7 +177,77 @@ export default function ThemeEditor({
             className="h-10 w-full cursor-pointer"
           />
         </div>
+        {/* Button background */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">
+              Button color
+            </span>
 
+            {theme.button?.backgroundColor && (
+              <button
+                type="button"
+                onClick={() =>
+                  resetButton("backgroundColor")
+                }
+                className="text-xs text-gray-500 hover:text-black"
+              >
+                Use global
+              </button>
+            )}
+          </div>
+
+          <input
+            type="color"
+            value={
+              theme.button?.backgroundColor ??
+              "#111111"
+            }
+            onChange={(e) =>
+              updateButton(
+                "backgroundColor",
+                e.target.value
+              )
+            }
+            className="h-10 w-full cursor-pointer"
+          />
+        </div>
+
+        {/* Button text */}
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">
+              Button text color
+            </span>
+
+            {theme.button?.textColor && (
+              <button
+                type="button"
+                onClick={() =>
+                  resetButton("textColor")
+                }
+                className="text-xs text-gray-500 hover:text-black"
+              >
+                Use global
+              </button>
+            )}
+          </div>
+
+          <input
+            type="color"
+            value={
+              theme.button?.textColor ??
+              "#ffffff"
+            }
+            onChange={(e) =>
+              updateButton(
+                "textColor",
+                e.target.value
+              )
+            }
+            className="h-10 w-full cursor-pointer"
+          />
+        </div>
         {/* Font size */}
         <div>
           <div className="mb-2 flex items-center justify-between">
@@ -221,7 +319,6 @@ export default function ThemeEditor({
               </button>
             )}
           </div>
-
           <input
             value={theme.paddingBottom ?? ""}
             placeholder="80px"
@@ -232,12 +329,6 @@ export default function ThemeEditor({
           />
         </div>
       </div>
-      {sectionType === "property-grid" && (
-        <DateSelectorThemeEditor
-          theme={theme}
-          onChange={onChange}
-        />
-      )}
     </div>
   );
 }

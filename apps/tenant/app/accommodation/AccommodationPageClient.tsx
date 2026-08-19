@@ -26,19 +26,25 @@ export default function AccommodationPageClient({
   return (
     <>
       {sections.map((section) => {
+          const mergedTheme = {
+            ...(section.theme ?? {}),
+            global: {
+              ...(globalTheme ?? {}),
+            },
+          };
         return (
           <EditableSection
             key={section.id}
+            theme={section.theme}
             section={section}
             pageId={pageId}
             tenantId={tenantId}
             sections={sections}
           >
-            {renderSection(
-              section,
-              tenantId,
-              globalTheme
-            )}
+            <PropertiesPageClient
+              tenantId={tenantId}
+              globalTheme={mergedTheme}
+            />
           </EditableSection>
         );
       })}
@@ -46,61 +52,61 @@ export default function AccommodationPageClient({
   );
 }
 
-function renderSection(
-  section: any,
-  tenantId: string,
-  theme: SectionTheme,
-) {
-  switch (section.type) {
-    case "property-grid":
-      return (
-        <PropertiesPageClient
-          tenantId={tenantId}
-          theme={theme}
-        />
-      );
+// function renderSection(
+//   section: any,
+//   tenantId: string,
+//   theme: SectionTheme,
+// ) {
+//   switch (section.type) {
+//     case "property-grid":
+//       return (
+//         <PropertiesPageClient
+//           tenantId={tenantId}
+//           theme={theme}
+//         />
+//       );
 
-    case "cta":
-      return (
-        <CTA
-          content={section.content}
-          theme={theme}
-        />
-      );
+//     case "cta":
+//       return (
+//         <CTA
+//           content={section.content}
+//           theme={theme}
+//         />
+//       );
 
-    case "image-text":
-      return (
-        <ImageText
-          content={section.content}
-          theme={theme}
-        />
-      );
+//     case "image-text":
+//       return (
+//         <ImageText
+//           content={section.content}
+//           theme={theme}
+//         />
+//       );
 
-    case "hero":
-      return (
-        <Hero
-          content={section.content}
-          theme={theme}
-        />
-      );
+//     case "hero":
+//       return (
+//         <Hero
+//           content={section.content}
+//           theme={theme}
+//         />
+//       );
 
-    case "gallery":
-      return (
-        <Gallery
-          content={section.content}
-          theme={theme}
-        />
-      );
+//     case "gallery":
+//       return (
+//         <Gallery
+//           content={section.content}
+//           theme={theme}
+//         />
+//       );
 
-    case "amenities":
-      return (
-        <Amenities
-          content={section.content}
-          theme={theme}
-        />
-      );
+//     case "amenities":
+//       return (
+//         <Amenities
+//           content={section.content}
+//           theme={theme}
+//         />
+//       );
 
-    default:
-      return null;
-  }
-}
+//     default:
+//       return null;
+//   }
+// }

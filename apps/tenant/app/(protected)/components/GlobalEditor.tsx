@@ -3,7 +3,7 @@
 import { SectionTheme } from "@/types";
 import { useState } from "react";
 import { API_URL, TOKEN_NAME } from "../types";
-
+import DevLabel from "@/helpers/DevLabel";
 
 export default function GlobalEditor({
   tenantId,
@@ -58,7 +58,10 @@ export default function GlobalEditor({
 
   return (
     <>
-      {/* Global editor button */}
+      <DevLabel
+        name="GlobalEditor"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/GlobalEditor.tsx"
+      />
       <button
         type="button"
         onClick={() => setOpen(true)}

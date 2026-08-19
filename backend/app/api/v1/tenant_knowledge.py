@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.knowledge.template import KNOWLEDGE_TEMPLATES
 
 from app.api.deps import require_tenant_access
 from app.api.get_current_user import get_current_user
@@ -14,12 +15,10 @@ from app.schemas.tenant_knowledge import (
     TenantKnowledgeOut,
 )
 
-
 router = APIRouter(
     prefix="/tenants/{tenant_id}/knowledge",
     tags=["tenant-knowledge"],
 )
-
 
 @router.get("", response_model=list[TenantKnowledgeOut])
 async def get_tenant_knowledge(
@@ -42,6 +41,10 @@ async def get_tenant_knowledge(
     return result.scalars().all()
 
 
+from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
+
+
 @router.post("", response_model=TenantKnowledgeOut)
 async def create_tenant_knowledge(
     tenant_id: uuid.UUID,
@@ -50,18 +53,44 @@ async def create_tenant_knowledge(
     user=Depends(get_current_user),
     _access=Depends(require_tenant_access),
 ):
-    item = TenantKnowledge(
-        tenant_id=tenant_id,
-        **payload.model_dump(),
-    )
+    try:
+        item = TenantKnowledge(
+            tenant_id=tenant_id,
+            **payload.model_dump(),
+        )
 
-    db.add(item)
+        db.add(item)
 
-    await db.commit()
-    await db.refresh(item)
+        await db.commit()
+        await db.refresh(item)
 
-    return item
+        return item
 
+    except SQLAlchemyError as error:
+        await db.rollback()
+
+        print(
+            "DATABASE ERROR create_tenant_knowledge:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        )
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "ERROR create_tenant_knowledge:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error),
+        )
 
 @router.put(
     "/{knowledge_id}",
@@ -100,7 +129,6 @@ async def update_tenant_knowledge(
 
     return item
 
-
 @router.delete(
     "/{knowledge_id}",
     status_code=204,
@@ -129,3 +157,11 @@ async def delete_tenant_knowledge(
 
     await db.delete(item)
     await db.commit()
+
+@router.get("/templates")
+async def get_knowledge_templates(
+    tenant_id: uuid.UUID,
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    return KNOWLEDGE_TEMPLATES

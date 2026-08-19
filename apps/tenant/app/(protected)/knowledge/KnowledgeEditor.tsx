@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
-
+import { useEffect, useMemo, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
-import KnowledgeItemEditor from "./KnowledgeItemEditor";
+import KnowledgeWizard from "./KnowledgeWizard";
+import CustomQuestionModal from "./CustomQuestionModal";
 
 export type LocalizedText = Record<string, string>;
 
 export type KnowledgeItem = {
   id: string;
   tenant_id: string;
+  template_key: string | null;
   category: string;
+  intent: string | null;
   question: LocalizedText;
   answer: LocalizedText;
   is_active: boolean;
@@ -19,101 +21,61 @@ export type KnowledgeItem = {
   source: string;
 };
 
-const DEFAULT_QUESTIONS = [
-  {
-    category: "facilities",
-    question: {
-      en: "Do you have a swimming pool?",
-      sv: "Har ni en swimmingpool?",
-    },
-  },
-  {
-    category: "facilities",
-    question: {
-      en: "Do you have WiFi?",
-      sv: "Har ni WiFi?",
-    },
-  },
-  {
-    category: "location",
-    question: {
-      en: "How far is the beach?",
-      sv: "Hur långt är det till stranden?",
-    },
-  },
-  {
-    category: "restaurant",
-    question: {
-      en: "Do you have a restaurant?",
-      sv: "Har ni en restaurang?",
-    },
-  },
-  {
-    category: "restaurant",
-    question: {
-      en: "What are the restaurant opening hours?",
-      sv: "Vilka öppettider har restaurangen?",
-    },
-  },
-  {
-    category: "check-in",
-    question: {
-      en: "What time is check-in?",
-      sv: "Vilken tid är incheckning?",
-    },
-  },
-  {
-    category: "check-in",
-    question: {
-      en: "What time is check-out?",
-      sv: "Vilken tid är utcheckning?",
-    },
-  },
-  {
-    category: "policies",
-    question: {
-      en: "Are pets allowed?",
-      sv: "Är husdjur tillåtna?",
-    },
-  },
-];
+export type KnowledgeTemplate = {
+  key: string;
+  category: string;
+  type:
+    | "yes_no"
+    | "text"
+    | "number"
+    | "time"
+    | "select";
+
+  question: LocalizedText;
+
+  yes_answer?: LocalizedText;
+  no_answer?: LocalizedText;
+
+  options?: LocalizedText[];
+};
 
 export default function KnowledgeEditor({
   tenantId,
 }: {
   tenantId: string;
 }) {
+  const [customOpen, setCustomOpen] = useState(false);
+  const [filter, setFilter] = useState<"all" | "unanswered" | "custom">("all");
   const [items, setItems] = useState<KnowledgeItem[]>([]);
+  const [templates, setTemplates] = useState<KnowledgeTemplate[]>([]);
   const [loading, setLoading] = useState(true);
-
-  async function load() {
-    try {
-      const data = await apiClient.api<KnowledgeItem[]>(
-        `v1/tenants/${tenantId}/knowledge`
-      );
-
-      setItems(data);
-    } catch (error) {
-      console.error("Could not load knowledge:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchKnowledge() {
+    async function load() {
       try {
-        const data = await apiClient.api<KnowledgeItem[]>(
-          `v1/tenants/${tenantId}/knowledge`
-        );
+        const [knowledge, templates] =
+          await Promise.all([
+            apiClient.api<KnowledgeItem[]>(
+              `v1/tenants/${tenantId}/knowledge`
+            ),
 
-        if (!cancelled) {
-          setItems(data);
-        }
+            apiClient.api<KnowledgeTemplate[]>(
+              `v1/tenants/${tenantId}/knowledge/templates`
+            ),
+          ]);
+
+        if (cancelled) return;
+
+        setItems(knowledge);
+        setTemplates(templates);
       } catch (error) {
-        console.error("Could not load knowledge:", error);
+        console.error(
+          "Could not load knowledge:",
+          error
+        );
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -121,155 +83,245 @@ export default function KnowledgeEditor({
       }
     }
 
-    void fetchKnowledge();
+    void load();
 
     return () => {
       cancelled = true;
     };
   }, [tenantId]);
 
-  async function createFromTemplate(
-    template: typeof DEFAULT_QUESTIONS[number]
+  async function saveKnowledgeAnswer(
+    template: KnowledgeTemplate,
+    answer: string
   ) {
-    const created = await apiClient.api<KnowledgeItem>(
-      `v1/tenants/${tenantId}/knowledge`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          category: template.category,
-          question: template.question,
-          answer: {
-            en: "",
-            sv: "",
-          },
-          is_active: true,
-          priority: 0,
-          source: "manual",
-        }),
-      }
-    );
+    const created =
+      await apiClient.api<KnowledgeItem>(
+        `v1/tenants/${tenantId}/knowledge`,
+        {
+          method: "POST",
 
-    setItems((current) => [...current, created]);
+          body: JSON.stringify({
+            template_key:
+              template.key,
+
+            category:
+              template.category,
+
+            intent:
+              template.key,
+
+            question:
+              template.question,
+
+            answer: {
+              [language]:
+                answer,
+            },
+
+            is_active: true,
+
+            priority: 0,
+
+            source: "template",
+          }),
+        }
+      );
+
+    setItems((current) => [
+      ...current,
+      created,
+    ]);
   }
 
-  async function createCustom() {
-    const created = await apiClient.api<KnowledgeItem>(
-      `v1/tenants/${tenantId}/knowledge`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          category: "other",
-          question: {
-            en: "New question",
-            sv: "Ny fråga",
-          },
-          answer: {
-            en: "",
-            sv: "",
-          },
-          is_active: true,
-          priority: 0,
-          source: "manual",
-        }),
-      }
+  async function deleteCustomQuestion(id: string) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this custom question?"
     );
 
-    setItems((current) => [...current, created]);
+    if (!confirmed) return;
+
+    try {
+      await apiClient.api(
+        `v1/tenants/${tenantId}/knowledge/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      setItems((current) =>
+        current.filter((item) => item.id !== id)
+      );
+    } catch (error) {
+      console.error(
+        "Could not delete custom question:",
+        error
+      );
+    }
   }
 
-  function updateLocal(updated: KnowledgeItem) {
-    setItems((current) =>
-      current.map((item) =>
-        item.id === updated.id ? updated : item
-      )
-    );
-  }
+  const filteredTemplates = useMemo(() => {
+    if (filter === "all") {
+      return templates;
+    }
 
-  function removeLocal(id: string) {
-    setItems((current) =>
-      current.filter((item) => item.id !== id)
+    if (filter === "unanswered") {
+      return templates.filter(
+        (template) =>
+          !items.some(
+            (item) =>
+              item.template_key === template.key
+          )
+      );
+    }
+
+    return [];
+  }, [filter, templates, items]);
+
+  const customItems = useMemo(() => {
+    return items.filter(
+      (item) => item.category === "custom"
     );
-  }
+  }, [items]);
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-8 text-sm text-slate-500">
         Loading knowledge...
       </div>
     );
   }
 
-  const existingEnglishQuestions = new Set(
-    items.map((item) => item.question?.en)
-  );
-
-  const unusedTemplates = DEFAULT_QUESTIONS.filter(
-    (template) =>
-      !existingEnglishQuestions.has(template.question.en)
-  );
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10 text-gray-950">
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-semibold">
-            Hotel knowledge
-          </h1>
-
-          <p className="mt-2 max-w-2xl text-gray-500">
-            Add information your AI assistant should know about
-            your hotel, facilities, policies and services.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={createCustom}
-          className="inline-flex items-center gap-2 rounded-xl bg-black px-4 py-3 text-sm font-medium text-white"
+    <main className="mx-auto max-w-5xl px-6 py-10">
+      <div className="mb-6 flex justify-end">
+        <select
+          value={language}
+          onChange={(e) =>
+            setLanguage(
+              e.target.value
+            )
+          }
+          className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
         >
-          <Plus className="h-4 w-4" />
-          Custom question
-        </button>
+          <option value="en">
+            English
+          </option>
+          <option value="sv">
+            Svenska
+          </option>
+        </select>
       </div>
+      <div className="text-sm text-slate-400 mb-2 ml-2">
+        {
+          templates.filter(
+            (template) =>
+              !items.some(
+                (item) =>
+                  item.template_key === template.key
+              )
+          ).length
+        }{" "}
+        unanswered
+      </div>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex rounded-xl bg-slate-100 p-1">
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "all"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500"
+            }`}
+          >
+            All questions
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("unanswered")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "unanswered"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500"
+            }`}
+          >
+            Unanswered
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("custom")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+              filter === "custom"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500"
+            }`}
+          >
+            Custom questions
+          </button>
+        </div>
+      </div>
+      {filter === "custom" ? (
+        <div className="space-y-3">
+          {customItems.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-slate-900">
+                  {item.question[language] ??
+                    item.question.en}
+                </div>
 
-      {unusedTemplates.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-semibold">
-            Suggested questions
-          </h2>
+                <div className="mt-2 text-sm text-slate-500">
+                  {item.answer[language] ??
+                    item.answer.en}
+                </div>
+              </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {unusedTemplates.map((template) => (
               <button
-                key={template.question.en}
                 type="button"
-                onClick={() => createFromTemplate(template)}
-                className="rounded-xl border bg-white p-4 text-left transition hover:bg-gray-50"
+                onClick={() =>
+                  deleteCustomQuestion(item.id)
+                }
+                title="Delete custom question"
+                className="shrink-0 rounded-lg p-2 text-slate-300 transition hover:bg-red-50 hover:text-red-500"
               >
-                <div className="text-xs uppercase tracking-wide text-gray-400">
-                  {template.category}
-                </div>
-
-                <div className="mt-1 font-medium">
-                  {template.question.en}
-                </div>
+                <Trash2 className="h-4 w-4" />
               </button>
-            ))}
-          </div>
-        </section>
+            </div>
+          ))}
+          {customItems.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-400">
+              No custom questions yet.
+            </div>
+          )}
+        </div>
+      ) : (
+        <KnowledgeWizard
+          templates={filteredTemplates}
+          items={items}
+          language={language}
+          onAnswer={saveKnowledgeAnswer}
+          onAddCustom={() => setCustomOpen(true)}
+        />
       )}
+      {customOpen && (
+        <CustomQuestionModal
+          tenantId={tenantId}
+          language={language}
+          onClose={() => setCustomOpen(false)}
+          onCreated={(created) => {
+            setItems((current) => [
+              ...current,
+              created,
+            ]);
 
-      <section className="mt-10 space-y-4">
-        {items.map((item) => (
-          <KnowledgeItemEditor
-            key={item.id}
-            tenantId={tenantId}
-            item={item}
-            onUpdated={updateLocal}
-            onDeleted={removeLocal}
-          />
-        ))}
-      </section>
+            setCustomOpen(false);
+          }}
+        />
+      )}
     </main>
   );
 }

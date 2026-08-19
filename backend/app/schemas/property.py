@@ -39,6 +39,8 @@ class PropertyOut(PropertyBase):
     is_available: bool = True
     nights: int | None = None
     total_price: float | None = None
+    calendar_token: uuid.UUID | None = None
+
     class Config:
         from_attributes = True
 

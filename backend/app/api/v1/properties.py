@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy.orm import selectinload
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +15,7 @@ from app.schemas.property import PropertyOut, PropertyUpdate, PricePeriodOut, Pr
 from app.models.price_period import PricePeriod
 from app.helpers.property_helper import get_property_availability
 from app.services.ai.booking_service import calculate_booking_price
+from app.models.property_calendar_source import PropertyCalendarSource
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties",
@@ -587,3 +588,178 @@ async def get_public_property(
             "total_price": total_price,
         }
     )
+
+
+
+@router.get("/calendar/{calendar_token}.ics")
+async def export_calendar(
+    calendar_token: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Property).where(
+            Property.calendar_token == calendar_token
+        )
+    )
+
+    property = result.scalar_one_or_none()
+
+    if not property:
+        raise HTTPException(
+            status_code=404,
+            detail="Calendar not found",
+        )
+
+    # Nästa steg: skapa själva ICS-innehållet
+
+    return Response(
+        content="",
+        media_type="text/calendar",
+    )
+
+
+class CalendarSourceCreate(BaseModel):
+    name: str
+    url: str
+
+@router.post("/{property_id}/calendar-sync")
+async def add_calendar_source(
+    tenant_id: uuid.UUID,
+    property_id: uuid.UUID,
+    payload: CalendarSourceCreate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(Property).where(
+            Property.id == property_id,
+            Property.tenant_id == tenant_id,
+        )
+    )
+
+    property = result.scalar_one_or_none()
+
+    if not property:
+        raise HTTPException(
+            status_code=404,
+            detail="Property not found",
+        )
+
+    source = PropertyCalendarSource(
+        property_id=property.id,
+        name=payload.name,
+        url=payload.url,
+    )
+
+    db.add(source)
+
+    await db.commit()
+    await db.refresh(source)
+
+    return source
+
+
+@router.get("/{property_id}/calendar-sync")
+async def get_calendar_sources(
+    tenant_id: uuid.UUID,
+    property_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    property_result = await db.execute(
+        select(Property).where(
+            Property.id == property_id,
+            Property.tenant_id == tenant_id,
+        )
+    )
+
+    property = property_result.scalar_one_or_none()
+
+    if not property:
+        raise HTTPException(
+            status_code=404,
+            detail="Property not found",
+        )
+
+    result = await db.execute(
+        select(PropertyCalendarSource)
+        .where(
+            PropertyCalendarSource.property_id
+            == property_id
+        )
+        .order_by(PropertyCalendarSource.name)
+    )
+
+    return result.scalars().all()
+
+
+@router.post("/{property_id}/calendar-sync/{source_id}/sync")
+async def sync_source(
+    tenant_id: uuid.UUID,
+    property_id: uuid.UUID,
+    source_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(PropertyCalendarSource)
+        .join(
+            Property,
+            Property.id == PropertyCalendarSource.property_id,
+        )
+        .where(
+            PropertyCalendarSource.id == source_id,
+            PropertyCalendarSource.property_id == property_id,
+            Property.tenant_id == tenant_id,
+        )
+    )
+
+    source = result.scalar_one_or_none()
+
+    if not source:
+        raise HTTPException(404, "Calendar source not found")
+
+    await sync_calendar_source(source, db)
+
+    return {"success": True}
+
+@router.delete("/{property_id}/calendar-sync/{source_id}")
+async def delete_calendar_source(
+    tenant_id: uuid.UUID,
+    property_id: uuid.UUID,
+    source_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(PropertyCalendarSource)
+        .join(
+            Property,
+            Property.id == PropertyCalendarSource.property_id,
+        )
+        .where(
+            PropertyCalendarSource.id == source_id,
+            PropertyCalendarSource.property_id == property_id,
+            Property.tenant_id == tenant_id,
+        )
+    )
+
+    source = result.scalar_one_or_none()
+
+    if not source:
+        raise HTTPException(
+            status_code=404,
+            detail="Calendar source not found",
+        )
+
+    await db.delete(source)
+    await db.commit()
+
+    return {
+        "id": str(source_id),
+        "deleted": True,
+    }

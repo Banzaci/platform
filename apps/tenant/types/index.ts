@@ -16,6 +16,9 @@ export type PageData = {
   theme: Record<string, unknown>;
   sections: any[];
   key: string
+  name: {
+    [key: string]: string
+  }
 };
 
 export type SectionTheme = {
@@ -114,6 +117,7 @@ export type Property = {
   images: PropertyImage[];
   is_open: boolean;
   base_price: BasePrice | null;
+  calendar_token: string;
 };
 
 

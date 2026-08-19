@@ -7,38 +7,44 @@ import {
 import "react-day-picker/style.css";
 
 import { SectionTheme } from "@/types";
-import { getShadow } from "@/helpers";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = DayPickerProps & {
-  theme?: SectionTheme;
+  globalTheme?: SectionTheme;
 };
 
 export default function ThemedDayPicker({
-  theme,
+  globalTheme,
   ...props
 }: Props) {
+   const {
+      date_selected_background,
+      date_selected_color,
+      date_text,
+    } = resolveSectionTheme(globalTheme);
+
   return (
     <div
       className="border p-5"
       style={{
-        backgroundColor:
-          theme?.dateSelector?.backgroundColor ??
-          "#ffffff",
+        // backgroundColor:
+        //   theme?.dateSelector?.backgroundColor ??
+        //   "#ffffff",
 
-        color:
-          theme?.dateSelector?.textColor ??
-          "#111111",
+        // color:
+        //   theme?.dateSelector?.textColor ??
+        //   "#111111",
 
-        borderColor:
-          theme?.dateSelector?.borderColor,
+        // borderColor:
+        //   theme?.dateSelector?.borderColor,
 
-        borderRadius:
-          theme?.dateSelector?.borderRadius ??
-          "16px",
+        // borderRadius:
+        //   theme?.dateSelector?.borderRadius ??
+        //   "16px",
 
-        boxShadow: getShadow(
-          theme?.dateSelector?.shadow
-        ),
+        // boxShadow: getShadow(
+        //   theme?.dateSelector?.shadow
+        // ),
       }}
     >
       <DayPicker
@@ -46,17 +52,9 @@ export default function ThemedDayPicker({
         className="rdp-root"
         style={
           {
-            "--rdp-accent-color":
-              theme?.dateSelector?.selectedColor ??
-              "#ffffff",
-
-            "--rdp-accent-background-color":
-              theme?.dateSelector?.selectedBackgroundColor ??
-              "#111111",
-
-            color:
-              theme?.dateSelector?.textColor ??
-              "#111111",
+            "--rdp-accent-color": date_selected_color ?? "#ffffff",
+            "--rdp-accent-background-color": date_selected_background ?? "#111111",
+            color: date_text ?? "#111111",
           } as React.CSSProperties
         }
       />

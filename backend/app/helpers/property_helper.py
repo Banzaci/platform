@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.property_block import PropertyBlock
 from app.models.booking import Booking, BookingStatus
 from app.models.blocked_period import BlockedPeriod
 from app.models.property import Property
@@ -17,6 +18,7 @@ async def get_property_availability(
     if not check_in or not check_out:
         return False
 
+    # Manually blocked periods
     blocked_result = await db.execute(
         select(BlockedPeriod.id)
         .where(
@@ -30,6 +32,21 @@ async def get_property_availability(
     if blocked_result.scalar_one_or_none() is not None:
         return False
 
+    # External calendar blocks
+    external_block_result = await db.execute(
+        select(PropertyBlock.id)
+        .where(
+            PropertyBlock.property_id == property.id,
+            PropertyBlock.start_date < check_out,
+            PropertyBlock.end_date > check_in,
+        )
+        .limit(1)
+    )
+
+    if external_block_result.scalar_one_or_none() is not None:
+        return False
+
+    # Existing bookings
     booking_result = await db.execute(
         select(
             func.coalesce(

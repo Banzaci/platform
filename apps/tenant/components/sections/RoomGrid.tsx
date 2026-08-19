@@ -44,13 +44,7 @@ export default function RoomGrid({
     card_secondary_color,
     card_border_color,
     card_radius,
-    card_padding,
-    card_shadow
   } = resolveSectionTheme(theme);
-  const resolvedTheme = resolveSectionTheme(theme);
-
-  // console.log("ROOM GRID THEME", theme);
-  // console.log("ROOM GRID RESOLVED", resolvedTheme);
   useEffect(() => {
     let cancelled = false;
 

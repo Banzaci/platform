@@ -15,6 +15,7 @@ class TenantKnowledgeCreate(BaseModel):
     is_active: bool = True
     priority: int = 0
     source: str = "manual"
+    template_key: str | None = None
 
 
 class TenantKnowledgeUpdate(BaseModel):
@@ -38,6 +39,7 @@ class TenantKnowledgeOut(BaseModel):
     source: str
     created_at: datetime
     updated_at: datetime
+    template_key: str | None = None
 
     class Config:
         from_attributes = True

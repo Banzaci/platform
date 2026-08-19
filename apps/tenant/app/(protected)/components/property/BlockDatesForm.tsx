@@ -77,14 +77,14 @@ export default function BlockDatesForm({
   return (
     <div className="space-y-5">
       <label className="block">
-        <span className="mb-2 block text-sm font-medium">
+        <span className="mb-2 block text-sm font-medium text-slate-600">
           Reason
         </span>
 
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-lg border px-4 py-3"
+          className="w-full rounded-lg border border-slate-200 bg-white p-2 shadow-sm text-sm"
         >
           <option value="renovation">Renovation</option>
           <option value="maintenance">Maintenance</option>
@@ -95,7 +95,7 @@ export default function BlockDatesForm({
       </label>
 
       <label className="block">
-        <span className="mb-2 block text-sm font-medium">
+        <span className="mb-2 block text-sm font-medium text-slate-600">
           Note
         </span>
 
@@ -103,7 +103,7 @@ export default function BlockDatesForm({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={4}
-          className="w-full rounded-lg border px-4 py-3"
+          className="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm text-slate-600 text-sm"
         />
       </label>
 
@@ -126,7 +126,7 @@ export default function BlockDatesForm({
         type="button"
         onClick={save}
         disabled={!range?.from || !range?.to || saving}
-        className="w-full rounded-lg bg-black px-5 py-3 text-white disabled:opacity-40"
+        className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-medium text-slate-200 bg-black hover:text-slate-100 disabled:opacity-40"
       >
         {saving ? "Saving..." : "Block dates"}
       </button>

@@ -8,3 +8,7 @@ from .country import Country
 from .booking import Booking, BookingStatus
 from .theme_history import ThemeHistory
 from .tenant_knowledge import TenantKnowledge
+from .page import Page
+from .feature import TenantFeature
+from .tenant_membership import TenantMembership
+from .user import User

@@ -18,8 +18,9 @@ import {
 
 import { apiClient } from "@/libs/api";
 import { TenantProperty, SectionTheme } from "@/types";
-import PropertyCard from "@/app/accomondation/PropertyCard";
+import PropertyCard from "@/app/accommodation/PropertyCard";
 import ThemedDayPicker from "./ThemedDayPicker";
+import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = {
   tenantId: string;
@@ -33,20 +34,18 @@ type Props = {
     };
   };
 
-  theme?: SectionTheme;
+  globalTheme?: SectionTheme;
 };
 
 export default function PropertyGrid({
   tenantId,
   content,
-  theme,
+  globalTheme,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-
-  const [properties, setProperties] =
-    useState<TenantProperty[]>([]);
+  const [properties, setProperties] = useState<TenantProperty[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -142,87 +141,95 @@ export default function PropertyGrid({
     );
   }
 
-  return (
-    <section
-      style={{
-        backgroundColor: theme?.backgroundColor,
-        color: theme?.textColor,
-        fontFamily: theme?.fontFamily,
-        fontSize: theme?.fontSize,
-        paddingTop: theme?.paddingTop,
-        paddingBottom: theme?.paddingBottom,
-      }}
-    >
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        {(content?.heading?.en ||
-          content?.text?.en) && (
-          <div className="mb-10 max-w-3xl">
-            {content.heading?.en && (
-              <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
-                {content.heading.en}
-              </h1>
-            )}
+  const {
+    date_selected_background,
+    date_selected_color,
+    date_text,
+  } = resolveSectionTheme(globalTheme);
 
-            {content.text?.en && (
-              <p
-                className="mt-4 text-lg"
-                style={{
-                  color: theme?.secondaryColor,
-                }}
-              >
-                {content.text.en}
-              </p>
-            )}
-          </div>
-        )}
+  return null
 
-        <DateSelector
-          range={range}
-          setRange={updateRange}
-          theme={theme}
-        />
+  // return (
+  //   <section
+  //     style={{
+  //       backgroundColor: theme?.backgroundColor,
+  //       color: theme?.textColor,
+  //       fontFamily: theme?.fontFamily,
+  //       fontSize: theme?.fontSize,
+  //       paddingTop: theme?.paddingTop,
+  //       paddingBottom: theme?.paddingBottom,
+  //     }}
+  //   >
+  //     <div className="mx-auto max-w-7xl px-6 py-12">
+  //       {(content?.heading?.en ||
+  //         content?.text?.en) && (
+  //         <div className="mb-10 max-w-3xl">
+  //           {content.heading?.en && (
+  //             <h1 className="text-4xl font-semibold tracking-tight md:text-5xl">
+  //               {content.heading.en}
+  //             </h1>
+  //           )}
 
-        <div className="mt-10">
-          {loading ? (
-            <div
-              className="py-20 text-center"
-              style={{
-                color: theme?.secondaryColor,
-              }}
-            >
-              Loading properties...
-            </div>
-          ) : properties.length === 0 ? (
-            <div className="rounded-3xl border p-12 text-center">
-              <h2 className="text-2xl font-semibold">
-                No properties available
-              </h2>
-            </div>
-          ) : (
-            <div
-              className="grid"
-              style={{
-                gap: theme?.layout?.gap ?? "32px",
-                gridTemplateColumns: theme?.layout?.columns
-                  ? `repeat(${theme.layout.columns}, minmax(0, 1fr))`
-                  : undefined,
-              }}
-            >
-              {properties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  property={property}
-                  checkIn={checkIn}
-                  checkOut={checkOut}
-                  theme={theme}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+  //           {content.text?.en && (
+  //             <p
+  //               className="mt-4 text-lg"
+  //               style={{
+  //                 color: theme?.secondaryColor,
+  //               }}
+  //             >
+  //               {content.text.en}
+  //             </p>
+  //           )}
+  //         </div>
+  //       )}
+
+  //       <DateSelector
+  //         range={range}
+  //         setRange={updateRange}
+  //         theme={theme}
+  //       />
+
+  //       <div className="mt-10">
+  //         {loading ? (
+  //           <div
+  //             className="py-20 text-center"
+  //             style={{
+  //               color: theme?.secondaryColor,
+  //             }}
+  //           >
+  //             Loading properties...
+  //           </div>
+  //         ) : properties.length === 0 ? (
+  //           <div className="rounded-3xl border p-12 text-center">
+  //             <h2 className="text-2xl font-semibold">
+  //               No properties available
+  //             </h2>
+  //           </div>
+  //         ) : (
+  //           <div
+  //             className="grid"
+  //             style={{
+  //               gap: theme?.layout?.gap ?? "32px",
+  //               gridTemplateColumns: theme?.layout?.columns
+  //                 ? `repeat(${theme.layout.columns}, minmax(0, 1fr))`
+  //                 : undefined,
+  //             }}
+  //           >
+  //             {properties.map((property) => (
+  //               <PropertyCard
+  //                 key={property.id}
+  //                 property={property}
+  //                 checkIn={checkIn}
+  //                 checkOut={checkOut}
+  //                 globalTheme={theme}
+  //               />
+  //             ))}
+  //           </div>
+  //         )}
+  //       </div>
+  //     </div>
+  //   </section>
+  // );
 }
 
 function DateSelector({

@@ -35,7 +35,6 @@ class Page(Base):
     name: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
-        default=None,
     )
 
     slug: Mapped[str] = mapped_column(

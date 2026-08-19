@@ -10,7 +10,7 @@ export default async function PropertyPage({
   const data = await getTenant();
 
   const pageConfig = data.pages.find(
-    (page) => page.slug === "accomondation"
+    (page) => page.slug === "accommodation"
   );
 
   const propertyGridSection = pageConfig?.sections?.find(

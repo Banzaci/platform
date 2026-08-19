@@ -1,8 +1,16 @@
 "use client";
 
-import { CalendarDays, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Settings2,
+  Trash2,
+} from "lucide-react";
 import PropertySlideshow from "./PropertySlideshow";
 import { Property } from "@/types";
+import DevLabel from "@/helpers/DevLabel";
+import CalendarSyncSettings from "./CalendarSyncSettings";
+import { useState } from "react";
+import { getTenant } from "@/libs/tenant";
 
 type Props = {
   property: Property;
@@ -11,6 +19,7 @@ type Props = {
   onCopy: () => void;
   onToggleOpen: () => void;
   onDelete: () => void;
+  tenantId: string
 };
 
 export default function PropertyCardEdit({
@@ -20,9 +29,10 @@ export default function PropertyCardEdit({
   onCopy,
   onToggleOpen,
   onDelete,
+  tenantId,
 }: Props) {
   const price = property.base_price;
-
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   function calculateDiscount(
     regularPrice: number,
     actualPrice: number | null
@@ -60,19 +70,28 @@ export default function PropertyCardEdit({
       : null;
 
   return (
-    <article className="overflow-hidden rounded-2xl border bg-white shadow-sm relative">
-      <PropertySlideshow
-        images={property.images ?? []}
-        alt={property.name}
+    <article className="relative flex min-h-44 overflow-hidden rounded-xl bg-white shadow-sm border-b-gray-200">
+      <DevLabel
+        name="PropertyCardEdit"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardEdit.tsx"
       />
-      <div className="p-6">
+
+      <div className="w-56 shrink-0 overflow-hidden bg-gray-100">
+        <PropertySlideshow
+          images={property.images ?? []}
+          alt={property.name}
+        />
+      </div>
+
+      {/* Content */}
+      <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-semibold">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-semibold">
               {property.name}
             </h2>
 
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500">
               {property.max_guests} guests ·{" "}
               {property.bedrooms} bedrooms ·{" "}
               {property.beds} beds ·{" "}
@@ -83,7 +102,7 @@ export default function PropertyCardEdit({
           <button
             type="button"
             onClick={onToggleOpen}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition ${
               property.is_open
                 ? "bg-green-100 text-green-700 hover:bg-green-200"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -93,75 +112,96 @@ export default function PropertyCardEdit({
           </button>
         </div>
 
+        {/* Price */}
         {price ? (
-          <div className="mt-6 space-y-2">
-            <div className="font-semibold">
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            <span className="font-semibold text-gray-900">
               {price.daily_price} / night
-            </div>
+            </span>
 
             {price.weekly_price && (
-              <div className="text-sm text-gray-600">
+              <span className="text-gray-500">
                 {price.weekly_price} / week
-
                 {weeklyDiscount && (
-                  <span className="ml-2 text-green-700">
-                    {weeklyDiscount}% off
+                  <span className="ml-1 text-green-700">
+                    ({weeklyDiscount}% off)
                   </span>
                 )}
-              </div>
+              </span>
             )}
 
             {price.monthly_price && (
-              <div className="text-sm text-gray-600">
+              <span className="text-gray-500">
                 {price.monthly_price} / month
-
                 {monthlyDiscount && (
-                  <span className="ml-2 text-green-700">
-                    {monthlyDiscount}% off
+                  <span className="ml-1 text-green-700">
+                    ({monthlyDiscount}% off)
                   </span>
                 )}
-              </div>
+              </span>
             )}
           </div>
         ) : (
-          <p className="mt-6 text-sm text-amber-600">
+          <p className="mt-3 text-sm text-amber-600">
             No price configured
           </p>
         )}
 
-        <div className="mt-6 flex items-center justify-between border-t pt-5">
+        {/* Actions */}
+        <div className="mt-auto flex items-center gap-2 pt-4">
           <button
             type="button"
             onClick={onEdit}
-            className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+            className="cursor-pointer rounded-lg border p-2 transition border-slate-300 text-xs text-gray-600 hover:bg-gray-50 hover:text-black bg-slate-100"
           >
-            Edit property
+            Edit
           </button>
 
           <button
             type="button"
             onClick={onCalendar}
             title="Availability calendar"
-            className="rounded-lg border p-2.5 hover:bg-gray-50"
+            className="cursor-pointer rounded-lg border p-2 transition border-slate-300 text-xs text-gray-600 hover:bg-gray-50 hover:text-black bg-slate-100"
           >
-            <CalendarDays className="h-5 w-5" />
+            <CalendarDays className="h-4 w-4" />
           </button>
+
           <button
             type="button"
             onClick={onCopy}
-            className="absolute top-1 right-1 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gray-50"
+            className="cursor-pointer rounded-lg border p-2 transition border-slate-300 text-xs text-gray-600 hover:bg-gray-50 hover:text-black bg-slate-100"
           >
             Copy
           </button>
           <button
             type="button"
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+            title="Room settings"
+            className={`
+              cursor-pointer rounded-lg border p-2 transition border-slate-300
+              ${
+                isSettingsOpen
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-black bg-slate-100"
+              }
+            `}
+          >
+            <Settings2 className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
             onClick={onDelete}
-            className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+            className="ml-auto rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
             title="Delete property"
           >
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
+        { isSettingsOpen && <CalendarSyncSettings
+            calendarToken={property.calendar_token}
+            propertyId={property.id}
+            tenantId={tenantId}
+          />}
       </div>
     </article>
   );

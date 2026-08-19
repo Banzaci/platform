@@ -10,13 +10,13 @@ import DevLabel from "@/helpers/DevLabel";
 export default function DateSelector({
   range,
   setRange,
-  theme,
+  globalTheme,
 }: {
   range?: DateRange;
   setRange: (
     range: DateRange | undefined
   ) => void;
-  theme?: SectionTheme;
+  globalTheme?: SectionTheme;
 }) {
   const [ open, setOpen ] = useState(false);
   const today = new Date();
@@ -27,17 +27,9 @@ export default function DateSelector({
   const displayFrom = range?.from ?? today;
   const displayTo = range?.to ?? tomorrow;
   const {
-    textColor,
-    secondaryColor,
-    primaryColor,
-    card_background_color,
-    card_border_color,
-    card_radius,
     button_background,
     button_text,
     button_radius,
-    date_selected_background,
-    date_selected_color,
     date_border,
     date_radius,
     date_secondary,
@@ -45,25 +37,24 @@ export default function DateSelector({
     date_width,
     date_background,
     date_text,
-  } = resolveSectionTheme(theme);
-  
+  } = resolveSectionTheme(globalTheme);
   return (
-    <div className="relative">
-      <DevLabel
-        name="DateSelector"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/DateSelector.tsx"
-      />
-      <div className="flex w-full justify-center">
+    <div className="relative w-full">
+      <div className="relative flex w-full justify-center">
+        <DevLabel
+          name="DateSelector"
+          file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/DateSelector.tsx"
+        />
         <button
           type="button"
           onClick={() =>
             setOpen((current) => !current)
           }
-          className="flex items-center justify-between border px-5 py-4 text-left"
+          className="relative flex items-center justify-between border px-5 py-4 text-left w-full"
           style={{
             width: date_width,
-            backgroundColor: date_selected_background,
-            color: date_selected_color,
+            backgroundColor: date_background,
+            color: date_text,
             borderColor: date_border,
             borderRadius: date_radius,
             boxShadow: getShadow(date_shadow),
@@ -76,7 +67,6 @@ export default function DateSelector({
                 color: date_secondary,
               }}
             />
-
             <div className="flex gap-8">
               <div>
                 <div
@@ -87,12 +77,10 @@ export default function DateSelector({
                 >
                   Check in
                 </div>
-
                 <div className="font-medium">
                   {formatDisplayDate(displayFrom)}
                 </div>
               </div>
-
               <div>
                 <div
                   className="text-xs uppercase"
@@ -102,7 +90,6 @@ export default function DateSelector({
                 >
                   Check out
                 </div>
-
                 <div className="font-medium">
                   {formatDisplayDate(displayTo)}
                 </div>
@@ -121,40 +108,40 @@ export default function DateSelector({
 
       {open && (
         <div
-          className="absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2 border p-5"
+          className="absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2 p-5"
           style={{
-            backgroundColor: card_background_color,
-            color: textColor,
-            borderColor: card_border_color,
-            borderRadius: card_radius,
+            backgroundColor: date_background,
+            color: date_text,
+            boxShadow: date_shadow,
+            borderColor: date_border,
+            borderRadius: date_radius,
           }}
         >
           <div
-            className="min-w-[720px]"
-            style={
-              {
-                "--rdp-accent-color":
-                  date_text ??
-                  primaryColor,
+            className="min-w-180"
+            // style={
+            //   {
+            //     "--rdp-accent-color":
+            //       date_text ??
+            //       primaryColor,
 
-                "--rdp-accent-background-color":
-                  date_background ??
-                  secondaryColor,
-              } as React.CSSProperties
-            }
+            //     "--rdp-accent-background-color":
+            //       date_background ??
+            //       secondaryColor,
+            //   } as React.CSSProperties
+            // }
           >
             <ThemedDayPicker
               mode="range"
               selected={range}
               onSelect={setRange}
               numberOfMonths={2}
-              theme={theme}
+              globalTheme={globalTheme}
               disabled={{
                 before: new Date(),
               }}
             />
           </div>
-
           <div className="mt-4 flex justify-end">
             <button
               type="button"

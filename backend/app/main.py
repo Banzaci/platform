@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-from app.api.v1 import stripe_webhook, auth, payments, bookings, ai_chat, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods, property_theme, tenant_knowledge
+from app.api.v1 import stripe_webhook, calendar, auth, payments, bookings, ai_chat, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods, property_theme, tenant_knowledge
 
 
 app = FastAPI(title="Platform API", version="0.1.0")
@@ -38,6 +38,7 @@ app.include_router(ai_chat.router, prefix=API_PREFIX)
 app.include_router(bookings.router, prefix=API_PREFIX)
 app.include_router(payments.router, prefix=API_PREFIX)
 app.include_router(stripe_webhook.router, prefix=API_PREFIX)
+app.include_router(calendar.router, prefix=API_PREFIX)
 
 @app.get("/health")
 async def health():

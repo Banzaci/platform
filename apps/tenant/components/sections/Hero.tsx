@@ -16,16 +16,15 @@ type HeroProps = {
 };
 
 export default function Hero({ content, theme }: HeroProps) {
+  console.log(theme)
   return (
     <section className="relative min-h-150 overflow-hidden"
       style={{
-            backgroundColor: theme?.backgroundColor,
-            color: theme?.textColor,
-            fontFamily: theme?.fontFamily,
-            fontSize: theme?.fontSize,
-            paddingTop: theme?.paddingTop,
-            paddingBottom: theme?.paddingBottom,
-          }}
+          backgroundColor: theme?.backgroundColor,
+          fontFamily: theme?.fontFamily,
+          paddingTop: theme?.paddingTop,
+          paddingBottom: theme?.paddingBottom,
+        }}
       >
      {content.image?.url && (
       <img
@@ -37,12 +36,21 @@ export default function Hero({ content, theme }: HeroProps) {
 
       <div className="relative z-10 mx-auto flex min-h-150 max-w-6xl items-center px-6">
         <div className="max-w-2xl">
-          <h1 className="text-5xl font-bold tracking-tight text-(--text)">
+          <h1 className="text-5xl font-bold tracking-tight"
+            style={{
+              color: theme?.primaryColor,
+              fontSize: theme?.fontSize,
+            }}    
+          >
             {content.heading?.en}
           </h1>
 
           {content.text?.en && (
-            <p className="mt-6 text-xl text-(--secondary)">
+            <p className="mt-6 text-xl" 
+              style={{
+                color: theme?.secondaryColor,
+              }}
+            >
               {content.text.en}
             </p>
           )}
@@ -50,7 +58,11 @@ export default function Hero({ content, theme }: HeroProps) {
           {content.button?.href && (
             <a
               href={content.button.href}
-              className="mt-8 inline-block rounded-lg bg-(--primary) px-6 py-3 text-white"
+              className="mt-8 inline-block rounded-lg px-6 py-3"
+              style={{
+                color: theme?.button?.textColor,
+                backgroundColor: theme?.button?.backgroundColor,
+              }}    
             >
               {content.button.label?.en}
             </a>

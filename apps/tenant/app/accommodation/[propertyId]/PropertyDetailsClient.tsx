@@ -124,7 +124,7 @@ export default function PropertyDetailsClient({
     params.set("checkOut", checkOut);
   }
   const query = params.toString();
-  const bookingUrl = `/accomondation/${property.id}/book` + (query ? `?${query}` : "");
+  const bookingUrl = `/accommodation/${property.id}/book` + (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
   return (
     <main

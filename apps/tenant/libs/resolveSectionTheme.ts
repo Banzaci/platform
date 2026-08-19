@@ -11,9 +11,7 @@ export function resolveSectionTheme(
 
   return {
     // Section
-    backgroundColor:
-      theme?.backgroundColor ?? "#ffffff",
-
+    backgroundColor: theme?.backgroundColor ?? "#ffffff",
     textColor,
 
     secondaryColor,

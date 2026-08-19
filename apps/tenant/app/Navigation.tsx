@@ -16,7 +16,7 @@ export default function Navigation({ data }: { data: any }) {
         {/* Navigation */}
         <div className="flex items-center gap-8">
           <Link
-            href="/accomondation"
+            href="/accommodation"
             className="text-sm font-semibold tracking-tight text-gray-900"
           >
             Property
@@ -28,19 +28,7 @@ export default function Navigation({ data }: { data: any }) {
             FAQ
           </Link>
           {data.pages.map((page: any) => {
-            const href =
-              page.slug === "index"
-                ? "/"
-                : `/${page.slug}`;
-
-            const heading = page.sections.find(
-              (section: any) => section.id === "heading"
-            );
-
-            const label =
-              page.slug === "index"
-                ? "Home"
-                : heading?.value?.en ?? page.slug;
+            const href = page.slug === "index" ? "/" : `/${page.slug}`;
 
             return (
               <Link
@@ -48,7 +36,7 @@ export default function Navigation({ data }: { data: any }) {
                 href={href}
                 className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
               >
-                {label}
+                {page.name.en}
               </Link>
             );
           })}

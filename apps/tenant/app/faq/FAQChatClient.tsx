@@ -204,7 +204,7 @@ export default function FAQChatClient({
                                 }
 
                                 const propertyUrl =
-                                  `/accomondation/${property.id}` +
+                                  `/accommodation/${property.id}` +
                                   (params.size
                                     ? `?${params.toString()}`
                                     : "");

@@ -17,16 +17,18 @@ import { apiClient } from "@/libs/api";
 import { SectionTheme, TenantProperty } from "@/types";
 import { formatDate, getGridClass, parseDate } from "@/helpers";
 import EditablePropertyCard from "../(protected)/components/EditablePropertyCard";
-import DateSelector from "./DateSelector";
 import { useIsEditor } from "@/hooks/useIsEditor";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
+import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
+import { API_URL, TOKEN_NAME } from "../(protected)/types";
+
 export default function PropertiesPageClient({
   tenantId,
-  theme,
+  globalTheme,
 }: {
   tenantId: string;
-  theme?: SectionTheme;
+  globalTheme?: SectionTheme;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,9 +39,31 @@ export default function PropertiesPageClient({
   const [properties, setProperties] = useState<TenantProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [localTheme, setLocalTheme] = useState<SectionTheme>(
-    theme ?? {}
+    globalTheme ?? {}
+  );
+  async function saveTheme() {
+  if (!API_URL) return;
+
+  const token = localStorage.getItem(
+    TOKEN_NAME ?? "token"
   );
 
+  const response = await fetch(
+    `${API_URL}v1/tenants/${tenantId}/theme`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(localTheme),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+}
   const {
     textColor,
     secondaryColor,
@@ -49,7 +73,7 @@ export default function PropertiesPageClient({
     card_border_color,
     card_radius,
     fontFamily,
-  } = resolveSectionTheme(theme);
+  } = resolveSectionTheme(localTheme);
 
   const range = useMemo<DateRange | undefined>(() => {
     const from = parseDate(checkIn);
@@ -143,7 +167,6 @@ export default function PropertiesPageClient({
     load();
   }, [tenantId, checkIn, checkOut]);
 
-
   function setRange(
     nextRange: DateRange | undefined
   ) {
@@ -180,6 +203,7 @@ export default function PropertiesPageClient({
       }
     );
   }
+
   return (
     <section
       className="min-h-screen"
@@ -194,15 +218,18 @@ export default function PropertiesPageClient({
     >
       <DevLabel
         name="PropertiesPageClient"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/PropertiesPageClient.tsx"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/PropertiesPageClient.tsx"
       />
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-10 flex justify-center">
-          <DateSelector
-            range={range}
-            setRange={setRange}
-            theme={localTheme}
-          />
+        <DateSelectorWrapper
+          range={range}
+          setRange={setRange}
+          globalTheme={localTheme}
+          editable={isEditor}
+          onThemeChange={setLocalTheme}
+          onSave={saveTheme}
+        />
         </div>
         {loading ? (
           <div
@@ -245,7 +272,7 @@ export default function PropertiesPageClient({
                 property={property}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                theme={localTheme}
+                globalTheme={localTheme}
                 editable={isEditor}
                 onThemeChange={setLocalTheme}
               />

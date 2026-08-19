@@ -25,6 +25,7 @@ class PageOut(BaseModel):
     layout_variant: str
     sections: list[SectionSchema]
     theme: dict
+    name: dict | None = None
 
     class Config:
         from_attributes = True

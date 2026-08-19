@@ -37,30 +37,18 @@ export default function PageRenderer({
 
         if (!Component) return null;
 
-        const mergedTheme = {
-          ...globalTheme,
-          ...section.theme,
-
-          card: {
-            ...globalTheme?.card,
-            ...section.theme?.card,
-          },
-
-          button: {
-            ...globalTheme?.button,
-            ...section.theme?.button,
-          },
-
-          dateSelector: {
-            ...globalTheme?.dateSelector,
-            ...section.theme?.dateSelector,
-          },
-        };
+          const mergedTheme = {
+            ...(section.theme ?? {}),
+            global: {
+              ...(globalTheme ?? {}),
+            },
+          };
       
         return editable ? (
           <EditableSection
             key={section.id}
             section={section}
+            theme={section.theme}
             pageId={page.id}
             tenantId={page.tenant_id}
             sections={page.sections}
@@ -70,7 +58,6 @@ export default function PageRenderer({
                 name={section.type}
                 file="/Users/michellarsson/Projects/hotels/apps/tenant/app/PageRenderer.tsx"
               />
-
               <Component
                 content={section.content}
                 theme={mergedTheme}

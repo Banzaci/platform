@@ -14,12 +14,12 @@ export default function PropertyCard({
   property,
   checkIn,
   checkOut,
-  theme,
+  globalTheme,
 }: {
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
-  theme?: SectionTheme;
+  globalTheme?: SectionTheme;
 }) {
   const href = new URLSearchParams();
   if (checkIn) {
@@ -30,9 +30,7 @@ export default function PropertyCard({
     href.set("checkOut", checkOut);
   }
 
-  const bookingUrl =
-    `/accomondation/${property.id}` +
-    (href.size ? `?${href.toString()}` : "");
+  const bookingUrl = `/accommodation/${property.id}` + (href.size ? `?${href.toString()}` : "");
 
   const {
     fontFamily,
@@ -47,7 +45,7 @@ export default function PropertyCard({
     button_background,
     button_text,
     button_radius,
-  } = resolveSectionTheme(theme);
+  } = resolveSectionTheme(globalTheme);
 
   return (
     <article
@@ -63,7 +61,7 @@ export default function PropertyCard({
     >
       <DevLabel
         name="PropertyCard"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accomondation/PropertyCard.tsx"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/PropertyCard.tsx"
       />
       <PropertySlideshow
         images={property.images ?? []}

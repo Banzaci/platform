@@ -8,12 +8,13 @@ import { SectionTheme, TenantProperty } from "@/types";
 import PropertyCardTheme from "./property/PropertyCardTheme";
 import { API_URL, TOKEN_NAME } from "../types";
 import PropertyCard from "@/app/accommodation/PropertyCard";
+import EditButton from "./EditButton";
 
 type Props = {
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
-  theme: SectionTheme;
+  globalTheme: SectionTheme;
   tenantId: string;
   editable?: boolean;
   onThemeChange: (theme: SectionTheme) => void;
@@ -23,7 +24,7 @@ export default function EditablePropertyCard({
   property,
   checkIn,
   checkOut,
-  theme,
+  globalTheme,
   editable = false,
   tenantId,
   onThemeChange
@@ -33,7 +34,6 @@ export default function EditablePropertyCard({
 
   async function save() {
     if (!API_URL) return;
-    console.log(JSON.stringify(theme))
 
     setSaving(true);
 
@@ -50,7 +50,7 @@ export default function EditablePropertyCard({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(theme),
+          body: JSON.stringify(globalTheme),
         }
       );
 
@@ -73,25 +73,19 @@ export default function EditablePropertyCard({
   return (
     <div className="relative">
       {editable && (
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black text-white shadow-lg"
-        >
-          <Pencil className="h-4 w-4" />
-        </button>
+        <EditButton onClick={() => setOpen(true)} />
       )}
 
       <PropertyCard
         property={property}
         checkIn={checkIn}
         checkOut={checkOut}
-        theme={theme}
+        globalTheme={globalTheme}
       />
 
       {open && (
         <PropertyCardTheme
-          theme={theme}
+          globalTheme={globalTheme}
           onChange={onThemeChange}
           onSave={save}
           isSaving={saving}

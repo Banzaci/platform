@@ -137,7 +137,7 @@ export default function EditProperty({
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="text-2xl font-semibold">
-            Edit propertys
+            Edit property
           </h2>
 
           <button

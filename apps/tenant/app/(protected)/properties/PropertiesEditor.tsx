@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +7,7 @@ import EditProperty from "../components/EditProperty";
 import { Property } from "@/types";
 import PropertyCardEdit from "../components/property/PropertyCardEdit";
 import { apiClient } from "@/libs/api";
+import DevLabel from "@/helpers/DevLabel";
 
 export default function PropertiesEditor({
   tenantId,
@@ -116,64 +118,97 @@ export default function PropertiesEditor({
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-6 py-12 text-cyan-900">
-      <div className="mb-10">
-        <h1 className="text-3xl font-semibold">
-          Properties
-        </h1>
+    <main className="relative mx-auto w-full max-w-7xl px-6 py-10 text-gray-900">
+      <DevLabel
+        name="PropertiesPageClient"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/properties/PropertiesEditor.tsx"
+      />
 
-        <p className="mt-2 text-gray-500">
-          Manage the properties your guests can book.
-        </p>
+      <div className="mb-10 flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Properties
+          </h1>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+            Manage the rooms, apartments, villas and other
+            properties your guests can book.
+          </p>
+        </div>
+
+        {properties.length > 0 && (
+          <div className="rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-600">
+            {properties.length}{" "}
+            {properties.length === 1
+              ? "property"
+              : "properties"}
+          </div>
+        )}
       </div>
 
       {properties.length === 0 ? (
-        <div className="max-w-xl rounded-2xl border bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold">
-            How many unique properties?
-          </h2>
+        <div className="flex min-h-150 items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-gray-50/60 p-8">
+          <div className="w-full max-w-lg text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white">
+              <Plus className="h-5 w-5" />
+            </div>
 
-          <p className="mt-2 text-sm text-gray-500">
-            A property can be a room, bungalow, apartment,
-            villa or house.
-          </p>
+            <h2 className="mt-5 text-xl font-semibold">
+              Create your properties
+            </h2>
 
-          <div className="mt-6 flex gap-3">
-            <input
-              type="number"
-              min={1}
-              max={100}
-              value={count}
-              onChange={(e) =>
-                setCount(Number(e.target.value))
-              }
-              className="w-28 rounded-lg border px-4 py-3"
-            />
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+              A property can be a room, bungalow, apartment,
+              villa or house. Choose how many unique properties
+              you want to start with.
+            </p>
 
-            <button
-              type="button"
-              onClick={createProperties}
-              disabled={creating || count < 1}
-              className="flex items-center gap-2 rounded-lg bg-black px-5 py-3 text-white disabled:opacity-50"
-            >
-              <Plus className="h-4 w-4" />
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={count}
+                onChange={(e) =>
+                  setCount(Number(e.target.value))
+                }
+                className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-center outline-none transition focus:border-gray-900 sm:w-28"
+              />
 
-              {creating
-                ? "Creating..."
-                : "Create properties"}
-            </button>
+              <button
+                type="button"
+                onClick={createProperties}
+                disabled={creating || count < 1}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-black px-5 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Plus className="h-4 w-4" />
+
+                {creating
+                  ? "Creating..."
+                  : "Create properties"}
+              </button>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex flex-col gap-4">
           {properties.map((property) => (
             <PropertyCardEdit
               key={property.id}
+              tenantId={tenantId}
               property={property}
-              onEdit={() => setEditingProperty(property)}
-              onCopy={() => copyProperty(property.id)}
-              onToggleOpen={() => togglePropertyOpen(property)}
-              onDelete={() => deleteProperty(property)}
+              onEdit={() =>
+                setEditingProperty(property)
+              }
+              onCopy={() =>
+                copyProperty(property.id)
+              }
+              onToggleOpen={() =>
+                togglePropertyOpen(property)
+              }
+              onDelete={() =>
+                deleteProperty(property)
+              }
               onCalendar={() => {
                 window.location.href =
                   `/properties/${property.id}/calendar`;
@@ -182,15 +217,19 @@ export default function PropertiesEditor({
           ))}
         </div>
       )}
+
       {editingProperty && (
         <EditProperty
           tenantId={tenantId}
           property={editingProperty}
-          onClose={() => setEditingProperty(null)}
+          onClose={() =>
+            setEditingProperty(null)
+          }
           onSaved={(updatedProperty) => {
             setProperties((current) =>
               current.map((property) =>
-                property.id === updatedProperty.id
+                property.id ===
+                updatedProperty.id
                   ? updatedProperty
                   : property
               )

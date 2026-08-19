@@ -25,11 +25,6 @@ async def update_page(
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
 ):
-    print(
-        f"Updating page {page_id} for tenant {tenant_id} "
-        f"with payload: {payload}"
-    )
-
     try:
         result = await db.execute(
             select(Page).where(
