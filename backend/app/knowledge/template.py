@@ -1,7 +1,7 @@
 KNOWLEDGE_TEMPLATES = [
     # FACILITIES
     {
-        "key": "swimming_pool",
+        "key": "ask_pool",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -18,7 +18,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "wifi",
+        "key": "ask_wifi",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -35,7 +35,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "air_conditioning",
+        "key": "ask_air_conditioning",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -52,7 +52,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "fan",
+        "key": "ask_fan",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -69,7 +69,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "hot_water",
+        "key": "ask_hot_water",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -86,7 +86,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "pool_table",
+        "key": "ask_pool_table",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -103,7 +103,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "parking",
+        "key": "ask_parking",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -120,7 +120,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "laundry",
+        "key": "ask_laundry",
         "category": "facilities",
         "type": "yes_no",
         "question": {
@@ -139,7 +139,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # LOCATION
     {
-        "key": "beach_distance",
+        "key": "ask_beach_distance",
         "category": "location",
         "type": "text",
         "question": {
@@ -148,7 +148,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "town_distance",
+        "key": "ask_town_distance",
         "category": "location",
         "type": "text",
         "question": {
@@ -157,7 +157,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "airport_distance",
+        "key": "ask_airport_distance",
         "category": "location",
         "type": "text",
         "question": {
@@ -166,7 +166,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "location_description",
+        "key": "ask_location_description",
         "category": "location",
         "type": "text",
         "question": {
@@ -177,7 +177,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # TRANSPORT
     {
-        "key": "airport_transfer",
+        "key": "ask_airport_transfer",
         "category": "transport",
         "type": "yes_no",
         "question": {
@@ -194,7 +194,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "directions_from_airport",
+        "key": "ask_directions_from_airport",
         "category": "transport",
         "type": "text",
         "question": {
@@ -203,7 +203,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "directions_from_main_city",
+        "key": "ask_directions_from_main_city",
         "category": "transport",
         "type": "text",
         "question": {
@@ -212,7 +212,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "taxi_available",
+        "key": "ask_taxi_available",
         "category": "transport",
         "type": "yes_no",
         "question": {
@@ -231,7 +231,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # FOOD & DRINK
     {
-        "key": "breakfast",
+        "key": "ask_breakfast",
         "category": "food",
         "type": "yes_no",
         "question": {
@@ -248,7 +248,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "breakfast_hours",
+        "key": "ask_breakfast_hours",
         "category": "food",
         "type": "text",
         "question": {
@@ -257,7 +257,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "restaurant",
+        "key": "ask_restaurant",
         "category": "food",
         "type": "yes_no",
         "question": {
@@ -274,7 +274,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "restaurant_hours",
+        "key": "ask_restaurant_hours",
         "category": "food",
         "type": "text",
         "question": {
@@ -283,7 +283,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "bar",
+        "key": "ask_bar",
         "category": "food",
         "type": "yes_no",
         "question": {
@@ -300,7 +300,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "vegetarian_food",
+        "key": "ask_vegetarian_food",
         "category": "food",
         "type": "yes_no",
         "question": {
@@ -319,7 +319,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # CHECK-IN / CHECK-OUT
     {
-        "key": "check_in_time",
+        "key": "ask_check_in_time",
         "category": "check-in",
         "type": "time",
         "question": {
@@ -328,7 +328,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "check_out_time",
+        "key": "ask_check_out_time",
         "category": "check-in",
         "type": "time",
         "question": {
@@ -337,7 +337,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "late_check_in",
+        "key": "ask_late_check_in",
         "category": "check-in",
         "type": "yes_no",
         "question": {
@@ -354,7 +354,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "early_check_in",
+        "key": "ask_early_check_in",
         "category": "check-in",
         "type": "yes_no",
         "question": {
@@ -373,7 +373,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # POLICIES
     {
-        "key": "pets",
+        "key": "ask_pets",
         "category": "policies",
         "type": "yes_no",
         "question": {
@@ -390,7 +390,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "smoking",
+        "key": "ask_smoking",
         "category": "policies",
         "type": "yes_no",
         "question": {
@@ -407,7 +407,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "children",
+        "key": "ask_children",
         "category": "policies",
         "type": "yes_no",
         "question": {
@@ -424,7 +424,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "quiet_hours",
+        "key": "ask_quiet_hours",
         "category": "policies",
         "type": "text",
         "question": {
@@ -435,7 +435,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # ACTIVITIES
     {
-        "key": "surfing",
+        "key": "ask_surfing",
         "category": "activities",
         "type": "yes_no",
         "question": {
@@ -452,7 +452,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "surf_lessons",
+        "key": "ask_surf_lessons",
         "category": "activities",
         "type": "yes_no",
         "question": {
@@ -469,7 +469,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "tours",
+        "key": "ask_tours",
         "category": "activities",
         "type": "yes_no",
         "question": {
@@ -486,7 +486,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "activities_nearby",
+        "key": "ask_activities_nearby",
         "category": "activities",
         "type": "text",
         "question": {
@@ -497,7 +497,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # SERVICES
     {
-        "key": "reception",
+        "key": "ask_reception",
         "category": "services",
         "type": "yes_no",
         "question": {
@@ -514,7 +514,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "reception_hours",
+        "key": "ask_reception_hours",
         "category": "services",
         "type": "text",
         "question": {
@@ -523,7 +523,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "luggage_storage",
+        "key": "ask_luggage_storage",
         "category": "services",
         "type": "yes_no",
         "question": {
@@ -542,7 +542,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # PAYMENT / BOOKING
     {
-        "key": "card_payment",
+        "key": "ask_card_payment",
         "category": "payment",
         "type": "yes_no",
         "question": {
@@ -559,7 +559,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "cash_payment",
+        "key": "ask_cash_payment",
         "category": "payment",
         "type": "yes_no",
         "question": {
@@ -578,7 +578,7 @@ KNOWLEDGE_TEMPLATES = [
 
     # GENERAL
     {
-        "key": "languages_spoken",
+        "key": "ask_languages_spoken",
         "category": "general",
         "type": "text",
         "question": {
@@ -587,7 +587,7 @@ KNOWLEDGE_TEMPLATES = [
         },
     },
     {
-        "key": "special_information",
+        "key": "ask_special_information",
         "category": "general",
         "type": "text",
         "question": {

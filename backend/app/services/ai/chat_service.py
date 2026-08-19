@@ -397,6 +397,7 @@ async def handle_chat_message(
         analysis = analyze_message(text)
 
         intent = analysis["intent"]
+        print("INTENT:", intent)
         confidence = analysis["confidence"]
         entities = analysis["entities"]
 
@@ -560,3 +561,5 @@ async def handle_chat_message(
         "entities": entities,
         "message": "I don't have information about that yet.",
     }
+
+

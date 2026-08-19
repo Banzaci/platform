@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.knowledge.template import KNOWLEDGE_TEMPLATES
+from fastapi import HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.deps import require_tenant_access
 from app.api.get_current_user import get_current_user
@@ -39,10 +41,6 @@ async def get_tenant_knowledge(
     )
 
     return result.scalars().all()
-
-
-from fastapi import HTTPException
-from sqlalchemy.exc import SQLAlchemyError
 
 
 @router.post("", response_model=TenantKnowledgeOut)

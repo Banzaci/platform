@@ -32,10 +32,8 @@ export type KnowledgeTemplate = {
     | "select";
 
   question: LocalizedText;
-
   yes_answer?: LocalizedText;
   no_answer?: LocalizedText;
-
   options?: LocalizedText[];
 };
 
@@ -101,27 +99,16 @@ export default function KnowledgeEditor({
           method: "POST",
 
           body: JSON.stringify({
-            template_key:
-              template.key,
-
-            category:
-              template.category,
-
-            intent:
-              template.key,
-
-            question:
-              template.question,
-
+            template_key: template.key,
+            category: template.category,
+            intent: template.key,
+            question: template.question,
             answer: {
               [language]:
                 answer,
             },
-
             is_active: true,
-
             priority: 0,
-
             source: "template",
           }),
         }

@@ -13,12 +13,10 @@ router = APIRouter(
     tags=["ai"],
 )
 
-
 class ChatPayload(BaseModel):
     text: str
     language: str = "en"
     session_id: str = "default"
-
 
 @router.post("/chat")
 async def chat(

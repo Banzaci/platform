@@ -1,9 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Sparkle, Sparkles } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
+import DevLabel from "@/helpers/DevLabel";
 
 
 type ChatProperty = {
@@ -149,22 +150,49 @@ export default function FAQChatClient({
   }
 
   return (
-    <main className="flex min-h-[calc(100vh-64px)] flex-col bg-white text-gray-950">
+    <main className="relative flex min-h-[calc(100vh-64px)] flex-col bg-slate-50 text-slate-950">
+      <DevLabel
+        name="FAQChatClient"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/faq/FAQChatClient.tsx"
+      />
+
       <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-3xl px-5 pb-40 pt-10">
+        <div className="mx-auto w-full max-w-4xl px-5 pb-44 pt-8">
           {messages.length === 0 ? (
-            <div className="flex min-h-[55vh] flex-col items-center justify-center text-center">
-              <h1 className="text-3xl font-semibold tracking-tight">
+            <div className="flex min-h-[62vh] flex-col items-center justify-center text-center">
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
+                <Sparkle className="h-5 w-5" />
+              </div>
+
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                 How can I help?
               </h1>
 
-              <p className="mt-3 max-w-lg text-gray-500">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
                 Ask anything about {tenantName}, rooms,
-                facilities, availability or booking.
+                facilities, availability, getting here or booking.
               </p>
+
+              <div className="mt-8 grid w-full max-w-2xl gap-3 sm:grid-cols-2">
+                {[
+                  "What rooms are available?",
+                  "How far is the beach?",
+                  "How do I get here?",
+                  "What facilities do you have?",
+                ].map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => setText(question)}
+                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-7">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -175,19 +203,26 @@ export default function FAQChatClient({
                   }
                 >
                   {message.role === "user" ? (
-                    <div className="max-w-[75%] rounded-3xl bg-gray-100 px-5 py-3.5 leading-7">
+                    <div className="max-w-[80%] rounded-3xl rounded-br-lg bg-slate-900 px-5 py-3.5 text-sm leading-7 text-white shadow-sm sm:text-base">
                       {message.text}
                     </div>
                   ) : (
-                    <div className="max-w-[90%] leading-7 text-gray-800">
-                      <div>
-                        {message.text}
+                    <div className="flex max-w-[92%] gap-3">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-slate-700 shadow-sm ring-1 ring-slate-200">
+                        <Sparkles className="h-4 w-4" />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm leading-7 text-slate-700 sm:text-base">
+                          {message.text}
+                        </div>
 
                         {message.properties &&
                           message.properties.length > 0 && (
                             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                              {message.properties?.map((property) => {
-                                const params = new URLSearchParams();
+                              {message.properties.map((property) => {
+                                const params =
+                                  new URLSearchParams();
 
                                 if (message.query?.check_in) {
                                   params.set(
@@ -213,26 +248,32 @@ export default function FAQChatClient({
                                   <a
                                     key={property.id}
                                     href={propertyUrl}
-                                    className="block overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                                    className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
                                   >
                                     {property.images?.[0]?.url && (
-                                      <img
-                                        src={property.images[0].url}
-                                        alt={property.name}
-                                        className="h-40 w-full object-cover"
-                                      />
+                                      <div className="overflow-hidden">
+                                        <img
+                                          src={property.images[0].url}
+                                          alt={property.name}
+                                          className="h-40 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                                        />
+                                      </div>
                                     )}
 
                                     <div className="p-4">
-                                      <h3 className="font-semibold">
+                                      <h3 className="font-semibold text-slate-900">
                                         {property.name}
                                       </h3>
 
                                       {property.description && (
-                                        <p className="mt-2 text-sm text-gray-500">
+                                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-500">
                                           {property.description}
                                         </p>
                                       )}
+
+                                      <div className="mt-4 text-sm font-medium text-slate-900">
+                                        View room →
+                                      </div>
                                     </div>
                                   </a>
                                 );
@@ -246,8 +287,16 @@ export default function FAQChatClient({
               ))}
 
               {sending && (
-                <div className="text-sm text-gray-400">
-                  Thinking...
+                <div className="flex items-center gap-3 text-sm text-slate-400">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+                    <Sparkles className="h-4 w-4" />
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-slate-400" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:150ms]" />
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-slate-400 [animation-delay:300ms]" />
+                  </div>
                 </div>
               )}
             </div>
@@ -255,25 +304,26 @@ export default function FAQChatClient({
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent px-4 pb-6 pt-10">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent px-4 pb-5 pt-12">
         <form
           onSubmit={submit}
-          className="mx-auto flex w-full max-w-3xl items-end gap-3 rounded-3xl border bg-white p-3 shadow-lg"
+          className="mx-auto flex w-full max-w-3xl items-end gap-2 rounded-[26px] border border-slate-200 bg-white p-2 shadow-xl shadow-slate-200/60"
         >
           <textarea
             value={text}
             onChange={(event) =>
               setText(event.target.value)
             }
-            placeholder="Ask anything..."
+            placeholder={`Ask ${tenantName} anything...`}
             rows={1}
-            className="max-h-40 min-h-12 flex-1 resize-none bg-transparent px-3 py-3 outline-none"
+            className="max-h-40 min-h-12 flex-1 resize-none bg-transparent px-4 py-3 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 sm:text-base"
             onKeyDown={(event) => {
               if (
                 event.key === "Enter" &&
                 !event.shiftKey
               ) {
                 event.preventDefault();
+
                 event.currentTarget.form?.requestSubmit();
               }
             }}
@@ -282,13 +332,13 @@ export default function FAQChatClient({
           <button
             type="submit"
             disabled={!text.trim() || sending}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black text-white disabled:opacity-30"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-30"
           >
             <Send className="h-4 w-4" />
           </button>
         </form>
 
-        <p className="mx-auto mt-2 max-w-3xl text-center text-xs text-gray-400">
+        <p className="mx-auto mt-2 max-w-3xl text-center text-[11px] text-slate-400">
           AI can make mistakes. Please verify important details.
         </p>
       </div>

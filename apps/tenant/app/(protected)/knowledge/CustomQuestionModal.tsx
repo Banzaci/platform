@@ -50,7 +50,7 @@ export default function CustomQuestionModal({
             method: "POST",
             body: JSON.stringify({
               template_key: null,
-              category: "custom",
+              category: "ask_custom",
               intent: null,
               question: questionValue,
               answer: answerValue,
