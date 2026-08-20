@@ -1,6 +1,7 @@
 
 import uuid
-
+from datetime import date
+from calendar import monthrange
 from app.models.user import User
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
@@ -15,7 +16,9 @@ from app.models.booking import (
     Booking,
     BookingStatus,
 )
-
+from app.models.property import Property
+from app.models.property_block import PropertyBlock
+from app.models.property_calendar_source import PropertyCalendarSource
 from app.services.payments.payment_service import (
     get_payment_provider,
 )
@@ -1439,4 +1442,194 @@ async def update_password(
         raise HTTPException(
             status_code=500,
             detail="Could not update password",
+        )
+
+
+@router.get("/{tenant_id}/dashboard/bookings")
+async def get_dashboard_bookings(
+    tenant_id: uuid.UUID,
+    year: int = Query(...),
+    month: int = Query(..., ge=1, le=12),
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    first_day = date(
+        year,
+        month,
+        1,
+    )
+
+    last_day = date(
+        year,
+        month,
+        monthrange(year, month)[1],
+    )
+
+    next_month = (
+        date(year + 1, 1, 1)
+        if month == 12
+        else date(year, month + 1, 1)
+    )
+
+    booking_result = await db.execute(
+        select(
+            Booking,
+            Property.name.label("property_name"),
+        )
+        .join(
+            Property,
+            Property.id == Booking.property_id,
+        )
+        .where(
+            Booking.tenant_id == tenant_id,
+            Booking.check_in < next_month,
+            Booking.check_out > first_day,
+        )
+        .order_by(
+            Booking.check_in.asc()
+        )
+    )
+
+    bookings = []
+
+    for booking, property_name in booking_result.all():
+        bookings.append(
+            {
+                "id": booking.id,
+                "booking_ref": booking.booking_ref,
+                "guest_name": booking.guest_name,
+                "guest_email": booking.guest_email,
+                "guest_phone": booking.guest_phone,
+
+                "property_id": booking.property_id,
+                "property_name": property_name,
+
+                "check_in": booking.check_in,
+                "check_out": booking.check_out,
+
+                "guests": booking.guests,
+                "units": booking.units,
+                "total_price": booking.total_price,
+
+                "status": booking.status.value,
+
+                "source": booking.source or "direct",
+                "external": False,
+            }
+        )
+
+    block_result = await db.execute(
+        select(
+            PropertyBlock,
+            Property.name.label("property_name"),
+            PropertyCalendarSource.name.label("source_name"),
+        )
+        .join(
+            Property,
+            Property.id == PropertyBlock.property_id,
+        )
+        .join(
+            PropertyCalendarSource,
+            PropertyCalendarSource.id == PropertyBlock.source_id,
+        )
+        .where(
+            Property.tenant_id == tenant_id,
+            PropertyBlock.start_date < next_month,
+            PropertyBlock.end_date > first_day,
+        )
+        .order_by(
+            PropertyBlock.start_date.asc()
+        )
+    )
+
+    for block, property_name, source_name in block_result.all():
+        bookings.append(
+            {
+                "id": block.id,
+                "booking_ref": block.external_id,
+                "guest_name": None,
+                "guest_email": None,
+                "guest_phone": None,
+
+                "property_id": block.property_id,
+                "property_name": property_name,
+
+                "check_in": block.start_date,
+                "check_out": block.end_date,
+
+                "guests": None,
+                "units": None,
+                "total_price": None,
+
+                "status": "confirmed",
+
+                "source": source_name,
+                "external": True,
+            }
+        )
+
+    bookings.sort(
+        key=lambda item: item["check_in"]
+    )
+
+    return {
+        "year": year,
+        "month": month,
+        "days_in_month": last_day.day,
+        "bookings": bookings,
+    }
+
+
+@router.put("/{tenant_id}/bookings/{booking_id}/cancel")
+async def cancel_booking(
+    tenant_id: uuid.UUID,
+    booking_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(Booking).where(
+            Booking.id == booking_id,
+            Booking.tenant_id == tenant_id,
+        )
+    )
+
+    booking = result.scalar_one_or_none()
+
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found",
+        )
+
+    if booking.status == BookingStatus.cancelled:
+        raise HTTPException(
+            status_code=400,
+            detail="Booking is already cancelled",
+        )
+
+    booking.status = BookingStatus.cancelled
+
+    try:
+        await db.commit()
+        await db.refresh(booking)
+
+        return {
+            "id": booking.id,
+            "status": booking.status.value,
+        }
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "CANCEL BOOKING ERROR:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not cancel booking",
         )

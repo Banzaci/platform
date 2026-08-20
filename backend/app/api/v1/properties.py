@@ -1,7 +1,7 @@
 import uuid
 
 from sqlalchemy.orm import selectinload
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,12 +16,33 @@ from app.models.price_period import PricePeriod
 from app.helpers.property_helper import get_property_availability
 from app.services.ai.booking_service import calculate_booking_price
 from app.models.property_calendar_source import PropertyCalendarSource
+from datetime import date
+from app.models.tenant_payment_settings import TenantPaymentSettings
+
+# from app.models.booking import Booking, BookingStatus
+# from app.models.blocked_period import BlockedPeriod
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties",
     tags=["properties"],
 )
 
+class PublicPaymentSettingsOut(BaseModel):
+    online: bool
+    pay_on_property: bool
+    pay_withbank_transfer: bool
+
+    bank_name: str | None = None
+    account_name: str | None = None
+    account_number: str | None = None
+    iban: str | None = None
+    swift: str | None = None
+    bank_instructions: str | None = None
+
+
+class PublicPropertyOut(BaseModel):
+    property: PropertyOut
+    payment_settings: PublicPaymentSettingsOut
 
 class PropertyBulkCreate(BaseModel):
     count: int = Field(ge=1, le=100)
@@ -473,16 +494,6 @@ async def delete_property(
     await db.delete(property)
     await db.commit()
 
-from datetime import date
-
-from fastapi import Query
-from sqlalchemy import func, select
-from sqlalchemy.orm import selectinload
-
-from app.models.booking import Booking, BookingStatus
-from app.models.blocked_period import BlockedPeriod
-
-
 @router.get("/public", response_model=list[PropertyOut])
 async def get_public_properties(
     tenant_id: uuid.UUID,
@@ -514,12 +525,27 @@ async def get_public_properties(
             check_out=check_out,
         )
 
-        data = PropertyOut.model_validate(property)
+        data = PropertyOut.model_validate(
+            property
+        )
 
+        total_price = None
+        
+        if check_in and check_out and property.base_price:
+            price = await calculate_booking_price(
+                db=db,
+                property_id=property.id,
+                check_in=check_in,
+                check_out=check_out,
+            )
+    
+            total_price = price["total_price"]
+        
         response.append(
             data.model_copy(
                 update={
                     "is_available": is_available,
+                    "total_price": total_price,
                 }
             )
         )
@@ -527,9 +553,8 @@ async def get_public_properties(
     return response
 
 
-
-@router.get("/{property_id}/public", response_model=PropertyOut)
-async def get_public_property(
+@router.get("/{property_id}/public",response_model=PublicPropertyOut)
+async def get_public_property_by_id(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     check_in: date | None = Query(default=None),
@@ -563,31 +588,88 @@ async def get_public_property(
         check_out=check_out,
     )
 
-    nights = None
     total_price = None
+    nights = None
 
     if check_in and check_out:
         nights = (check_out - check_in).days
+        price = await calculate_booking_price(
+            db=db,
+            property_id=property.id,
+            check_in=check_in,
+            check_out=check_out,
+        )
 
-        if nights > 0:
-            price = await calculate_booking_price(
-                db=db,
-                property_id=property.id,
-                check_in=check_in,
-                check_out=check_out,
-            )
+        total_price = price["total_price"]
 
-            total_price = price["total_price"]
-
-    data = PropertyOut.model_validate(property)
-
-    return data.model_copy(
+    property_data = PropertyOut.model_validate(
+        property
+    ).model_copy(
         update={
             "is_available": is_available,
-            "nights": nights,
             "total_price": total_price,
+            "nights": nights,
         }
     )
+
+    payment_result = await db.execute(
+        select(TenantPaymentSettings).where(
+            TenantPaymentSettings.tenant_id == tenant_id
+        )
+    )
+
+    payment_settings = payment_result.scalar_one_or_none()
+
+    return {
+        "property": property_data,
+        "payment_settings": {
+            "online": (
+                payment_settings.online
+                if payment_settings
+                else False
+            ),
+            "pay_on_property": (
+                payment_settings.pay_on_property
+                if payment_settings
+                else False
+            ),
+            "pay_withbank_transfer": (
+                payment_settings.pay_withbank_transfer
+                if payment_settings
+                else False
+            ),
+            "bank_name": (
+                payment_settings.bank_name
+                if payment_settings
+                else None
+            ),
+            "account_name": (
+                payment_settings.account_name
+                if payment_settings
+                else None
+            ),
+            "account_number": (
+                payment_settings.account_number
+                if payment_settings
+                else None
+            ),
+            "iban": (
+                payment_settings.iban
+                if payment_settings
+                else None
+            ),
+            "swift": (
+                payment_settings.swift
+                if payment_settings
+                else None
+            ),
+            "bank_instructions": (
+                payment_settings.bank_instructions
+                if payment_settings
+                else None
+            ),
+        },
+    }
 
 
 

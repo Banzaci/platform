@@ -11,7 +11,7 @@ from app.api.get_current_user import get_current_user
 from app.db.session import get_db
 from app.models.property import Property
 from app.models.blocked_period import BlockedPeriod, BlockedReason
-
+from app.models.booking import Booking, BookingStatus
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties/{property_id}/blocked-periods",
@@ -81,6 +81,22 @@ async def get_blocked_periods(
 
     property_blocks = external_result.scalars().all()
 
+    booking_result = await db.execute(
+        select(Booking)
+        .where(
+            Booking.property_id == property_id,
+            Booking.status.in_([
+                BookingStatus.pending_payment,
+                BookingStatus.payment_processing,
+                BookingStatus.payment_success,
+                BookingStatus.confirmed,
+            ]),
+        )
+        .order_by(Booking.check_in)
+    )
+
+    bookings = booking_result.scalars().all()
+
     return [
         *[
             {
@@ -91,6 +107,7 @@ async def get_blocked_periods(
             }
             for block in blocked_periods
         ],
+
         *[
             {
                 "id": str(block.id),
@@ -99,6 +116,16 @@ async def get_blocked_periods(
                 "source": "external",
             }
             for block in property_blocks
+        ],
+
+        *[
+            {
+                "id": str(booking.id),
+                "start_date": booking.check_in,
+                "end_date": booking.check_out,
+                "source": "booking",
+            }
+            for booking in bookings
         ],
     ]
 

@@ -43,6 +43,12 @@ class Booking(Base):
         index=True,
     )
 
+    booking_ref: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True,
+        index=True,
+    )
+
     property_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("properties.id", ondelete="CASCADE"),

@@ -8,14 +8,16 @@ from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.booking import Booking, BookingStatus
+from app.helpers.property_helper import get_property_availability
 from app.services.ai.booking_service import calculate_booking_price
 from datetime import date
 from app.services.ai.booking_service import create_booking
 from pydantic import BaseModel
-
+from app.models.property import Property
 
 class BookingCreatePayload(BaseModel):
     property_id: uuid.UUID
+    total_price: float | None = None
     check_in: date
     check_out: date
     guests: int
@@ -25,6 +27,7 @@ class BookingCreatePayload(BaseModel):
     guest_phone: str | None = None
     special_requests: str | None = None
     payment_method: str = "online"
+    is_walk_in: bool = False
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/bookings",
@@ -283,19 +286,39 @@ async def cancel_public_booking(
       },
   }
 
-
 @router.post("")
 async def create_public_booking(
     tenant_id: uuid.UUID,
     payload: BookingCreatePayload,
     db: AsyncSession = Depends(get_db),
 ):
-    price = await calculate_booking_price(
-        db=db,
-        property_id=payload.property_id,
-        check_in=payload.check_in,
-        check_out=payload.check_out,
+    property_result = await db.execute(
+        select(Property).where(
+            Property.id == payload.property_id,
+            Property.tenant_id == tenant_id,
+            Property.is_open.is_(True),
+        )
     )
+
+    property = property_result.scalar_one_or_none()
+
+    if not property:
+        raise HTTPException(
+            status_code=404,
+            detail="Property not found",
+        )
+
+    if payload.total_price is not None:
+        total_price = payload.total_price
+    else:
+        price = await calculate_booking_price(
+            db=db,
+            property_id=payload.property_id,
+            check_in=payload.check_in,
+            check_out=payload.check_out,
+        )
+
+        total_price = price["total_price"]
 
     try:
         booking = await create_booking(
@@ -306,14 +329,16 @@ async def create_public_booking(
             check_out=payload.check_out,
             guests=payload.guests,
             units=payload.units,
-            total_price=price["total_price"],
+            total_price=total_price,
             guest_name=payload.guest_name,
             guest_email=payload.guest_email,
             guest_phone=payload.guest_phone,
             special_requests=payload.special_requests,
             payment_method=payload.payment_method,
             source="direct",
+            is_walk_in=payload.is_walk_in,
         )
+
     except ValueError as error:
         raise HTTPException(
             status_code=400,
@@ -323,6 +348,38 @@ async def create_public_booking(
     return {
         "id": str(booking.id),
         "public_token": booking.public_token,
+        "booking_ref": booking.booking_ref,
         "status": booking.status.value,
+        "check_in": booking.check_in,
+        "check_out": booking.check_out,
         "total_price": booking.total_price,
+    }
+
+
+@router.get("/confirmation/{public_token}",)
+async def get_booking_confirmation(
+    public_token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Booking).where(
+            Booking.public_token == public_token
+        )
+    )
+
+    booking = result.scalar_one_or_none()
+
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found",
+        )
+
+    return {
+        "booking_ref": booking.booking_ref,
+        "check_in": booking.check_in,
+        "check_out": booking.check_out,
+        "total_price": booking.total_price,
+        "status": booking.status.value,
+        "payment_method": booking.payment_method,
     }

@@ -1,18 +1,30 @@
-from sqlalchemy import select
-from sqlalchemy import delete
+import httpx
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.property_block import PropertyBlock
-import httpx
 from datetime import datetime, timezone
 from icalendar import Calendar
+from app.models.property import Property
 from app.models.property_calendar_source import PropertyCalendarSource
-from app.services.calendar_sync import sync_calendar_source
 
 async def sync_calendar_source(
     source: PropertyCalendarSource,
     db: AsyncSession,
 ):
     try:
+        property_result = await db.execute(
+            select(Property).where(
+                Property.id == source.property_id
+            )
+        )
+
+        property = property_result.scalar_one_or_none()
+
+        if not property:
+            raise ValueError(
+                f"Property not found: {source.property_id}"
+            )
+
         async with httpx.AsyncClient(
             timeout=20
         ) as client:
@@ -56,6 +68,7 @@ async def sync_calendar_source(
 
             db.add(
                 PropertyBlock(
+                    tenant_id=property.tenant_id,
                     property_id=source.property_id,
                     source_id=source.id,
                     external_id=str(uid),

@@ -282,8 +282,11 @@ async def create_booking(
     if guests > property.max_guests * units:
         raise ValueError("Too many guests for selected units")
 
+    booking_ref = f"BK-{uuid.uuid4().hex[:8].upper()}"
+
     booking = Booking(
         tenant_id=tenant_id,
+        booking_ref=booking_ref,
         property_id=property_id,
         check_in=check_in,
         check_out=check_out,

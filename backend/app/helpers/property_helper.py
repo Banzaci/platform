@@ -8,7 +8,6 @@ from app.models.booking import Booking, BookingStatus
 from app.models.blocked_period import BlockedPeriod
 from app.models.property import Property
 
-
 async def get_property_availability(
     db: AsyncSession,
     property: Property,
@@ -29,7 +28,10 @@ async def get_property_availability(
         .limit(1)
     )
 
-    if blocked_result.scalar_one_or_none() is not None:
+    blocked_id = blocked_result.scalar_one_or_none()
+
+    if blocked_id is not None:
+        print("UNAVAILABLE: BlockedPeriod", blocked_id)
         return False
 
     # External calendar blocks
@@ -43,7 +45,13 @@ async def get_property_availability(
         .limit(1)
     )
 
-    if external_block_result.scalar_one_or_none() is not None:
+    external_block_id = external_block_result.scalar_one_or_none()
+
+    if external_block_id is not None:
+        print(
+            "UNAVAILABLE: PropertyBlock",
+            external_block_id,
+        )
         return False
 
     # Existing bookings
@@ -66,5 +74,14 @@ async def get_property_availability(
     )
 
     booked_units = booking_result.scalar_one()
+
+    print(
+        "AVAILABILITY:",
+        property.id,
+        "units:",
+        property.units,
+        "booked:",
+        booked_units,
+    )
 
     return property.units - booked_units > 0
