@@ -36,6 +36,11 @@ class Tenant(Base):
         cascade="all, delete-orphan",
     )
 
+    booking_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
     latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,

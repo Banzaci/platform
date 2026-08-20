@@ -40,6 +40,12 @@ export default function ProtectedNavigation() {
           >
             Knowledge
           </Link>
+          <Link
+            href="/settings"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+          >
+            Settings
+          </Link>
         </nav>
 
         {/* Account */}

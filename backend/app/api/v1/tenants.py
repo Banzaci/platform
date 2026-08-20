@@ -1,6 +1,7 @@
 
 import uuid
 
+from app.models.user import User
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
 from app.api.deps import require_tenant_access, invalidate_tenant_cache_for_tenant
@@ -10,7 +11,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
 from app.core.config import settings
-from pydantic import BaseModel
+from app.models.booking import (
+    Booking,
+    BookingStatus,
+)
+
+from app.services.payments.payment_service import (
+    get_payment_provider,
+)
+from pydantic import BaseModel, EmailStr
+from app.models.payment_method import PaymentMethod
 from app.models.theme_history import ThemeHistory
 from app.models.page import Page
 from app.api.get_current_user import CurrentUser, get_current_user
@@ -18,6 +28,12 @@ from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.tenant_membership import TenantMembership
 from app.schemas.entities import TenantCreate, TenantOut, TenantFullOut, ThemeSchema
+from app.models.tenant_payment_settings import TenantPaymentSettings
+from app.schemas.payment import TenantPaymentSettingsOut, TenantPaymentSettingsUpdate
+from app.core.security import (
+    hash_password,
+    verify_password,
+)
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -25,6 +41,17 @@ class CancellationPolicyUpdate(BaseModel):
     free_cancellation_days: int
     partial_refund_hours: int
     partial_refund_percent: int
+
+class TenantEmailSettingsUpdate(BaseModel):
+    booking_email: EmailStr
+
+
+class TenantEmailSettingsOut(BaseModel):
+    booking_email: EmailStr | None
+
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str
 
 def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
     """Minimal starter template every new tenant gets: an index page and a
@@ -340,6 +367,8 @@ async def create_tenant(
     what makes it show up in GET /auth/me/tenants)."""
 
     tenant = Tenant(**payload.model_dump())
+
+    print("create_tenant")
     db.add(tenant)
 
     try:
@@ -408,9 +437,11 @@ async def generate_project(
         subdomain="laughing-goat-ghana",
         category="Hotel",
         location="Ghana",
+        booking_email="user.email",
         short_description="A beautiful hotel in Ghana.",
     )
 
+    print("generate_project") 
     db.add(tenant)
     await db.flush()
 
@@ -1067,3 +1098,345 @@ async def delete_unanswered_question(
 
     await db.delete(item)
     await db.commit()
+
+@router.put("/{tenant_id}/payment-settings",response_model=TenantPaymentSettingsOut)
+async def update_tenant_payment_settings(
+    tenant_id: uuid.UUID,
+    payload: TenantPaymentSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(TenantPaymentSettings).where(
+            TenantPaymentSettings.tenant_id == tenant_id
+        )
+    )
+
+    settings = result.scalar_one_or_none()
+
+    if not settings:
+        settings = TenantPaymentSettings(
+            tenant_id=tenant_id,
+        )
+        db.add(settings)
+
+    for method in payload.methods:
+        setattr(
+            settings,
+            method.key,
+            method.enabled,
+        )
+
+    settings.bank_name = payload.bank_name
+    settings.account_name = payload.account_name
+    settings.account_number = payload.account_number
+    settings.iban = payload.iban
+    settings.swift = payload.swift
+    settings.bank_instructions = payload.bank_instructions
+
+    try:
+        await db.commit()
+        await db.refresh(settings)
+
+        methods_result = await db.execute(
+            select(PaymentMethod)
+            .where(PaymentMethod.is_active.is_(True))
+            .order_by(PaymentMethod.sort_order)
+        )
+
+        methods = methods_result.scalars().all()
+
+        return {
+            "id": settings.id,
+            "tenant_id": settings.tenant_id,
+
+            "methods": [
+                {
+                    "id": method.id,
+                    "key": method.key,
+                    "name": method.name,
+                    "description": method.description,
+                    "enabled": getattr(
+                        settings,
+                        method.key,
+                        False,
+                    ),
+                }
+                for method in methods
+            ],
+
+            "bank_name": settings.bank_name,
+            "account_name": settings.account_name,
+            "account_number": settings.account_number,
+            "iban": settings.iban,
+            "swift": settings.swift,
+            "bank_instructions": settings.bank_instructions,
+        }
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "UPDATE TENANT PAYMENT SETTINGS ERROR:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update payment settings",
+        )
+
+# TODO Ändra frontend
+@router.post("/booking/{public_token}")
+async def create_booking_payment(
+    tenant_id: uuid.UUID,
+    public_token: str,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Booking).where(
+            Booking.tenant_id == tenant_id,
+            Booking.public_token == public_token,
+        )
+    )
+
+    booking = result.scalar_one_or_none()
+
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found",
+        )
+
+    if (
+        booking.status
+        != BookingStatus.pending_payment
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Booking is not awaiting payment",
+        )
+
+    if not booking.guest_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Booking has no guest email",
+        )
+
+    provider = get_payment_provider("stripe")
+
+    payment = await provider.create_payment(
+        amount=int(
+            round(booking.total_price * 100)
+        ),
+        currency="usd",
+        email=booking.guest_email,
+        reference=str(booking.id),
+        metadata={
+            "booking_id": str(booking.id),
+            "tenant_id": str(tenant_id),
+            "public_token": booking.public_token,
+        },
+    )
+
+    booking.provider_payment_intent_id = (
+        payment.payment_id
+    )
+
+    await db.commit()
+
+    return {
+        "booking_id": str(booking.id),
+        "public_token": booking.public_token,
+        "amount": booking.total_price,
+        "currency": "USD",
+        "status": booking.status.value,
+        "provider": payment.provider,
+        "payment_id": payment.payment_id,
+        "client_secret": payment.client_secret,
+    }
+
+@router.get("/{tenant_id}/payment-settings")
+async def get_tenant_payment_settings(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    methods_result = await db.execute(
+        select(PaymentMethod)
+        .where(
+            PaymentMethod.is_active.is_(True)
+        )
+        .order_by(
+            PaymentMethod.sort_order
+        )
+    )
+
+    methods = methods_result.scalars().all()
+
+    settings_result = await db.execute(
+        select(TenantPaymentSettings).where(
+            TenantPaymentSettings.tenant_id == tenant_id
+        )
+    )
+
+    settings = settings_result.scalar_one_or_none()
+
+    return {
+        "methods": [
+            {
+                "id": method.id,
+                "key": method.key,
+                "name": method.name,
+                "description": method.description,
+                "enabled": (
+                    getattr(settings, method.key, False)
+                    if settings
+                    else False
+                ),
+            }
+            for method in methods
+        ],
+        "bank_name": settings.bank_name if settings else None,
+        "account_name": settings.account_name if settings else None,
+        "account_number": settings.account_number if settings else None,
+        "iban": settings.iban if settings else None,
+        "swift": settings.swift if settings else None,
+        "bank_instructions": (
+            settings.bank_instructions
+            if settings
+            else None
+        ),
+    }
+
+
+@router.get(
+    "/{tenant_id}/email-settings",
+    response_model=TenantEmailSettingsOut,
+)
+async def get_tenant_email_settings(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    return {
+        "booking_email": tenant.booking_email,
+    }
+
+
+@router.put("/{tenant_id}/email-settings", response_model=TenantEmailSettingsOut)
+async def update_tenant_email_settings(
+    tenant_id: uuid.UUID,
+    payload: TenantEmailSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    tenant.booking_email = str(
+        payload.booking_email
+    )
+
+    try:
+        await db.commit()
+        await db.refresh(tenant)
+
+        return {
+            "booking_email":
+                tenant.booking_email,
+        }
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "UPDATE BOOKING EMAIL ERROR:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update booking email",
+        )
+
+
+@router.put("/{tenant_id}/password", status_code=204)
+async def update_password(
+    tenant_id: uuid.UUID,
+    payload: PasswordUpdate,
+    db: AsyncSession = Depends(get_db),
+    user=Depends(get_current_user),
+    _access=Depends(require_tenant_access),
+):
+    result = await db.execute(
+        select(User).where(
+            User.id == uuid.UUID(user.id)
+        )
+    )
+
+    db_user = result.scalar_one_or_none()
+
+    if not db_user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found",
+        )
+
+    if not verify_password(
+        payload.current_password,
+        db_user.hashed_password,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password is incorrect",
+        )
+
+    db_user.hashed_password = hash_password(
+        payload.new_password
+    )
+
+    try:
+        await db.commit()
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "UPDATE PASSWORD ERROR:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update password",
+        )

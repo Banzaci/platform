@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { apiClient } from "@/libs/api";
+import DevLabel from "@/helpers/DevLabel";
 
 type CancellationPolicy = {
   free_cancellation_days: number;
@@ -17,7 +18,11 @@ export default function CancellationPolicyForm({
   tenantId: string;
   initialPolicy: CancellationPolicy;
 }) {
-  const [policy, setPolicy] = useState(initialPolicy);
+  const [policy, setPolicy] = useState(initialPolicy ?? {
+    free_cancellation_days: 14,
+    partial_refund_hours: 48,
+    partial_refund_percent: 50,
+  });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -46,16 +51,24 @@ export default function CancellationPolicyForm({
   }
 
   return (
-    <div className="rounded-2xl border bg-white p-6 text-black">
+  <section className="relative text-slate-900">
+    <DevLabel
+      name="CancellationPolicyForm"
+      file="/Users/michellarsson/Projects/hotels/apps/tenant/app/booking/[bookingId]/settings/CancellationPolicyForm.tsx"
+    />
+
+    <div className="mb-6">
       <h2 className="text-xl font-semibold">
         Cancellation policy
       </h2>
 
-      <p className="mt-2 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-slate-500">
         Configure how much guests receive back when cancelling.
       </p>
+    </div>
 
-      <div className="mt-6 grid gap-5 md:grid-cols-3">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="grid gap-6 px-6 py-6 md:grid-cols-3">
         <label>
           <span className="mb-2 block text-sm font-medium">
             Free cancellation days
@@ -72,8 +85,12 @@ export default function CancellationPolicyForm({
                   Number(e.target.value),
               }))
             }
-            className="w-full rounded-lg border px-3 py-2"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
           />
+
+          <p className="mt-2 text-xs text-slate-400">
+            Full refund before this many days.
+          </p>
         </label>
 
         <label>
@@ -93,13 +110,17 @@ export default function CancellationPolicyForm({
                     Number(e.target.value),
                 }))
               }
-              className="w-full rounded-lg border px-3 py-2"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
             />
 
-            <span className="text-sm text-gray-500">
+            <span className="shrink-0 text-sm text-slate-500">
               hours
             </span>
           </div>
+
+          <p className="mt-2 text-xs text-slate-400">
+            Partial refund applies until this many hours before check-in.
+          </p>
         </label>
 
         <label>
@@ -120,32 +141,37 @@ export default function CancellationPolicyForm({
                     Number(e.target.value),
                 }))
               }
-              className="w-full rounded-lg border px-3 py-2"
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-400"
             />
 
-            <span className="text-sm text-gray-500">
+            <span className="shrink-0 text-sm text-slate-500">
               %
             </span>
           </div>
+
+          <p className="mt-2 text-xs text-slate-400">
+            Percentage refunded during the partial refund period.
+          </p>
         </label>
       </div>
-
-      <div className="mt-6 flex items-center justify-end gap-4">
-        {saved && (
-          <span className="text-sm text-green-600">
-            Saved
-          </span>
-        )}
-
-        <button
-          type="button"
-          onClick={save}
-          disabled={saving}
-          className="rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save policy"}
-        </button>
-      </div>
     </div>
-  );
+
+    <div className="mt-6 flex items-center justify-end gap-4">
+      {saved && (
+        <span className="text-sm text-emerald-600">
+          Policy saved
+        </span>
+      )}
+
+      <button
+        type="button"
+        onClick={save}
+        disabled={saving}
+        className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-40"
+      >
+        {saving ? "Saving..." : "Save policy"}
+      </button>
+    </div>
+  </section>
+);
 }
