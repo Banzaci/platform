@@ -8,7 +8,6 @@ alembic
 pydantic
 pydantic-settings
 email-validator
-spacy
 
 PyJWT[crypto]
 pwdlib[argon2]
@@ -23,3 +22,5 @@ stripe
 dateparser
 icalendar
 httpx
+
+spacy==3.8.14
