@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import DevLabel from "@/helpers/DevLabel";
 import { DateRange } from "react-day-picker";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { API_URL, TOKEN_NAME } from "../../types";
 
 type Props = {
   tenantId: string;
@@ -32,15 +32,60 @@ export default function BlockDatesForm({
   onSaved,
   clearRange,
 }: Props) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [price, setPrice] = useState("");
+
   async function save() {
-    if (!API_URL || !range?.from || !range?.to) return;
+    if (!API_URL || !range?.from || !range?.to) {
+      return;
+    }
 
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
+      const token = localStorage.getItem(TOKEN_NAME ?? "token");
+
+      if (reason === "walk_in") {
+        const response = await fetch(`${API_URL}v1/tenants/${tenantId}/bookings`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              property_id: propertyId,
+              check_in: formatDate(range.from),
+              check_out: formatDate(range.to),
+              guests: 1,
+              units: 1,
+              total_price: Number(price),
+              guest_name: name.trim() || null,
+              guest_email: email.trim() || null,
+              special_requests: note.trim() || null,
+              payment_method: "pay_on_property",
+              is_walk_in: true,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            await response.text()
+          );
+        }
+
+        setName("");
+        setEmail("");
+        setPrice("");
+        setNote("");
+        clearRange();
+
+        await onSaved();
+
+        return;
+      }
 
       const response = await fetch(
         `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
@@ -60,7 +105,9 @@ export default function BlockDatesForm({
       );
 
       if (!response.ok) {
-        throw new Error(await response.text());
+        throw new Error(
+          await response.text()
+        );
       }
 
       setNote("");
@@ -68,14 +115,24 @@ export default function BlockDatesForm({
 
       await onSaved();
     } catch (error) {
-      console.error("Could not block dates:", error);
+      console.error(
+        reason === "walk_in"
+          ? "Could not create walk-in booking:"
+          : "Could not block dates:",
+        error
+      );
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <div className="space-y-5">
+    <div className="relative space-y-5">
+      <DevLabel
+        name="CalendarSyncSettings"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/BlockDatesForm.tsx"
+      />
+
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-slate-600">
           Reason
@@ -83,29 +140,112 @@ export default function BlockDatesForm({
 
         <select
           value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white p-2 shadow-sm text-sm"
+          onChange={(e) =>
+            setReason(e.target.value)
+          }
+          className="w-full rounded-lg border border-slate-200 bg-white p-2 text-sm shadow-sm"
         >
-          <option value="renovation">Renovation</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="walk_in">Walk in</option>
-          <option value="owner_use">Owner use</option>
-          <option value="other">Other</option>
+          <option value="renovation">
+            Renovation
+          </option>
+
+          <option value="maintenance">
+            Maintenance
+          </option>
+
+          <option value="walk_in">
+            Walk in
+          </option>
+
+          <option value="owner_use">
+            Owner use
+          </option>
+
+          <option value="other">
+            Other
+          </option>
         </select>
       </label>
 
-      <label className="block">
-        <span className="mb-2 block text-sm font-medium text-slate-600">
-          Note
-        </span>
+      {reason === "walk_in" ? (
+        <div className="space-y-4">
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">
+              Name
+            </span>
 
-        <textarea
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          rows={4}
-          className="w-full rounded-lg border border-slate-200 bg-white p-5 shadow-sm text-slate-600 text-sm"
-        />
-      </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) =>
+                setName(e.target.value)
+              }
+              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">
+              Email
+            </span>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">
+              Price
+            </span>
+
+            <input
+              type="number"
+              min={0}
+              value={price}
+              onChange={(e) =>
+                setPrice(e.target.value)
+              }
+              className="w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-2 block text-sm font-medium text-slate-600">
+              Note
+            </span>
+
+            <textarea
+              value={note}
+              onChange={(e) =>
+                setNote(e.target.value)
+              }
+              rows={4}
+              className="w-full rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm"
+            />
+          </label>
+        </div>
+      ) : (
+        <label className="block">
+          <span className="mb-2 block text-sm font-medium text-slate-600">
+            Note
+          </span>
+
+          <textarea
+            value={note}
+            onChange={(e) =>
+              setNote(e.target.value)
+            }
+            rows={4}
+            className="w-full rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600 shadow-sm"
+          />
+        </label>
+      )}
 
       {range?.from && (
         <div className="rounded-lg bg-gray-50 p-4 text-sm">
@@ -125,10 +265,21 @@ export default function BlockDatesForm({
       <button
         type="button"
         onClick={save}
-        disabled={!range?.from || !range?.to || saving}
-        className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-medium text-slate-200 bg-black hover:text-slate-100 disabled:opacity-40"
+        disabled={
+          !range?.from ||
+          !range?.to ||
+          saving ||
+          (reason === "walk_in" &&
+            (!name.trim() ||
+              !price.trim()))
+        }
+        className="cursor-pointer rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-slate-200 hover:text-slate-100 disabled:opacity-40"
       >
-        {saving ? "Saving..." : "Block dates"}
+        {saving
+          ? "Saving..."
+          : reason === "walk_in"
+            ? "Create booking"
+            : "Block dates"}
       </button>
     </div>
   );
@@ -136,8 +287,13 @@ export default function BlockDatesForm({
 
 function formatDate(date: Date) {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
+
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
 
   return `${year}-${month}-${day}`;
 }

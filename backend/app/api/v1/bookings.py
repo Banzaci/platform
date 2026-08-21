@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.db.session import get_db
 from app.models.tenant import Tenant
 from app.models.booking import Booking, BookingStatus
-from app.helpers.property_helper import get_property_availability
+from app.models.tenant_payment_settings import TenantPaymentSettings
 from app.services.ai.booking_service import calculate_booking_price
 from datetime import date
 from app.services.ai.booking_service import create_booking
@@ -151,7 +151,7 @@ async def get_public_booking(
       "refund_amount": booking.refund_amount,
   }
 
-@router.post("/public/{public_token}/cancel")
+@router.post("/cancel/{public_token}")
 async def cancel_public_booking(
     tenant_id: uuid.UUID,
     public_token: str,
@@ -356,7 +356,7 @@ async def create_public_booking(
     }
 
 
-@router.get("/confirmation/{public_token}",)
+@router.get("/confirmation/{public_token}")
 async def get_booking_confirmation(
     public_token: str,
     db: AsyncSession = Depends(get_db),
@@ -375,6 +375,27 @@ async def get_booking_confirmation(
             detail="Booking not found",
         )
 
+    bank_details = None
+
+    if booking.payment_method == "pay_withbank_transfer":
+        payment_result = await db.execute(
+            select(TenantPaymentSettings).where(
+                TenantPaymentSettings.tenant_id == booking.tenant_id
+            )
+        )
+
+        payment_settings = payment_result.scalar_one_or_none()
+
+        if payment_settings:
+            bank_details = {
+                "bank_name": payment_settings.bank_name,
+                "account_name": payment_settings.account_name,
+                "account_number": payment_settings.account_number,
+                "iban": payment_settings.iban,
+                "swift": payment_settings.swift,
+                "bank_instructions": payment_settings.bank_instructions,
+            }
+
     return {
         "booking_ref": booking.booking_ref,
         "check_in": booking.check_in,
@@ -382,4 +403,5 @@ async def get_booking_confirmation(
         "total_price": booking.total_price,
         "status": booking.status.value,
         "payment_method": booking.payment_method,
+        "bank_details": bank_details,
     }

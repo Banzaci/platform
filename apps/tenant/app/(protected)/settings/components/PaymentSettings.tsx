@@ -218,7 +218,7 @@ export default function PaymentSettings({
     <section className="relative text-slate-900">
       <DevLabel
         name="PaymentSettings"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/payment/PaymentSettings.tsx"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/settings/components/PaymentSettings.tsx"
       />
       <div className="mb-6">
         <h2 className="text-xl font-semibold">
@@ -240,7 +240,7 @@ export default function PaymentSettings({
                 icon={getPaymentMethodIcon(
                   method.key
                 )}
-                title={method.id}
+                title={method.name}
                 description={
                   method.description ?? ""
                 }

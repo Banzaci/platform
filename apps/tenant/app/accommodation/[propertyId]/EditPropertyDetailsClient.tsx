@@ -30,7 +30,6 @@ export default function EditPropertyDetailsClient({
               ...(globalTheme ?? {}),
             },
           };
-          console.log(mergedTheme)
           return (
             <EditableSection
               key={section.id}

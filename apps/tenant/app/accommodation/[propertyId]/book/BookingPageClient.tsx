@@ -11,8 +11,10 @@ import {
 } from "next/navigation";
 import {
   CancellationPolicy,
+  Property,
+  PublicPaymentSettings,
+  PublicPropertyResponse,
   SectionTheme,
-  TenantProperty,
 } from "@/types";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { getShadow } from "@/helpers";
@@ -34,7 +36,10 @@ type Props = {
 type BookingResponse = {
   id: string;
   public_token: string;
+  booking_ref: string;
   status: string;
+  check_in: string;
+  check_out: string;
   total_price: number;
 };
 
@@ -59,31 +64,22 @@ export default function BookingPageClient({
   const searchParams = useSearchParams();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
-
-  const [property, setProperty] =
-    useState<TenantProperty | null>(null);
-
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
+  const [paymentMethods, setPaymentMethods] = useState<PublicPaymentSettings | null>(null);
+  const [showBankDetails, setShowBankDetails] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [creatingPayment, setCreatingPayment] =
-    useState(false);
-
+  const [creatingPayment, setCreatingPayment] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guests, setGuests] = useState(1);
-  const [specialRequests, setSpecialRequests] =
-    useState("");
+  const [specialRequests, setSpecialRequests] = useState("");
+  const [publicToken, setPublicToken] = useState<string | null>(null);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [publicToken, setPublicToken] =
-    useState<string | null>(null);
-
-  const [clientSecret, setClientSecret] =
-    useState<string | null>(null);
-
-  const [error, setError] =
-    useState<string | null>(null);
-
-    const {
+  const {
     fontFamily,
     textColor,
     backgroundColor,
@@ -114,18 +110,15 @@ export default function BookingPageClient({
         if (checkOut) {
           params.set("check_out", checkOut);
         }
-
         const query = params.toString();
-
-        const data =
-          await apiClient.api<TenantProperty>(
+        const data = await apiClient.api<PublicPropertyResponse>(
             `v1/tenants/${tenantId}/properties/${propertyId}/public${
               query ? `?${query}` : ""
             }`
           );
-
         if (!cancelled) {
-          setProperty(data);
+          setProperty(data.property);
+          setPaymentMethods(data.payment_settings)
         }
       } catch (error) {
         console.error(
@@ -140,7 +133,6 @@ export default function BookingPageClient({
     }
 
     void load();
-
     return () => {
       cancelled = true;
     };
@@ -151,17 +143,9 @@ export default function BookingPageClient({
     checkOut,
   ]);
 
-  async function startPayment(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function startPayment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (
-      !property ||
-      !checkIn ||
-      !checkOut ||
-      creatingPayment
-    ) {
+    if (!property || !checkIn || !checkOut || creatingPayment) {
       return;
     }
 
@@ -169,54 +153,127 @@ export default function BookingPageClient({
     setError(null);
 
     try {
-      // 1. Create booking
-      const booking =
-        await apiClient.api<BookingResponse>(
-          `v1/tenants/${tenantId}/bookings`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              property_id: property.id,
-              check_in: checkIn,
-              check_out: checkOut,
-              guests,
-              units: 1,
-              guest_name: guestName,
-              guest_email: guestEmail,
-              guest_phone:
-                guestPhone.trim() || null,
-              special_requests:
-                specialRequests.trim() || null,
-              payment_method: "online",
-            }),
+        switch (paymentMethod) {
+          case "online": {
+            const booking = await apiClient.api<BookingResponse>(
+                `v1/tenants/${tenantId}/bookings`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({
+                    property_id: property.id,
+                    check_in: checkIn,
+                    check_out: checkOut,
+                    guests,
+                    units: 1,
+                    guest_name: guestName,
+                    guest_email: guestEmail,
+                    guest_phone:
+                      guestPhone.trim() || null,
+                    special_requests:
+                      specialRequests.trim() || null,
+                    payment_method: "online",
+                  }),
+                }
+              );
+
+            setPublicToken(
+              booking.public_token
+            );
+
+            const payment =
+              await apiClient.api<PaymentResponse>(
+                `v1/tenants/${tenantId}/payments/booking/${booking.public_token}`,
+                {
+                  method: "POST",
+                }
+              );
+
+            setClientSecret(
+              payment.client_secret
+            );
+
+            break;
           }
+          case "pay_on_property": {
+            const booking =
+              await apiClient.api<BookingResponse>(
+                `v1/tenants/${tenantId}/bookings`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({
+                    property_id: property.id,
+                    check_in: checkIn,
+                    check_out: checkOut,
+                    guests,
+                    units: 1,
+                    guest_name: guestName,
+                    guest_email: guestEmail,
+                    guest_phone:
+                      guestPhone.trim() || null,
+                    special_requests:
+                      specialRequests.trim() || null,
+                    payment_method:
+                      "pay_on_property",
+                  }),
+                }
+              );
+
+            setPublicToken(
+              booking.public_token
+            );
+            router.push(`/booking/confirmation/${booking.public_token}`);
+            break;
+          }
+
+          case "pay_withbank_transfer": {
+            const booking =
+              await apiClient.api<BookingResponse>(
+                `v1/tenants/${tenantId}/bookings`,
+                {
+                  method: "POST",
+                  body: JSON.stringify({
+                    property_id: property.id,
+                    check_in: checkIn,
+                    check_out: checkOut,
+                    guests,
+                    units: 1,
+                    guest_name: guestName,
+                    guest_email: guestEmail,
+                    guest_phone:
+                      guestPhone.trim() || null,
+                    special_requests:
+                      specialRequests.trim() || null,
+                    payment_method:
+                      "pay_withbank_transfer",
+                  }),
+                }
+              );
+
+            setPublicToken(
+              booking.public_token
+            );
+            router.push(`/booking/confirmation/${booking.public_token}`);
+            break;
+          }
+
+          default:
+            throw new Error(
+              "Invalid payment method"
+            );
+        }
+      } catch (error) {
+        console.error(
+          "Could not create booking:",
+          error
         );
 
-      setPublicToken(booking.public_token);
-
-      // 2. Create Stripe PaymentIntent
-      const payment =
-        await apiClient.api<PaymentResponse>(
-          `v1/tenants/${tenantId}/payments/booking/${booking.public_token}`,
-          {
-            method: "POST",
-          }
+        setError(
+          "Could not complete booking. Please try again."
         );
-
-      setClientSecret(payment.client_secret);
-    } catch (error) {
-      console.error(
-        "Could not start booking payment:",
-        error
-      );
-
-      setError(
-        "Could not start payment. Please try again."
-      );
-    } finally {
-      setCreatingPayment(false);
+      } finally {
+        setCreatingPayment(false);
+      }
     }
-  }
 
   if (loading) {
     return (
@@ -245,7 +302,19 @@ export default function BookingPageClient({
       </div>
     );
   }
-
+  if (!paymentMethods) {
+    return (
+      <div
+        className="px-6 py-20"
+        style={{
+          backgroundColor,
+          color: secondaryColor,
+        }}
+      >
+        Property not found.
+      </div>
+    );
+  }
   if (!checkIn || !checkOut) {
     return (
       <div
@@ -473,16 +542,173 @@ export default function BookingPageClient({
                     {error}
                   </div>
                 )}
-
                 <div
                   className="border-t pt-5"
                   style={{
                     borderColor: card_border_color,
                   }}
                 >
+                  <div className="mb-5">
+                    <h3 className="text-sm font-semibold">
+                      Payment method
+                    </h3>
+
+                    <div className="mt-3 space-y-2">
+                      {paymentMethods.online && (
+                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3">
+                          <input
+                            type="radio"
+                            name="payment_method"
+                            value="online"
+                            checked={paymentMethod === "online"}
+                            onChange={() =>
+                              setPaymentMethod("online")
+                            }
+                          />
+
+                          <span className="text-sm">
+                            Online payment
+                          </span>
+                        </label>
+                      )}
+
+                      {paymentMethods.pay_on_property && (
+                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3">
+                          <input
+                            type="radio"
+                            name="payment_method"
+                            value="pay_on_property"
+                            checked={
+                              paymentMethod ===
+                              "pay_on_property"
+                            }
+                            onChange={() =>
+                              setPaymentMethod(
+                                "pay_on_property"
+                              )
+                            }
+                          />
+
+                          <span className="text-sm">
+                            Pay at property
+                          </span>
+                        </label>
+                      )}
+
+                      {paymentMethods.pay_withbank_transfer && (
+                        <div className="rounded-lg border">
+                          <label className="flex cursor-pointer items-center gap-3 p-3">
+                            <input
+                              type="radio"
+                              name="payment_method"
+                              value="pay_withbank_transfer"
+                              checked={
+                                paymentMethod ===
+                                "pay_withbank_transfer"
+                              }
+                              onChange={() => {
+                                setPaymentMethod(
+                                  "pay_withbank_transfer"
+                                );
+                                setShowBankDetails(true);
+                              }}
+                            />
+
+                            <span className="flex-1 text-sm">
+                              Bank transfer
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setShowBankDetails(
+                                  (current) => !current
+                                )
+                              }
+                              className="text-xs underline"
+                            >
+                              {showBankDetails
+                                ? "Hide details"
+                                : "Bank details"}
+                            </button>
+                          </label>
+
+                          {showBankDetails && (
+                            <div
+                              className="border-t px-4 py-4 text-sm"
+                              style={{
+                                borderColor:
+                                  card_border_color,
+                                color:
+                                  card_secondary_color,
+                              }}
+                            >
+                              <div className="space-y-2">
+                                {paymentMethods.bank_name && (
+                                  <div>
+                                    <strong>Bank:</strong>{" "}
+                                    {paymentMethods.bank_name}
+                                  </div>
+                                )}
+
+                                {paymentMethods.account_name && (
+                                  <div>
+                                    <strong>
+                                      Account name:
+                                    </strong>{" "}
+                                    {
+                                      paymentMethods.account_name
+                                    }
+                                  </div>
+                                )}
+
+                                {paymentMethods.account_number && (
+                                  <div>
+                                    <strong>
+                                      Account number:
+                                    </strong>{" "}
+                                    {
+                                      paymentMethods.account_number
+                                    }
+                                  </div>
+                                )}
+
+                                {paymentMethods.iban && (
+                                  <div>
+                                    <strong>IBAN:</strong>{" "}
+                                    {paymentMethods.iban}
+                                  </div>
+                                )}
+
+                                {paymentMethods.swift && (
+                                  <div>
+                                    <strong>
+                                      SWIFT / BIC:
+                                    </strong>{" "}
+                                    {paymentMethods.swift}
+                                  </div>
+                                )}
+
+                                {paymentMethods.bank_instructions && (
+                                  <div className="mt-3">
+                                    {
+                                      paymentMethods.bank_instructions
+                                    }
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                   <button
                     type="submit"
-                    disabled={creatingPayment}
+                    disabled={
+                      creatingPayment ||
+                      !paymentMethod
+                    }
                     className="w-full px-5 py-3.5 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
                     style={{
                       backgroundColor: button_background,
@@ -491,18 +717,46 @@ export default function BookingPageClient({
                     }}
                   >
                     {creatingPayment
-                      ? "Preparing payment..."
-                      : `Pay $${property.total_price}`}
+                      ? "Preparing..."
+                      : paymentMethod === "online"
+                        ? `Pay $${property.total_price}`
+                        : "Complete booking"}
                   </button>
 
-                  <p
-                    className="mt-3 text-center text-xs"
-                    style={{
-                      color: card_secondary_color,
-                    }}
-                  >
-                    You will be redirected to secure payment.
-                  </p>
+                  {paymentMethod === "online" && (
+                    <p
+                      className="mt-3 text-center text-xs"
+                      style={{
+                        color: card_secondary_color,
+                      }}
+                    >
+                      You will be redirected to secure payment.
+                    </p>
+                  )}
+
+                  {paymentMethod === "pay_on_property" && (
+                    <p
+                      className="mt-3 text-center text-xs"
+                      style={{
+                        color: card_secondary_color,
+                      }}
+                    >
+                      No payment is required now.
+                    </p>
+                  )}
+
+                  {paymentMethod ===
+                    "pay_withbank_transfer" && (
+                    <p
+                      className="mt-3 text-center text-xs"
+                      style={{
+                        color: card_secondary_color,
+                      }}
+                    >
+                      Complete your booking and pay by bank
+                      transfer.
+                    </p>
+                  )}
                 </div>
               </form>
             ) : (
@@ -512,9 +766,7 @@ export default function BookingPageClient({
                   clientSecret,
                 }}
               >
-                <PaymentForm
-                  returnUrl={`${window.location.origin}/booking/${publicToken}/payment/success`}
-                />
+                <PaymentForm returnUrl={`${window.location.origin}/booking/${publicToken}/payment/success`} />
               </Elements>
             )}
           </div>
@@ -523,7 +775,8 @@ export default function BookingPageClient({
         {/* Booking summary */}
         <aside className="lg:sticky lg:top-6">
           <BookingSummary
-            property={property}
+            nights={property.nights}
+            total_price={property.total_price}
             checkIn={checkIn}
             checkOut={checkOut}
             cancellationPolicy={cancellationPolicy}

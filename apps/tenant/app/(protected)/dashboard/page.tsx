@@ -1,4 +1,5 @@
 import { getTenant } from "@/libs/tenant";
+import DashBoardBookings from "./DashBoardBookings";
 // import BookingList from "./components/BookingList";
 
 export default async function DashboardPage() {
@@ -16,7 +17,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* <BookingList tenantId={data.tenant.id} /> */}
+      <DashBoardBookings tenantId={data.tenant.id} />
     </main>
   );
 }

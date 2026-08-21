@@ -93,10 +93,10 @@ export default function PropertyCard({
             )}
           </div>
 
-          {property.base_price && (
+          {property.total_price && (
             <div className="shrink-0 text-right">
-              <div className="text-lg font-semibold">
-                ${property.base_price.daily_price}
+              <div className="text-md font-semibold">
+                ${property.total_price}
               </div>
 
               <div
@@ -105,7 +105,7 @@ export default function PropertyCard({
                   color: card_secondary_color,
                 }}
               >
-                per night
+                ${property.base_price?.daily_price} per night
               </div>
             </div>
           )}
@@ -163,7 +163,7 @@ export default function PropertyCard({
                 borderRadius: button_radius,
               }}
             >
-              Book now
+              View property
               <ChevronRight className="h-4 w-4" />
             </a>
           ) : (
@@ -178,7 +178,7 @@ export default function PropertyCard({
                   borderRadius: button_radius,
                 }}
               >
-                Book now
+                View property
                 <ChevronRight className="h-4 w-4" />
               </button>
 

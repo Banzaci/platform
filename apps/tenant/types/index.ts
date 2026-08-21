@@ -109,9 +109,11 @@ export type Property = {
   name: string;
   description: string | null;
   max_guests: number;
+  total_price: number;
   bedrooms: number;
   beds: number;
   bathrooms: number;
+  nights: number;
   units: number;
   amenities: string[];
   images: PropertyImage[];
@@ -154,4 +156,27 @@ export type TenantProperty = {
     partial_refund_hours: number;
     partial_refund_percent: number;
   };
+};
+
+export type PublicPaymentSettings = {
+  online: boolean;
+  pay_on_property: boolean;
+  pay_withbank_transfer: boolean;
+
+  bank_name: string | null;
+  account_name: string | null;
+  account_number: string | null;
+  iban: string | null;
+  swift: string | null;
+  bank_instructions: string | null;
+};
+
+export type PublicPropertyResponse = {
+  property: Property;
+  payment_settings: PublicPaymentSettings;
+};
+
+export type PublicTenantPropertyResponse = {
+  property: TenantProperty;
+  payment_settings: PublicPaymentSettings;
 };

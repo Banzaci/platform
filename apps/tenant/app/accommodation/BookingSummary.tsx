@@ -1,26 +1,28 @@
 import {
   CancellationPolicy,
-  TenantProperty,
+  Property,
 } from "@/types";
 import { getShadow } from "@/helpers";
+import DevLabel from "@/helpers/DevLabel";
 
 type Props = {
-  property: TenantProperty;
   checkIn: string;
   checkOut: string;
   cancellationPolicy: CancellationPolicy;
-
   textColor: string;
   secondaryColor: string;
   headingFontFamily?: string;
   cardBackground: string;
   cardBorderColor: string;
   cardBorderRadius: string;
+  nights?: number | null;
+  total_price?: number | null;
   cardShadow?: "none" | "sm" | "md" | "lg";
 };
 
 export default function BookingSummary({
-  property,
+  total_price,
+  nights,
   checkIn,
   checkOut,
   cancellationPolicy,
@@ -43,6 +45,10 @@ export default function BookingSummary({
         boxShadow: getShadow(cardShadow),
       }}
     >
+      <DevLabel
+        name="CalendarSyncSettings"
+        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/BookingSummary.tsx"
+      />
       <h2
         className="text-xl font-semibold"
         style={{
@@ -74,17 +80,15 @@ export default function BookingSummary({
           </span>
         </div>
 
-        {property.nights != null && (
+        {nights != null && (
           <div className="flex justify-between">
             <span>Nights</span>
-
             <span style={{ color: textColor }}>
-              {property.nights}
+              {nights}
             </span>
           </div>
         )}
-
-        {property.total_price != null && (
+        {total_price != null && (
           <div
             className="flex justify-between border-t pt-4"
             style={{
@@ -102,7 +106,7 @@ export default function BookingSummary({
                 fontFamily: headingFontFamily,
               }}
             >
-              ${property.total_price}
+              ${total_price}
             </span>
           </div>
         )}

@@ -11,6 +11,8 @@ import {
 import { apiClient } from "@/libs/api";
 import {
   CancellationPolicy,
+  PublicPropertyResponse,
+  PublicTenantPropertyResponse,
   SectionTheme,
   TenantProperty,
 } from "@/types";
@@ -56,13 +58,13 @@ export default function PropertyDetailsClient({
 
         console.log(query)
 
-        const data = await apiClient.api<TenantProperty>(
+        const data = await apiClient.api<PublicTenantPropertyResponse>(
             `v1/tenants/${tenantId}/properties/${propertyId}/public${
               query ? `?${query}` : ""
             }`
           );
 
-        setProperty(data);
+        setProperty(data.property);
       } catch (error) {
         console.error(
           "Could not load property:",
@@ -229,53 +231,12 @@ export default function PropertyDetailsClient({
                   </div>
                 </section>
               )}
-
-              {/* Cancellation policy */}
-              <div
-                className="mt-10 border p-5"
-                style={{
-                  backgroundColor: card_background_color,
-                  color: textColor,
-                  borderColor: card_border_color,
-                  borderRadius: card_radius,
-                  boxShadow: getShadow(card_shadow),
-                }}
-              >
-                <h3 className="font-semibold">
-                  Cancellation policy
-                </h3>
-
-                <div
-                  className="mt-3 space-y-2 text-sm"
-                  style={{
-                    color: secondaryColor,
-                  }}
-                >
-                  <p>
-                    Free cancellation up to{" "}
-                    {cancellationPolicy.free_cancellation_days} days
-                    before check-in.
-                  </p>
-
-                  <p>
-                    {cancellationPolicy.partial_refund_percent}% refund
-                    when cancelling at least{" "}
-                    {cancellationPolicy.partial_refund_hours} hours
-                    before check-in.
-                  </p>
-
-                  <p>
-                    No refund for cancellations made less than{" "}
-                    {cancellationPolicy.partial_refund_hours} hours
-                    before check-in.
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
           <aside>
           {checkIn && checkOut && <BookingSummary
-            property={property}
+            nights={property.nights}
+            total_price={property.total_price}
             checkIn={checkIn}
             checkOut={checkOut}
             cancellationPolicy={cancellationPolicy}
@@ -297,7 +258,7 @@ export default function PropertyDetailsClient({
                   borderRadius: button_radius,
                 }}
               >
-                Book now
+                Pay now
               </a>
             ) : (
               <button
@@ -310,7 +271,7 @@ export default function PropertyDetailsClient({
                   borderRadius: button_radius,
                 }}
               >
-                Book now
+                Pay now
               </button>
             )}
             </div>
