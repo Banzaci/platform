@@ -31,7 +31,6 @@ class PublicPaymentSettingsOut(BaseModel):
     online: bool
     pay_on_property: bool
     pay_withbank_transfer: bool
-
     bank_name: str | None = None
     account_name: str | None = None
     account_number: str | None = None

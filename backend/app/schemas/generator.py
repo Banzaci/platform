@@ -2,7 +2,9 @@ from pydantic import BaseModel
 
 
 class GenerateProjectRequest(BaseModel):
-    prompt: str
+    name: str
+    short_description: str
+    pages:list[str]
 
 
 class GenerateProjectResponse(BaseModel):

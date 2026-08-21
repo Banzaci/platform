@@ -1,7 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import {
+  FormEvent,
+  useState,
+} from "react";
+
 import { useRouter } from "next/navigation";
+import {
+  Plus,
+  Trash2,
+} from "lucide-react";
+
 import { apiClient } from "@/libs/api";
 
 type GenerateProjectResponse = {
@@ -9,17 +18,58 @@ type GenerateProjectResponse = {
   message: string;
 };
 
+type PageInput = {
+  name: string;
+};
+
 export default function AIInputTextArea() {
   const router = useRouter();
-
-  const [prompt, setPrompt] = useState("");
+  const [name, setName] = useState("");
+  const [ shortDescription, setShortDescription] = useState("");
+  const [pages, setPages] = useState<PageInput[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  function addPage() {
+    setPages((current) => [
+      ...current,
+      {
+        name: "",
+      },
+    ]);
+  }
+
+  function updatePage(
+    index: number,
+    value: string
+  ) {
+    setPages((current) =>
+      current.map((page, pageIndex) =>
+        pageIndex === index
+          ? {
+              ...page,
+              name: value,
+            }
+          : page
+      )
+    );
+  }
+
+  function removePage(
+    index: number
+  ) {
+    setPages((current) =>
+      current.filter(
+        (_, pageIndex) =>
+          pageIndex !== index
+      )
+    );
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!prompt.trim() || isSubmitting) {
+    if (!name.trim() || isSubmitting) {
       return;
     }
 
@@ -27,74 +77,248 @@ export default function AIInputTextArea() {
     setIsSubmitting(true);
 
     try {
-      const result = await apiClient.api<GenerateProjectResponse>(
-        "v1/tenants/generate",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            prompt: prompt.trim(),
-          }),
-        }
-      );
+      const result =
+        await apiClient.api<GenerateProjectResponse>(
+          "v1/tenants/generate",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              name: name.trim(),
+              short_description: shortDescription.trim(),
+              pages: pages.map((page) => page.name.trim()).filter(Boolean),
+            }),
+          }
+        );
 
-      router.push(`/tenant/${result.tenant_id}`);
+      router.push(
+        `/tenant/${result.tenant_id}`
+      );
     } catch (error) {
       console.error(error);
-      setError("Something went wrong. Please try again.");
+
+      setError(
+        "Something went wrong. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <main className="flex items-center justify-center bg-[#f7f7f8] px-6">
+    <main className="flex justify-center bg-[#f7f7f8] px-6 py-10">
       <div className="w-full max-w-3xl">
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-semibold tracking-tight text-gray-900">
-            What do you want to create?
+        <div className="mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
+            Create hotel
           </h1>
-          <p className="mt-3 text-lg text-gray-500">
-            Describe your hotel and we&apos;ll create the starting point for
-            you.
+
+          <p className="mt-2 text-sm text-gray-500">
+            Add the basic hotel
+            information and choose which
+            pages should be created.
           </p>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <textarea
-              value={prompt}
-              onChange={(event) => setPrompt(event.target.value)}
-              placeholder="I want to create a new project called Laughing Goat Ghana, 9 rooms, a contact page, an about us page and the first page should have 3 images in a row with text..."
-              disabled={isSubmitting}
-              rows={7}
-              className="w-full resize-none rounded-2xl px-5 py-5 text-base leading-7 text-gray-900 outline-none placeholder:text-gray-400 disabled:opacity-60"
-            />
 
-            <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-              <span className="text-sm text-gray-400">
-                Describe your hotel in your own words
-              </span>
-
-              <button
-                type="submit"
-                disabled={!prompt.trim() || isSubmitting}
-                className="rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {isSubmitting ? "Creating..." : "Create project"}
-              </button>
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Hotel details
+            </h2>
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-gray-700">
+                    Short description
+                  </span>
+                  <textarea
+                    value={shortDescription}
+                    onChange={(event) =>
+                      setShortDescription(
+                        event.target
+                          .value
+                      )
+                    }
+                    rows={4}
+                    placeholder="A beautiful hotel in Ghana."
+                    className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400"
+                  />
+                </label>
+              </div>
             </div>
           </div>
+
+          <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Pages
+                </h2>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Add the pages you want
+                  created for the hotel.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addPage}
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                <Plus className="h-4 w-4" />
+                Add page
+              </button>
+            </div>
+            <Field
+                label="Name"
+                value={name}
+                onChange={(value) => setName(value)}
+                placeholder="Laughing Goat Ghana"
+              />
+            {pages.length > 0 ? (
+              <div className="mt-5 space-y-3">
+                {pages.map(
+                  (page, index) => {
+                    const slug = toSlug(page.name);
+                    return (
+                      <div
+                        key={index}
+                        className="rounded-xl border border-gray-200 p-4"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="min-w-0 flex-1">
+                            <label className="block">
+                              <span className="mb-2 block text-sm font-medium text-gray-700">
+                                Page name
+                              </span>
+
+                              <input
+                                type="text"
+                                value={
+                                  page.name
+                                }
+                                onChange={(
+                                  event
+                                ) =>
+                                  updatePage(
+                                    index,
+                                    event
+                                      .target
+                                      .value
+                                  )
+                                }
+                                placeholder="About us"
+                                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400"
+                              />
+                            </label>
+
+                            {page.name.trim() && (
+                              <div className="mt-2 text-xs text-gray-400">
+                                slug:{" "}
+                                <span className="font-mono">
+                                  {slug}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removePage(
+                                index
+                              )
+                            }
+                            className="mt-7 rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            ) : (
+              <div className="mt-5 rounded-xl border border-dashed border-gray-200 px-5 py-8 text-center text-sm text-gray-400">
+                No pages added yet.
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-500">
+              {error}
+            </p>
+          )}
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={!name.trim() || isSubmitting}
+              className="rounded-xl bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {isSubmitting
+                ? "Creating..."
+                : "Create hotel"}
+            </button>
+          </div>
         </form>
-
-        {error && (
-          <p className="mt-4 text-center text-sm text-red-500">
-            {error}
-          </p>
-        )}
-
-        <div className="mt-8 text-center text-sm text-gray-400">
-          Example: hotel name, number of rooms, pages and layout
-        </div>
       </div>
     </main>
   );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+}: {
+  label: string;
+  value: string;
+  onChange: (
+    value: string
+  ) => void;
+  placeholder?: string;
+  type?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="mb-2 block text-sm font-medium text-gray-700">
+        {label}
+      </span>
+
+      <input
+        type={type}
+        value={value}
+        onChange={(event) =>
+          onChange(
+            event.target.value
+          )
+        }
+        placeholder={placeholder}
+        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400"
+      />
+    </label>
+  );
+}
+
+function toSlug(
+  value: string
+) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(
+      /[\u0300-\u036f]/g,
+      ""
+    )
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

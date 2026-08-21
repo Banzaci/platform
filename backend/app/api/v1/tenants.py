@@ -1,5 +1,6 @@
 
 import uuid
+import re
 from datetime import date
 from calendar import monthrange
 from app.models.user import User
@@ -75,7 +76,7 @@ def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
                     "type": "hero",
                     "content": {
                         "heading": {
-                            "en": "Welcome to Laughing Goat Ghana"
+                            "en": "Welcome to us"
                         },
                         "text": {
                             "en": "A beautiful hotel in Ghana."
@@ -385,6 +386,7 @@ async def create_tenant(
 
     db.add(TenantMembership(tenant_id=tenant.id, user_id=uuid.UUID(user.id), role="owner"))
     db.add_all(_default_pages(tenant.id))
+    print("Create_tenant: --------------------------------------")
     await db.commit()
     await db.refresh(tenant)
     return tenant
@@ -429,22 +431,26 @@ async def get_tenants(
             detail="Failed to fetch tenants",
         )
 
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    return value.strip("-")
+
+
 @router.post("/generate", response_model=GenerateProjectResponse)
 async def generate_project(
     payload: GenerateProjectRequest,
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
 ):
+    subdomain = slugify(payload.name)
+
     tenant = Tenant(
-        name="Laughing Goat Ghana",
-        subdomain="laughing-goat-ghana",
-        category="Hotel",
-        location="Ghana",
-        booking_email="user.email",
-        short_description="A beautiful hotel in Ghana.",
+        name=payload.name,
+        subdomain=subdomain,
+        short_description=payload.short_description,
     )
 
-    print("generate_project") 
     db.add(tenant)
     await db.flush()
 
@@ -456,350 +462,83 @@ async def generate_project(
         )
     )
 
+    accommodation_page = Page(
+        tenant_id=tenant.id,
+        slug="accommodation",
+        key="accommodation",
+        name={
+            "en": "Accommodation",
+        },
+        layout_variant="default",
+        sort_order=1,
+        sections=[
+            {
+                "id": "property-grid",
+                "type": "property-grid",
+                "content": {
+                    "heading": {
+                        "en": "Book your stay",
+                    },
+                    "text": {
+                        "en": "Choose your dates and find the perfect place to stay.",
+                    },
+                },
+                "layout": None,
+                "theme": {},
+            }
+        ],
+        theme={},
+        is_system=True,
+    )
+
     pages = [
-        Page(
+        accommodation_page,
+    ]
+
+    for index, page_name in enumerate(
+        payload.pages,
+        start=2,
+    ):
+        page_name = page_name.strip()
+
+        if not page_name:
+            continue
+
+        slug = slugify(page_name)
+
+        page = Page(
             tenant_id=tenant.id,
-            slug="accommodation",
-            key="accommodation",
+            slug=slug,
+            key=slug,
             name={
-                "en": "Accommodation",
-                "sv": "Boende",
+                "en": page_name,
             },
             layout_variant="default",
-            sort_order=1,
+            sort_order=index,
             sections=[
                 {
-                    "id": "property-grid",
-                    "type": "property-grid",
+                    "id": "hero",
+                    "type": "hero",
                     "content": {
                         "heading": {
-                            "en": "Book your stay"
+                            "en": page_name,
                         },
                         "text": {
-                            "en": "Choose your dates and find the perfect place to stay."
+                            "en": "",
                         },
+                        "image": "",
                     },
                     "layout": None,
                     "theme": {},
                 }
             ],
             theme={},
-            is_system=True,
-        ),
-        Page(
-            tenant_id=tenant.id,
-            slug="index",
-            key="home",
-            name={
-                "en": "Home",
-                "sv": "Hem",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "Welcome to Laughing Goat Ghana"
-                        },
-                        "text": {
-                            "en": "A beautiful hotel in Ghana."
-                        },
-                        "image": "",
-                        "button": {
-                            "label": {
-                                "en": "Book your stay"
-                            },
-                            "href": "/booking"
-                        }
-                    }
-                },
-                {
-                    "id": "intro",
-                    "type": "image-text",
-                    "layout": "image-left",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Relax and enjoy your stay"
-                        },
-                        "text": {
-                            "en": "Experience a peaceful stay surrounded by beautiful nature in Ghana."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Learn more"
-                            },
-                            "href": "/about-us"
-                        }
-                    }
-                },
-                {
-                    "id": "experience",
-                    "type": "image-text",
-                    "layout": "image-right",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Experience Ghana"
-                        },
-                        "text": {
-                            "en": "Discover the beauty, culture and experiences that Ghana has to offer."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Discover Ghana"
-                            },
-                            "href": "/activities"
-                        }
-                    }
-                },
-                {
-                    "id": "gallery",
-                    "type": "gallery",
-                    "content": {
-                        "heading": {
-                            "en": "Our Hotel"
-                        },
-                        "images": [
-                            {
-                                "image": "",
-                                "alt": "Hotel"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Hotel room"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Hotel surroundings"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Ghana"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": "rooms",
-                    "type": "room-grid",
-                    "content": {
-                        "heading": {
-                            "en": "Our Rooms"
-                        },
-                        "text": {
-                            "en": "Choose the perfect room for your stay."
-                        },
-                        "limit": 6
-                    }
-                },
-                {
-                    "id": "amenities",
-                    "type": "amenities",
-                    "content": {
-                        "heading": {
-                            "en": "Hotel Facilities"
-                        },
-                        "items": [
-                            {
-                                "icon": "wifi",
-                                "title": {
-                                    "en": "Free WiFi"
-                                },
-                                "text": {
-                                    "en": "Stay connected throughout the hotel."
-                                }
-                            },
-                            {
-                                "icon": "pool",
-                                "title": {
-                                    "en": "Swimming Pool"
-                                },
-                                "text": {
-                                    "en": "Relax by our swimming pool."
-                                }
-                            },
-                            {
-                                "icon": "restaurant",
-                                "title": {
-                                    "en": "Restaurant"
-                                },
-                                "text": {
-                                    "en": "Enjoy delicious local and international food."
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": "cta",
-                    "type": "cta",
-                    "content": {
-                        "heading": {
-                            "en": "Ready to stay with us?"
-                        },
-                        "text": {
-                            "en": "Book your room and experience Laughing Goat Ghana."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Book now"
-                            },
-                            "href": "/booking"
-                        }
-                    }
-                }
-            ],
-            theme={}
-        ),
+            is_system=False,
+        )
 
-        Page(
-            tenant_id=tenant.id,
-            slug="about-us",
-            key="about",
-            name={
-                "en": "About us",
-                "sv": "Om oss",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "About Laughing Goat Ghana"
-                        },
-                        "text": {
-                            "en": "A beautiful place to relax, explore and experience Ghana."
-                        },
-                        "image": ""
-                    }
-                },
-                {
-                    "id": "story",
-                    "type": "image-text",
-                    "layout": "image-left",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Our Story"
-                        },
-                        "text": {
-                            "en": "Tell your guests about your hotel, your team and what makes your property special."
-                        }
-                    }
-                },
-                {
-                    "id": "amenities",
-                    "type": "amenities",
-                    "content": {
-                        "heading": {
-                            "en": "Why Stay With Us?"
-                        },
-                        "items": [
-                            {
-                                "icon": "wifi",
-                                "title": {
-                                    "en": "Free WiFi"
-                                },
-                                "text": {
-                                    "en": "Fast and reliable internet."
-                                }
-                            },
-                            {
-                                "icon": "location",
-                                "title": {
-                                    "en": "Great Location"
-                                },
-                                "text": {
-                                    "en": "A beautiful location in Ghana."
-                                }
-                            },
-                            {
-                                "icon": "heart",
-                                "title": {
-                                    "en": "Personal Service"
-                                },
-                                "text": {
-                                    "en": "We want every guest to feel at home."
-                                }
-                            }
-                        ]
-                    }
-                }
-            ],
-            theme={}
-        ),
+        pages.append(page)
 
-        Page(
-            tenant_id=tenant.id,
-            slug="contact",
-            key="contact",
-            name={
-                "en": "Contact",
-                "sv": "Kontakt",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "Contact Us"
-                        },
-                        "text": {
-                            "en": "We would love to hear from you."
-                        },
-                        "image": ""
-                    }
-                },
-                {
-                    "id": "contact-info",
-                    "type": "contact-info",
-                    "content": {
-                        "address": {
-                            "en": ""
-                        },
-                        "phone": {
-                            "en": ""
-                        },
-                        "email": {
-                            "en": ""
-                        }
-                    }
-                },
-                {
-                    "id": "contact-form",
-                    "type": "contact-form",
-                    "content": {
-                        "heading": {
-                            "en": "Send us a message"
-                        }
-                    }
-                }
-            ],
-            theme={}
-        ),
-
-    ]
     db.add_all(pages)
-
-    # rooms = [
-    #     Room(
-    #         tenant_id=tenant.id,
-    #         name=f"Room {i}",
-    #         description=None,
-    #         max_guests=2,
-    #         bedrooms=1,
-    #         beds=1,
-    #         bathrooms=1,
-    #         quantity=1,
-    #         is_open=True,
-    #     )
-    #     for i in range(1, 10)
-    # ]
-    # db.add_all(rooms)
 
     await db.commit()
     await db.refresh(tenant)

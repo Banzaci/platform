@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://platform:12125tgh678xx!!6545@localhost:5435/platform")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-    jwt_secret: str = os.getenv("JWT_SECRET", "")
+    jwt_secret: str = os.getenv("JWT_SECRET", "local")
 
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
