@@ -1,26 +1,23 @@
+import os
 from pydantic_settings import BaseSettings
 
+
 class Settings(BaseSettings):
-    # --- Database ---
-    database_url: str = "postgresql+asyncpg://platform:12125tgh678xx!!6545@postgres:5432/platform"
+    database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://platform:12125tgh678xx!!6545@localhost:5435/platform")
+    redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+    jwt_secret: str = os.getenv("JWT_SECRET", "")
 
-    # --- Redis ---
-    redis_url: str = "redis://redis:6379/0"
-    cache_ttl_seconds: int = 300
-
-    # --- Auth ---
-    jwt_secret: str = "hdajsk67678ghjsa567567hjshajkhdsa979799"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
 
-    # --- Cloudinary ---
-    cloudinary_cloud_name: str = ""
-    cloudinary_api_key: str = ""
-    cloudinary_api_secret: str = ""
-    cloudinary_url: str | None = None
+    cache_ttl_seconds: int = 300
 
-    # --- Stripe ---
-    stripe_secret_key: str = ""
+    cloudinary_cloud_name: str = os.getenv("CLOUDINARY_CLOUD_NAME", "")
+    cloudinary_api_key: str = os.getenv("CLOUDINARY_API_KEY", "")
+    cloudinary_api_secret: str = os.getenv("CLOUDINARY_API_SECRET", "")
+    cloudinary_url: str | None = os.getenv("CLOUDINARY_URL")
+
+    stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY", "")
 
     class Config:
         env_file = ".env"
