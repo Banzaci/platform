@@ -44,6 +44,7 @@ jobs:
           COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
             -f Dockerfile.tenant \
             -t michedot/hotels-tenant:latest \
             -t michedot/hotels-tenant:$COMMIT_HASH \
