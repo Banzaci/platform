@@ -79,7 +79,7 @@ jobs:
       - name: Deploy to droplet
         run: |
           ssh \
-            -i ~/.ssh/deploy_key \
+            -i ~/.ssh/id_rsa \
             -o StrictHostKeyChecking=no \
             -o ServerAliveInterval=30 \
             -T \
