@@ -65,7 +65,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.DROPLET_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
+          printf '%s' "${{ secrets.DROPLET_SSH_KEY_B64 }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           echo "FIRST LINE:"
@@ -91,4 +91,3 @@ jobs:
             docker compose pull backend platform tenant
             docker compose up -d
           EOF
-          
