@@ -15,10 +15,6 @@ type RegisterResponse = {
   access_token: string;
 };
 
-type Props = {
-  apiClient: ApiClient;
-};
-
 export default function RegisterPage() {
   const router = useRouter();
 
