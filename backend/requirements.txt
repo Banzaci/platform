@@ -14,3 +14,7 @@ greenlet
 cloudinary
 python-multipart
 stripe
+dateparser
+icalendar
+pwdlib
+httpx
