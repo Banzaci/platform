@@ -65,8 +65,16 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          printf '%s' "${{ secrets.DROPLET_SSH_KEY_B64 }}" | tr -d '\r' > ~/.ssh/id_rsa
+          printf '%s' "${{ secrets.DROPLET_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+
+          echo "FIRST LINE:"
+          head -n 1 ~/.ssh/id_rsa
+
+          echo "LAST LINE:"
+          tail -n 1 ~/.ssh/id_rsa
+
+          ssh-keygen -lf ~/.ssh/id_rsa
 
       - name: Deploy to droplet
         run: |
