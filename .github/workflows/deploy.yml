@@ -68,14 +68,6 @@ jobs:
           printf '%s' "${{ secrets.DROPLET_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          echo "FIRST LINE:"
-          head -n 1 ~/.ssh/id_rsa
-
-          echo "LAST LINE:"
-          tail -n 1 ~/.ssh/id_rsa
-
-          ssh-keygen -lf ~/.ssh/id_rsa
-
       - name: Deploy to droplet
         run: |
           ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -T ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
