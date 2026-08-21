@@ -13,3 +13,4 @@ email-validator
 greenlet
 cloudinary
 python-multipart
+stripe
