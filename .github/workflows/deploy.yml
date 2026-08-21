@@ -70,16 +70,14 @@ jobs:
 
       - name: Deploy to droplet
         run: |
-          ssh \
-            -i ~/.ssh/id_rsa \
-            -o StrictHostKeyChecking=no \
-            -o ServerAliveInterval=30 \
-            -T \
-            ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -T ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
             set -e
 
-            cd "${{ secrets.DEPLOY_PATH }}"
+            cd /var/www/hotels
 
-            docker compose pull backend platform tenant
+            docker pull michedot/hotels-backend:latest
+            docker pull michedot/hotels-platform:latest
+            docker pull michedot/hotels-tenant:latest
+
             docker compose up -d
           EOF
