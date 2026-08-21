@@ -1,10 +1,45 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
+from contextlib import asynccontextmanager
 
-from app.api.v1 import stripe_webhook, calendar, auth, bookings, ai_chat, tenants, pages, features, memberships, transactions, uploads, properties, blocked_periods, property_theme, tenant_knowledge
+from app.api.v1 import (
+    stripe_webhook,
+    calendar,
+    auth,
+    bookings,
+    ai_chat,
+    tenants,
+    pages,
+    features,
+    memberships,
+    transactions,
+    uploads,
+    properties,
+    blocked_periods,
+    property_theme,
+    tenant_knowledge,
+)
 
-app = FastAPI(title="Platform API", version="0.1.0")
+from app.db.session import engine
+from app.db.base import Base
+from app import models
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield
+
+    await engine.dispose()
+
+
+app = FastAPI(
+    title="Platform API",
+    version="0.1.0",
+    lifespan=lifespan,
+)
 
 API_PREFIX = "/api/v1"
 
