@@ -10,72 +10,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Login Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. Build backend
       - name: Build backend
         run: |
-          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
             -f Dockerfile.backend \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-backend:latest \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-backend:$COMMIT_HASH \
+            -t michedot/hotels-backend:latest \
+            -t michedot/hotels-backend:$COMMIT_HASH \
             .
 
-      # 4. Build platform
       - name: Build platform
         run: |
-          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
             -f Dockerfile.platform \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-platform:latest \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-platform:$COMMIT_HASH \
+            -t michedot/hotels-platform:latest \
+            -t michedot/hotels-platform:$COMMIT_HASH \
             .
 
-      # 5. Build tenant
       - name: Build tenant
         run: |
-          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
             -f Dockerfile.tenant \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-tenant:latest \
-            -t ${{ secrets.DOCKER_USERNAME }}/hotels-tenant:$COMMIT_HASH \
+            -t michedot/hotels-tenant:latest \
+            -t michedot/hotels-tenant:$COMMIT_HASH \
             .
 
-      # 6. Push images
       - name: Push Docker images
         run: |
-          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-backend:$COMMIT_HASH
+          docker push michedot/hotels-backend:latest
+          docker push michedot/hotels-backend:$COMMIT_HASH
 
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-platform:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-platform:$COMMIT_HASH
+          docker push michedot/hotels-platform:latest
+          docker push michedot/hotels-platform:$COMMIT_HASH
 
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-tenant:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/hotels-tenant:$COMMIT_HASH
+          docker push michedot/hotels-tenant:latest
+          docker push michedot/hotels-tenant:$COMMIT_HASH
 
-      # 7. SSH
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           printf '%s' "${{ secrets.DROPLET_SSH_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      # 8. Deploy
       - name: Deploy to droplet
         run: |
           ssh \
@@ -83,11 +75,10 @@ jobs:
             -o ServerAliveInterval=30 \
             -T \
             ${{ secrets.DROPLET_USER }}@${{ secrets.DROPLET_HOST }} << 'EOF'
+            set -e
 
-            cd ${{ secrets.DEPLOY_PATH }}
+            cd "${{ secrets.DEPLOY_PATH }}"
 
             docker compose pull backend platform tenant
-
             docker compose up -d
-
           EOF
