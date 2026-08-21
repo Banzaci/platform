@@ -91,3 +91,4 @@ jobs:
             docker compose pull backend platform tenant
             docker compose up -d
           EOF
+          
