@@ -34,8 +34,8 @@ jobs:
           COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
-            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            --build-arg NEXT_PUBLIC_PLATFORM_TOKEN_NAME=${{ secrets.NEXT_PUBLIC_PLATFORM_TOKEN_NAME }} \
+            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
+            --build-arg NEXT_PUBLIC_PLATFORM_TOKEN_NAME="${{ secrets.NEXT_PUBLIC_PLATFORM_TOKEN_NAME }}" \
             -f Dockerfile.platform \
             -t michedot/hotels-platform:latest \
             -t michedot/hotels-platform:$COMMIT_HASH \
@@ -46,8 +46,8 @@ jobs:
           COMMIT_HASH=$(echo "$GITHUB_SHA" | cut -c1-7)
 
           docker build \
-            --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
-            --build-arg NEXT_PUBLIC_TENANT_TOKEN_NAME=${{ secrets.NEXT_PUBLIC_TENANT_TOKEN_NAME }} \
+            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
+            --build-arg NEXT_PUBLIC_TENANT_TOKEN_NAME="${{ secrets.NEXT_PUBLIC_TENANT_TOKEN_NAME }}" \
             -f Dockerfile.tenant \
             -t michedot/hotels-tenant:latest \
             -t michedot/hotels-tenant:$COMMIT_HASH \
