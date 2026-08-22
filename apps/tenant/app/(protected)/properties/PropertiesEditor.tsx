@@ -43,7 +43,6 @@ export default function PropertiesEditor({
           body: JSON.stringify({ count }),
         }
       );
-
       setProperties(data);
     } finally {
       setCreating(false);

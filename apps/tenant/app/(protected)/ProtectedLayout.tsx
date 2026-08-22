@@ -15,7 +15,9 @@ export default function ProtectedLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isError, isLoading, data } = useAuth(apiClient);
+  const { isError, isLoading, data } = useAuth(apiClient, "v1/auth/tenant/session");
+
+  console.log(data)
   useEffect(() => {
     if (isError) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);

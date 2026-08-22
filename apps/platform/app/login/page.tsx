@@ -14,6 +14,7 @@ export default function LoginPage() {
         </h1>
         <LoginForm
           apiClient={apiClient}
+          path="v1/auth/login"
           onSuccess={() => router.push("/dashboard")}
         />
       </div>

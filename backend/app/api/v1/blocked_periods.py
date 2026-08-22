@@ -1,23 +1,21 @@
 import uuid
 from datetime import date
-
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.property_block import PropertyBlock
-from app.api.deps import require_tenant_access
-from app.api.get_current_user import get_current_user
+from app.api.deps import require_tenant_access, require_permission
 from app.db.session import get_db
 from app.models.property import Property
 from app.models.blocked_period import BlockedPeriod, BlockedReason
 from app.models.booking import Booking, BookingStatus
+from app.models.tenant_membership import TenantMembership
 
 router = APIRouter(
     prefix="/tenants/{tenant_id}/properties/{property_id}/blocked-periods",
     tags=["blocked-periods"],
 )
-
 
 class BlockedPeriodCreate(BaseModel):
     start_date: date
@@ -45,7 +43,6 @@ async def get_blocked_periods(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
     _access=Depends(require_tenant_access),
 ):
     property_result = await db.execute(
@@ -135,8 +132,9 @@ async def create_blocked_period(
     property_id: uuid.UUID,
     payload: BlockedPeriodCreate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("block.edit")
+    )
 ):
     if payload.end_date < payload.start_date:
         raise HTTPException(
@@ -150,7 +148,7 @@ async def create_blocked_period(
             Property.tenant_id == tenant_id,
         )
     )
-
+    
     if not property_result.scalar_one_or_none():
         raise HTTPException(
             status_code=404,
@@ -179,8 +177,9 @@ async def delete_blocked_period(
     property_id: uuid.UUID,
     blocked_period_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("block.edit")
+    )
 ):
     result = await db.execute(
         select(BlockedPeriod)

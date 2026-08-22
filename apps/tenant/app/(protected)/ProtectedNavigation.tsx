@@ -6,7 +6,7 @@ import { apiClient } from "@/libs/api";
 import Link from "next/link";
 
 export default function ProtectedNavigation() {
-  const { isError, isLoading, data } = useAuth(apiClient);
+  const { isError, isLoading, data } = useAuth(apiClient, "v1/auth/tenant/session");
   if (isLoading || isError || !data) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">

@@ -10,7 +10,6 @@ import { Property } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import CalendarSyncSettings from "./CalendarSyncSettings";
 import { useState } from "react";
-import { getTenant } from "@/libs/tenant";
 
 type Props = {
   property: Property;

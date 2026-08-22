@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import { API_URL, TOKEN_NAME } from "../types";
+import { apiClient } from "@/libs/api";
 
 type Props = {
   section: any;
@@ -22,8 +22,6 @@ export default function DeleteSection({
   const [deleting, setDeleting] = useState(false);
 
   async function remove() {
-    if (!API_URL) return;
-
     const updatedSections = sections.filter(
       (item) => item.id !== section.id
     );
@@ -31,28 +29,13 @@ export default function DeleteSection({
     setDeleting(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+      await apiClient.api<any>(
+        `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            sections: updatedSections,
-          }),
+          body: JSON.stringify({sections: updatedSections}),
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
       window.location.reload();
     } catch (error) {
       console.error("Delete section failed:", error);

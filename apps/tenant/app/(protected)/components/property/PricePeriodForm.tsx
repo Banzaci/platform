@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { apiClient } from "@/libs/api";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
 
 type Props = {
   tenantId: string;
@@ -28,23 +27,15 @@ export default function PricePeriodForm({
   const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!API_URL || !range?.from || !range?.to) return;
+    if (!range?.from || !range?.to) return;
 
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/price-periods`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/properties/${propertyId}/price-periods`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             name,
             start_date: formatDate(range.from),
@@ -74,7 +65,6 @@ export default function PricePeriodForm({
       setWeeklyPrice("");
       setMonthlyPrice("");
       clearRange();
-
       await onSaved();
     } catch (error) {
       console.error(

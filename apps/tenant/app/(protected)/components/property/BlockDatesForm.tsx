@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import DevLabel from "@/helpers/DevLabel";
 import { DateRange } from "react-day-picker";
-import { API_URL, TOKEN_NAME } from "../../types";
+import { apiClient } from "@/libs/api";
 
 type Props = {
   tenantId: string;
@@ -37,23 +38,19 @@ export default function BlockDatesForm({
   const [price, setPrice] = useState("");
 
   async function save() {
-    if (!API_URL || !range?.from || !range?.to) {
+    if (!range?.from || !range?.to) {
       return;
     }
 
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(TOKEN_NAME ?? "token");
 
       if (reason === "walk_in") {
-        const response = await fetch(`${API_URL}v1/tenants/${tenantId}/bookings`,
+        const response = await apiClient.api<any>(
+          `v1/tenants/${tenantId}/bookings`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
             body: JSON.stringify({
               property_id: propertyId,
               check_in: formatDate(range.from),
@@ -69,7 +66,7 @@ export default function BlockDatesForm({
             }),
           }
         );
-
+        
         if (!response.ok) {
           throw new Error(
             await response.text()
@@ -87,14 +84,10 @@ export default function BlockDatesForm({
         return;
       }
 
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             start_date: formatDate(range.from),
             end_date: formatDate(range.to),

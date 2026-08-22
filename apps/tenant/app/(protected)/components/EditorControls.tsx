@@ -37,7 +37,7 @@ function AuthenticatedEditorControls({
   tenantId: string;
   theme: SectionTheme;
 }) {
-  const { data, isLoading, isError } = useAuth(apiClient);
+  const { data, isLoading, isError } = useAuth(apiClient, "v1/auth/tenant/session");
 
   if (isLoading || isError || !data) {
     return null;

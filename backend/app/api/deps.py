@@ -78,10 +78,17 @@ class CurrentTenantUser(BaseModel):
 
 def require_permission(permission: str):
     async def dependency(
+        tenant_id: uuid.UUID,
         membership: TenantMembership = Depends(
             require_tenant_access
         ),
     ) -> TenantMembership:
+        if membership.tenant_id != tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not allowed for this tenant",
+            )
+
         if membership.role in (
             TenantRole.owner,
             TenantRole.admin,
@@ -105,6 +112,7 @@ async def require_tenant_access(
     db: AsyncSession = Depends(get_db),
 ) -> TenantMembership:
     try:
+        print("RAW TOKEN:", token)
         payload = jwt.decode(
             token,
             settings.jwt_secret,
@@ -113,6 +121,8 @@ async def require_tenant_access(
                 "require": ["exp", "sub"],
             },
         )
+
+        print("PAYLOAD:", payload)
 
         if payload.get("type") != "tenant":
             raise HTTPException(
@@ -137,24 +147,34 @@ async def require_tenant_access(
             str(tenant_id_raw)
         )
 
-    except (PyJWTError, ValueError, TypeError):
+        print(tenant_id)
+
+    except HTTPException:
+        raise
+
+    except Exception as error:
+        print("TOKEN ERROR:", type(error).__name__, repr(error))
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
         )
+    
+    # except (PyJWTError, ValueError, TypeError):
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Invalid or expired token",
+    #     )
 
     result = await db.execute(
         select(TenantMembership)
         .join(
             Tenant,
-            Tenant.id
-            == TenantMembership.tenant_id,
+            Tenant.id == TenantMembership.tenant_id,
         )
         .where(
-            TenantMembership.id
-            == membership_id,
-            TenantMembership.tenant_id
-            == tenant_id,
+            TenantMembership.id == membership_id,
+            TenantMembership.tenant_id == tenant_id,
             Tenant.is_active.is_(True),
             Tenant.deleted.is_(False),
         )

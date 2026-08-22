@@ -6,9 +6,9 @@ import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
-import { API_URL, TOKEN_NAME } from "../../types";
 import { SectionTheme } from "@/types";
 import EditButton from "../EditButton";
+import { apiClient } from "@/libs/api";
 
 export default function EditSection({
   section,
@@ -37,8 +37,6 @@ export default function EditSection({
   }
 
   async function save() {
-    if (!API_URL) return;
-
     setSaving(true);
 
     const updatedSections = sections.map((item) =>
@@ -52,18 +50,10 @@ export default function EditSection({
     );
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             sections: updatedSections,
           }),

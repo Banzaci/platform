@@ -4,10 +4,11 @@ from sqlalchemy.orm import selectinload
 from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
+from app.services.calendar_sync import sync_calendar_source
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.base_price import BasePrice
 from app.schemas.base_price import BasePriceUpsert, BasePriceOut
-from app.api.deps import require_tenant_access
+from app.api.deps import require_tenant_access, require_permission
 from app.api.get_current_user import get_current_user
 from app.db.session import get_db
 from app.models.property import Property
@@ -17,6 +18,7 @@ from app.helpers.property_helper import get_property_availability
 from app.services.ai.booking_service import calculate_booking_price
 from app.models.property_calendar_source import PropertyCalendarSource
 from datetime import date
+from app.models.tenant_membership import TenantMembership
 from app.models.tenant_payment_settings import TenantPaymentSettings
 
 # from app.models.booking import Booking, BookingStatus
@@ -51,8 +53,6 @@ class PropertyBulkCreate(BaseModel):
 async def get_properties(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
 ):
     result = await db.execute(
         select(Property)
@@ -70,8 +70,9 @@ async def create_properties_bulk(
     tenant_id: uuid.UUID,
     payload: PropertyBulkCreate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("properties.edit")
+    )
 ):
     try:
         properties = [
@@ -119,8 +120,9 @@ async def update_property(
     property_id: uuid.UUID,
     payload: PropertyUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("properties.edit")
+    )
 ):
     try:
         result = await db.execute(
@@ -256,7 +258,6 @@ async def get_base_price(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
     _access=Depends(require_tenant_access),
 ):
     # Kontrollera att property tillhör rätt tenant
@@ -292,7 +293,6 @@ async def get_price_periods(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
     _access=Depends(require_tenant_access),
 ):
     property_result = await db.execute(
@@ -326,8 +326,9 @@ async def create_price_period(
     property_id: uuid.UUID,
     payload: PricePeriodCreate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("price.edit")
+    )
 ):
     if payload.end_date < payload.start_date:
         raise HTTPException(
@@ -375,8 +376,9 @@ async def delete_price_period(
     property_id: uuid.UUID,
     price_period_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("price.edit")
+    )
 ):
     result = await db.execute(
         select(PricePeriod)
@@ -410,8 +412,9 @@ async def copy_property(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("properties.edit")
+    )
 ):
     result = await db.execute(
         select(Property)
@@ -473,7 +476,9 @@ async def delete_property(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("properties.edit")
+    )
 ):
     result = await db.execute(
         select(Property).where(
@@ -709,8 +714,9 @@ async def add_calendar_source(
     property_id: uuid.UUID,
     payload: CalendarSourceCreate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("calendar.edit")
+    )
 ):
     result = await db.execute(
         select(Property).where(
@@ -746,8 +752,9 @@ async def get_calendar_sources(
     tenant_id: uuid.UUID,
     property_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("calendar.edit")
+    )
 ):
     property_result = await db.execute(
         select(Property).where(
@@ -782,8 +789,9 @@ async def sync_source(
     property_id: uuid.UUID,
     source_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("calendar.edit")
+    )
 ):
     result = await db.execute(
         select(PropertyCalendarSource)
@@ -813,8 +821,9 @@ async def delete_calendar_source(
     property_id: uuid.UUID,
     source_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("calendar.edit")
+    )
 ):
     result = await db.execute(
         select(PropertyCalendarSource)

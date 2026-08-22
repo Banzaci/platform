@@ -14,12 +14,14 @@ type LoginResponse = {
 
 type LoginFormProps = {
   apiClient: ApiClient;
+  path: string;
   onSuccess?: () => void;
 };
 
 export function LoginForm({
   apiClient,
   onSuccess,
+  path,
 }: LoginFormProps) {
   const {
     register,
@@ -30,11 +32,15 @@ export function LoginForm({
 
   async function onSubmit(data: LoginFormData) {
     try {
+      const host = window.location.host;
       const result = await apiClient.api<LoginResponse>(
-        "v1/auth/login",
+        path,
         {
           method: "POST",
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            ...data,
+            host: window.location.host
+          }),
         }
       );
       apiClient.setToken(result.access_token);

@@ -4,9 +4,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { createPortal } from "react-dom";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { apiClient } from "@/libs/api";
 
 type Props = {
   section: any;
@@ -169,8 +167,6 @@ export default function AddSection({
   const [saving, setSaving] = useState(false);
 
   async function addSection(type: string) {
-    if (!API_URL) return;
-
     const currentIndex = sections.findIndex(
       (item) => item.id === section.id
     );
@@ -188,16 +184,10 @@ export default function AddSection({
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(TOKEN_NAME ?? "token");
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/pages/${pageId}`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             sections: updatedSections,
           }),

@@ -57,14 +57,17 @@ async def login_tenant(
     payload: TenantLoginRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    subdomain = payload.host.split(".")[0]
+    if payload.host.startswith("localhost"):
+        subdomain = "laughing-goat-ghana"
+    else:
+        subdomain = payload.host.split(".")[0]
 
     result = await db.execute(
         select(TenantMembership)
         .join(Tenant)
         .where(
             Tenant.subdomain == subdomain,
-            TenantMembership.username == payload.username,
+            TenantMembership.username == payload.email,
         )
     )
 

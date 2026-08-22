@@ -8,7 +8,7 @@ import { useAuth } from "@hotel/hooks";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data, isLoading } = useAuth(apiClient);
+  const { data, isLoading } = useAuth(apiClient, "v1/auth/tenant/session");
 
   useEffect(() => {
     if (data) {
@@ -26,9 +26,9 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold tracking-tight">
           Login to your account
         </h1>
-
         <LoginForm
           apiClient={apiClient}
+          path="v1/auth/tenant/login"
           onSuccess={() => router.replace("/dashboard")}
         />
       </div>

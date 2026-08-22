@@ -19,5 +19,5 @@ class TokenResponse(BaseModel):
 
 class TenantLoginRequest(BaseModel):
     host: str
-    username: str
+    email: str
     password: str

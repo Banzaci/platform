@@ -21,7 +21,6 @@ import { useIsEditor } from "@/hooks/useIsEditor";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
 import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
-import { API_URL, TOKEN_NAME } from "../(protected)/types";
 
 export default function PropertiesPageClient({
   tenantId,
@@ -41,29 +40,21 @@ export default function PropertiesPageClient({
   const [localTheme, setLocalTheme] = useState<SectionTheme>(
     globalTheme ?? {}
   );
+
   async function saveTheme() {
-  if (!API_URL) return;
+    const response = await apiClient.api<any>(
+      `v1/tenants/${tenantId}/theme`,
+      {
+        method: "PUT",
+        body: JSON.stringify(localTheme),
+      }
+    );
 
-  const token = localStorage.getItem(
-    TOKEN_NAME ?? "token"
-  );
-
-  const response = await fetch(
-    `${API_URL}v1/tenants/${tenantId}/theme`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(localTheme),
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  );
-
-  if (!response.ok) {
-    throw new Error(await response.text());
   }
-}
+
   const {
     textColor,
     secondaryColor,

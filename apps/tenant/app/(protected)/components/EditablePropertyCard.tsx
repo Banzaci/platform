@@ -2,13 +2,11 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil } from "lucide-react";
-
 import { SectionTheme, TenantProperty } from "@/types";
 import PropertyCardTheme from "./property/PropertyCardTheme";
-import { API_URL, TOKEN_NAME } from "../types";
 import PropertyCard from "@/app/accommodation/PropertyCard";
 import EditButton from "./EditButton";
+import { apiClient } from "@/libs/api";
 
 type Props = {
   property: TenantProperty;
@@ -33,31 +31,17 @@ export default function EditablePropertyCard({
   const [saving, setSaving] = useState(false);
 
   async function save() {
-    if (!API_URL) return;
 
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/theme`,
+      await apiClient.api<any>(
+        `v1/tenants/${tenantId}/theme`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify(globalTheme),
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
       setOpen(false);
       window.location.reload();
     } catch (error) {

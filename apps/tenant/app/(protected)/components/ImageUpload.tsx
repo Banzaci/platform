@@ -1,10 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { apiClient } from "@/libs/api";
 
 type ImageValue = {
   url: string;
@@ -25,25 +24,16 @@ export default function ImageUpload({
   const [uploading, setUploading] = useState(false);
 
   async function upload(file: File) {
-    if (!API_URL) return;
-
     setUploading(true);
 
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/uploads/image`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/theme`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           body: formData,
         }
       );
@@ -53,7 +43,6 @@ export default function ImageUpload({
       }
 
       const data = await response.json();
-
       onChange({
         url: data.url,
         publicId: data.public_id,
@@ -66,7 +55,7 @@ export default function ImageUpload({
   }
 
   async function remove() {
-    if (!value?.publicId || !API_URL) return;
+    if (!value?.publicId) return;
 
     const confirmed = window.confirm(
       "Are you sure you want to delete this image?"
@@ -74,19 +63,11 @@ export default function ImageUpload({
 
     if (!confirmed) return;
 
-    const token = localStorage.getItem(
-      TOKEN_NAME ?? "token"
-    );
-
-    const response = await fetch(
-      `${API_URL}v1/tenants/${tenantId}/uploads/image`,
+    const response = await apiClient.api<any>(
+      `v1/tenants/${tenantId}/uploads/image`,
       {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
+          body: JSON.stringify({
           public_id: value.publicId,
         }),
       }

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { SectionTheme } from "@/types";
 import { useState } from "react";
-import { API_URL, TOKEN_NAME } from "../types";
 import DevLabel from "@/helpers/DevLabel";
+import { apiClient } from "@/libs/api";
 
 export default function GlobalEditor({
   tenantId,
@@ -24,29 +25,20 @@ export default function GlobalEditor({
   }
 
   async function save() {
-    if (!API_URL) return;
-
+  
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(TOKEN_NAME ?? "token");
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/theme`,
+      const response = await apiClient.api<any>(
+        `v1/tenants/${tenantId}/theme`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify(form),
         }
       );
-
       if (!response.ok) {
         throw new Error(await response.text());
       }
-
       setOpen(false);
       window.location.reload();
     } catch (error) {

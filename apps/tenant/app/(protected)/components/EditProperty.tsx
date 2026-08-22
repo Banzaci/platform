@@ -5,9 +5,7 @@ import { X } from "lucide-react";
 import PropertyImagesEditor from "./PropertyImagesEditor";
 import BasePriceEditor, { BasePrice, isValidBasePrice } from "./price/BasePriceEditor";
 import { Property } from "@/types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { apiClient } from "@/libs/api";
 
 type Props = {
   tenantId: string;
@@ -66,23 +64,13 @@ export default function EditProperty({
   }
 
   async function save() {
-    if (!API_URL) return;
-
     setSaving(true);
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${property.id}`,
+      const response = await apiClient.api<Property>(
+        `v1/tenants/${tenantId}/properties/${property.id}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             name: form.name,
             description: form.description,
@@ -98,29 +86,15 @@ export default function EditProperty({
         }
       );
 
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      const updated = await response.json();
-
-      const basePriceResponse = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${property.id}/base-price`,
+      await apiClient.api<Property>(
+        `v1/tenants/${tenantId}/properties/${property.id}/base-price`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify(basePrice),
         }
       );
 
-      if (!basePriceResponse.ok) {
-        throw new Error(await basePriceResponse.text());
-      }
-
-      onSaved(updated);
+      onSaved(response);
       onClose();
       window.location.reload();
     } catch (error) {

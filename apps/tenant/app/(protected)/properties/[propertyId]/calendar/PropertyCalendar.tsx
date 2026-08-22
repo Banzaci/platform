@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
@@ -9,9 +10,7 @@ import { PricePeriod } from "@/types";
 import BlockDatesForm from "@/app/(protected)/components/property/BlockDatesForm";
 import PricePeriodForm from "@/app/(protected)/components/property/PricePeriodForm";
 import DevLabel from "@/helpers/DevLabel";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
+import { apiClient } from "@/libs/api";
 
 type BlockedPeriod = {
   id: string;
@@ -41,32 +40,13 @@ export default function PropertyCalendar({
   const [selectedPricePeriod, setSelectedPricePeriod] = useState<PricePeriod | null>(null);
 
   async function loadPricePeriods() {
-    if (!API_URL) return;
-
-    const token = localStorage.getItem(
-      TOKEN_NAME ?? "token"
+    const response = await apiClient.api<any>(
+      `v1/tenants/${tenantId}/properties/${propertyId}/price-periods`
     );
-
-    const response = await fetch(
-      `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/price-periods`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.error(await response.text());
-      return;
-    }
-
-    setPricePeriods(await response.json());
+    setPricePeriods(response);
   }
 
   async function removeBlockedPeriod(id: string) {
-    if (!API_URL) return;
-
     const confirmed = window.confirm(
       "Are you sure you want to remove this blocked period?"
     );
@@ -74,25 +54,12 @@ export default function PropertyCalendar({
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods/${id}`,
+       await apiClient.api<any>(
+        `v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods/${id}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      // Uppdatera direkt utan extra GET
       setPeriods((current) =>
         current.filter((period) => period.id !== id)
       );
@@ -105,30 +72,13 @@ export default function PropertyCalendar({
   }
 
   async function loadPeriods() {
-    if (!API_URL) return;
-
-    const token = localStorage.getItem(TOKEN_NAME ?? "token");
-
-    const response = await fetch(
-      `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const response = await apiClient.api<any>(
+      `v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
     );
-
-    if (!response.ok) {
-      console.error(await response.text());
-      return;
-    }
-
-    setPeriods(await response.json());
+    setPeriods(response);
   }
 
   async function removePricePeriod(id: string) {
-    if (!API_URL) return;
-
     const confirmed = window.confirm(
       "Are you sure you want to remove this special price?"
     );
@@ -136,23 +86,12 @@ export default function PropertyCalendar({
     if (!confirmed) return;
 
     try {
-      const token = localStorage.getItem(
-        TOKEN_NAME ?? "token"
-      );
-
-      const response = await fetch(
-        `${API_URL}v1/tenants/${tenantId}/properties/${propertyId}/price-periods/${id}`,
+      await apiClient.api<any>(
+        `v1/tenants/${tenantId}/properties/${propertyId}/price-periods/${id}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
 
       setPricePeriods((current) =>
         current.filter((period) => period.id !== id)
