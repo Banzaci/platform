@@ -11,7 +11,8 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24
 
     cache_ttl_seconds: int = 300
-
+    tenant_base_domain: str = "miche.se"
+    
     cloudinary_cloud_name: str = os.getenv("CLOUDINARY_CLOUD_NAME", "")
     cloudinary_api_key: str = os.getenv("CLOUDINARY_API_KEY", "")
     cloudinary_api_secret: str = os.getenv("CLOUDINARY_API_SECRET", "")

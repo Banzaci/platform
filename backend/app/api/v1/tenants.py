@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import (
     get_tenant_cache,
     add_tenant_cache,
-    delete_tenant_cache
+    delete_tenant_cache_for_tenant
 )
 from app.core.config import settings
 from app.models.booking import (
@@ -318,7 +318,10 @@ async def get_tenant_full(tenant_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
     return TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)
 
-@router.put("/{tenant_id}/theme", response_model=ThemeSchema)
+@router.put(
+    "/{tenant_id}/theme",
+    response_model=ThemeSchema,
+)
 async def update_tenant_theme(
     tenant_id: uuid.UUID,
     payload: ThemeSchema,
@@ -328,7 +331,9 @@ async def update_tenant_theme(
     ),
 ):
     result = await db.execute(
-        select(Tenant).where(Tenant.id == tenant_id)
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
     )
 
     tenant = result.scalar_one_or_none()
@@ -339,51 +344,15 @@ async def update_tenant_theme(
             detail="Tenant not found",
         )
 
-    if tenant.theme:
-        history = ThemeHistory(
-            tenant_id=tenant.id,
-            theme=tenant.theme.copy(),
-        )
-
-        db.add(history)
-
-    incoming = payload.model_dump(
-        exclude_unset=True
-    )
-
-    current = tenant.theme or {}
-
-    tenant.theme = {
-        **current,
-        **incoming,
-    }
-
-    await db.flush()
-
-    result = await db.execute(
-        select(ThemeHistory.id)
-        .where(
-            ThemeHistory.tenant_id == tenant.id
-        )
-        .order_by(
-            ThemeHistory.created_at.desc()
-        )
-        .offset(20)
-    )
-
-    old_ids = result.scalars().all()
-
-    if old_ids:
-        await db.execute(
-            delete(ThemeHistory).where(
-                ThemeHistory.id.in_(old_ids)
-            )
-        )
+    tenant.theme = payload.model_dump()
 
     await db.commit()
     await db.refresh(tenant)
-    await delete_tenant_cache(str(tenant.id))
-    print('Delete----------------------')
+
+    await delete_tenant_cache_for_tenant(
+        tenant
+    )
+
     return tenant.theme
 
 

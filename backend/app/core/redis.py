@@ -1,5 +1,6 @@
 import redis.asyncio as redis
 
+from app.models.tenant import Tenant
 from app.core.config import settings
 
 
@@ -7,6 +8,18 @@ redis_client = redis.Redis.from_url(
     settings.redis_url,
     decode_responses=True,
 )
+
+async def delete_tenant_cache_for_tenant(
+    tenant: Tenant,
+) -> None:
+    await delete_tenant_cache(
+        f"{tenant.subdomain}.{settings.tenant_base_domain}"
+    )
+
+    if tenant.custom_domain:
+        await delete_tenant_cache(
+            tenant.custom_domain
+        )
 
 def page_cache_key(
     tenant_id: str,
