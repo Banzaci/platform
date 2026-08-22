@@ -548,6 +548,36 @@ async def generate_project(
         message="Project created successfully",
     )
 
+@router.get("/caddy/ask")
+async def caddy_ask(
+    domain: str,
+    db: AsyncSession = Depends(get_db),
+):
+    if domain.startswith("localhost"):
+        raise HTTPException(
+            status_code=404,
+            detail="Invalid domain",
+        )
+
+    subdomain = domain.split(".")[0]
+    print("Caddy_ask:", subdomain)
+    result = await db.execute(
+        select(Tenant.id).where(
+            (Tenant.custom_domain == domain)
+            | (Tenant.subdomain == subdomain)
+        )
+    )
+
+    tenant_id = result.scalar_one_or_none()
+
+    if not tenant_id:
+        raise HTTPException(
+            status_code=404,
+            detail="No tenant for this host",
+        )
+
+    return {"allowed": True}
+
 @router.get("/resolve", response_model=TenantFullOut)
 async def resolve_tenant_by_host(
     host: str,
