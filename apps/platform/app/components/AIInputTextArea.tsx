@@ -24,6 +24,8 @@ type PageInput = {
 
 export default function AIInputTextArea() {
   const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [ shortDescription, setShortDescription] = useState("");
   const [pages, setPages] = useState<PageInput[]>([]);
@@ -84,6 +86,8 @@ export default function AIInputTextArea() {
             method: "POST",
             body: JSON.stringify({
               name: name.trim(),
+              username: username.trim(),
+              password,
               short_description: shortDescription.trim(),
               pages: pages.map((page) => page.name.trim()).filter(Boolean),
             }),
@@ -178,6 +182,19 @@ export default function AIInputTextArea() {
                 onChange={(value) => setName(value)}
                 placeholder="Laughing Goat Ghana"
               />
+            <Field
+              label="Username"
+              value={username}
+              onChange={setUsername}
+              placeholder="laughinggoat"
+            />
+            <Field
+              label="Password"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Choose a password"
+            />
             {pages.length > 0 ? (
               <div className="mt-5 space-y-3">
                 {pages.map(
@@ -258,7 +275,12 @@ export default function AIInputTextArea() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={!name.trim() || isSubmitting}
+              disabled={
+                !name.trim() ||
+                !username.trim() ||
+                !password ||
+                isSubmitting
+              }
               className="rounded-xl bg-black px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isSubmitting

@@ -447,8 +447,10 @@ async def generate_project(
 
     tenant = Tenant(
         name=payload.name,
+        username=payload.username,
         subdomain=subdomain,
         short_description=payload.short_description,
+        hashed_password=hash_password(payload.password),
     )
 
     db.add(tenant)
@@ -504,12 +506,17 @@ async def generate_project(
         if not page_name:
             continue
 
-        slug = slugify(page_name)
+        if page_name.lower() == "home":
+            slug = "index"
+            key = "index"
+        else:
+            slug = slugify(page_name)
+            key = slug
 
         page = Page(
             tenant_id=tenant.id,
             slug=slug,
-            key=slug,
+            key=key,
             name={
                 "en": page_name,
             },

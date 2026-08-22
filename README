@@ -14,12 +14,9 @@ npm ls @hotel/types -w tenant
 
 const { showLoader, hideLoader } = useLoader();
 
-
-
 bg-[var(--primary)]
 text-[var(--text)]
 text-[var(--secondary)]
-
 
 TODO:
 1. Byt ut allt till apiClient.api
@@ -31,3 +28,12 @@ TRUNCATE TABLE
     pages,
     tenants
 RESTART IDENTITY CASCADE;
+
+
+Ta bort tenant
+docker exec -it hotel-postgres psql -U platform -d platform
+SELECT id, name, subdomain
+FROM tenants;
+
+DELETE FROM tenants
+WHERE id = 'TENANT_ID_HÄR';
