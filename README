@@ -1,16 +1,10 @@
 npm run dev -w platform
 npm run dev -w tenant  
 
-
 uvicorn app.main:app --reload
-
 
 npm install @hotel/types -w tenant
 npm ls @hotel/types -w tenant
-
-
-
-
 
 const { showLoader, hideLoader } = useLoader();
 

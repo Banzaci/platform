@@ -22,8 +22,6 @@ class Tenant(Base):
     location: Mapped[str | None] = mapped_column(String, nullable=True)
     logo_url: Mapped[str | None] = mapped_column(String, nullable=True)
     short_description: Mapped[str | None] = mapped_column(String, nullable=True)
-    username: Mapped[str] = mapped_column(String, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

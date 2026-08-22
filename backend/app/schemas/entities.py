@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-
+from app.models.tenant_membership import TenantRole
 from app.schemas.page import PageOut
 from pydantic import BaseModel, ConfigDict
 
@@ -38,6 +38,13 @@ class TenantOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class TenantSessionOut(BaseModel):
+    tenant: TenantOut
+    membership_id: uuid.UUID
+    username: str
+    role: TenantRole
+    permissions: dict
 
 class TenantFullOut(BaseModel):
     tenant: TenantOut
@@ -111,5 +118,6 @@ class TransactionCreate(BaseModel):
     currency: str = "SEK"
     description: str | None = None
     occurred_at: date
+
 
 

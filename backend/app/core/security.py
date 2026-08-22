@@ -17,16 +17,29 @@ def verify_password(plain: str, hashed: str) -> bool:
     return password_hash.verify(plain, hashed)
 
 
-def create_access_token(subject: str, is_superadmin: bool) -> str:
+def create_access_token(
+    subject: str,
+    is_superadmin: bool = False,
+    tenant_id: str | None = None,
+    role: str | None = None,
+    token_type: str = "platform",
+) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         minutes=settings.access_token_expire_minutes
     )
 
     payload = {
         "sub": subject,
+        "type": token_type,
         "is_superadmin": is_superadmin,
         "exp": expire,
     }
+
+    if tenant_id:
+        payload["tenant_id"] = tenant_id
+
+    if role:
+        payload["role"] = role
 
     return jwt.encode(
         payload,

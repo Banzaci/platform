@@ -1,12 +1,14 @@
 import uuid
-
+import jwt
+from jwt.exceptions import PyJWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
-
+from pydantic import BaseModel
 from app.models.tenant import Tenant
+from app.core.config import settings
 from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.tenant_membership import TenantMembership, TenantRole
@@ -49,7 +51,6 @@ async def require_owner(
     result = await db.execute(
         select(TenantMembership).where(
             TenantMembership.tenant_id == tenant_id,
-            TenantMembership.user_id == uuid.UUID(user.id),
             TenantMembership.role == TenantRole.owner,
         )
     )
@@ -68,26 +69,103 @@ def require_superadmin(
         )
     return user
 
+class CurrentTenantUser(BaseModel):
+    id: str
+    tenant_id: str
+    username: str
+    role: TenantRole
+    permissions: dict
+
+def require_permission(permission: str):
+    async def dependency(
+        membership: TenantMembership = Depends(
+            require_tenant_access
+        ),
+    ) -> TenantMembership:
+        if membership.role in (
+            TenantRole.owner,
+            TenantRole.admin,
+        ):
+            return membership
+
+        permissions = membership.permissions or {}
+
+        if permissions.get(permission) is not True:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions",
+            )
+
+        return membership
+
+    return dependency
 
 async def require_tenant_access(
-    tenant_id: uuid.UUID,
-    user: CurrentUser = Depends(get_current_user),
+    token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db),
-) -> CurrentUser:
-    if user.is_superadmin:
-        return user
+) -> TenantMembership:
+    try:
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret,
+            algorithms=[settings.jwt_algorithm],
+            options={
+                "require": ["exp", "sub"],
+            },
+        )
+
+        if payload.get("type") != "tenant":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid tenant token",
+            )
+
+        membership_id_raw = payload.get("sub")
+        tenant_id_raw = payload.get("tenant_id")
+
+        if not membership_id_raw or not tenant_id_raw:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid tenant token",
+            )
+
+        membership_id = uuid.UUID(
+            str(membership_id_raw)
+        )
+
+        tenant_id = uuid.UUID(
+            str(tenant_id_raw)
+        )
+
+    except (PyJWTError, ValueError, TypeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
 
     result = await db.execute(
-        select(TenantMembership).where(
-            TenantMembership.tenant_id == tenant_id,
-            TenantMembership.user_id == uuid.UUID(user.id),
+        select(TenantMembership)
+        .join(
+            Tenant,
+            Tenant.id
+            == TenantMembership.tenant_id,
+        )
+        .where(
+            TenantMembership.id
+            == membership_id,
+            TenantMembership.tenant_id
+            == tenant_id,
+            Tenant.is_active.is_(True),
+            Tenant.deleted.is_(False),
         )
     )
 
-    if result.scalar_one_or_none() is None:
+    membership = result.scalar_one_or_none()
+
+    if not membership:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not allowed for this tenant",
+            detail="Tenant access denied",
         )
 
-    return user
+    return membership

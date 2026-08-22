@@ -52,14 +52,16 @@ export default function DashboardPage() {
       </div>
       {isAddTenantOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4"
           onClick={() => setIsAddTenantOpen(false)}
         >
-          <div
-            className="w-full max-w-4xl rounded-lg bg-white p-5 shadow-lg my-8"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <AIInputTextArea />
+          <div className="flex min-h-full items-start justify-center py-8">
+            <div
+              className="w-full max-w-4xl rounded-lg bg-white p-5 shadow-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <AIInputTextArea />
+            </div>
           </div>
         </div>
       )}

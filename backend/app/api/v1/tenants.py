@@ -3,13 +3,11 @@ import uuid
 import re
 from datetime import date
 from calendar import monthrange
-from app.models.user import User
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
-from app.api.deps import require_tenant_access, invalidate_tenant_cache_for_tenant
+from app.api.deps import require_tenant_access, invalidate_tenant_cache_for_tenant, require_permission
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, delete, func
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import redis_client
 from app.core.config import settings
@@ -30,8 +28,8 @@ from app.models.page import Page
 from app.api.get_current_user import CurrentUser, get_current_user
 from app.db.session import get_db
 from app.models.tenant import Tenant
-from app.models.tenant_membership import TenantMembership
-from app.schemas.entities import TenantCreate, TenantOut, TenantFullOut, ThemeSchema
+from app.models.tenant_membership import TenantMembership, TenantRole
+from app.schemas.entities import TenantOut, TenantFullOut, ThemeSchema
 from app.models.tenant_payment_settings import TenantPaymentSettings
 from app.schemas.payment import TenantPaymentSettingsOut, TenantPaymentSettingsUpdate
 from app.core.security import (
@@ -57,379 +55,377 @@ class PasswordUpdate(BaseModel):
     current_password: str
     new_password: str
 
-def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
-    """Minimal starter template every new tenant gets: an index page and a
-    contact page, with a couple of placeholder fields the owner can edit
-    right away from the admin."""
-    return [
-         Page(
-            tenant_id=tenant_id,
-            slug="index",
-            key="home",
-            name={
-                "en": "Home",
-                "sv": "Hem",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "Welcome to us"
-                        },
-                        "text": {
-                            "en": "A beautiful hotel in Ghana."
-                        },
-                        "image": "",
-                        "button": {
-                            "label": {
-                                "en": "Book your stay"
-                            },
-                            "href": "/booking"
-                        }
-                    }
-                },
-                {
-                    "id": "intro",
-                    "type": "image-text",
-                    "layout": "image-left",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Relax and enjoy your stay"
-                        },
-                        "text": {
-                            "en": "Experience a peaceful stay surrounded by beautiful nature in Ghana."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Learn more"
-                            },
-                            "href": "/about-us"
-                        }
-                    }
-                },
-                {
-                    "id": "experience",
-                    "type": "image-text",
-                    "layout": "image-right",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Experience Ghana"
-                        },
-                        "text": {
-                            "en": "Discover the beauty, culture and experiences that Ghana has to offer."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Discover Ghana"
-                            },
-                            "href": "/activities"
-                        }
-                    }
-                },
-                {
-                    "id": "gallery",
-                    "type": "gallery",
-                    "content": {
-                        "heading": {
-                            "en": "Our Hotel"
-                        },
-                        "images": [
-                            {
-                                "image": "",
-                                "alt": "Hotel"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Hotel room"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Hotel surroundings"
-                            },
-                            {
-                                "image": "",
-                                "alt": "Ghana"
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": "rooms",
-                    "type": "room-grid",
-                    "content": {
-                        "heading": {
-                            "en": "Our Rooms"
-                        },
-                        "text": {
-                            "en": "Choose the perfect room for your stay."
-                        },
-                        "limit": 6
-                    }
-                },
-                {
-                    "id": "amenities",
-                    "type": "amenities",
-                    "content": {
-                        "heading": {
-                            "en": "Hotel Facilities"
-                        },
-                        "items": [
-                            {
-                                "icon": "wifi",
-                                "title": {
-                                    "en": "Free WiFi"
-                                },
-                                "text": {
-                                    "en": "Stay connected throughout the hotel."
-                                }
-                            },
-                            {
-                                "icon": "pool",
-                                "title": {
-                                    "en": "Swimming Pool"
-                                },
-                                "text": {
-                                    "en": "Relax by our swimming pool."
-                                }
-                            },
-                            {
-                                "icon": "restaurant",
-                                "title": {
-                                    "en": "Restaurant"
-                                },
-                                "text": {
-                                    "en": "Enjoy delicious local and international food."
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    "id": "cta",
-                    "type": "cta",
-                    "content": {
-                        "heading": {
-                            "en": "Ready to stay with us?"
-                        },
-                        "text": {
-                            "en": "Book your room and experience Laughing Goat Ghana."
-                        },
-                        "button": {
-                            "label": {
-                                "en": "Book now"
-                            },
-                            "href": "/booking"
-                        }
-                    }
-                }
-            ],
-            theme={}
-        ),
+# def _default_pages(tenant_id: uuid.UUID) -> list[Page]:
+#     """Minimal starter template every new tenant gets: an index page and a
+#     contact page, with a couple of placeholder fields the owner can edit
+#     right away from the admin."""
+#     return [
+#          Page(
+#             tenant_id=tenant_id,
+#             slug="index",
+#             key="home",
+#             name={
+#                 "en": "Home",
+#                 "sv": "Hem",
+#             },
+#             sections=[
+#                 {
+#                     "id": "hero",
+#                     "type": "hero",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Welcome to us"
+#                         },
+#                         "text": {
+#                             "en": "A beautiful hotel in Ghana."
+#                         },
+#                         "image": "",
+#                         "button": {
+#                             "label": {
+#                                 "en": "Book your stay"
+#                             },
+#                             "href": "/booking"
+#                         }
+#                     }
+#                 },
+#                 {
+#                     "id": "intro",
+#                     "type": "image-text",
+#                     "layout": "image-left",
+#                     "content": {
+#                         "image": "",
+#                         "heading": {
+#                             "en": "Relax and enjoy your stay"
+#                         },
+#                         "text": {
+#                             "en": "Experience a peaceful stay surrounded by beautiful nature in Ghana."
+#                         },
+#                         "button": {
+#                             "label": {
+#                                 "en": "Learn more"
+#                             },
+#                             "href": "/about-us"
+#                         }
+#                     }
+#                 },
+#                 {
+#                     "id": "experience",
+#                     "type": "image-text",
+#                     "layout": "image-right",
+#                     "content": {
+#                         "image": "",
+#                         "heading": {
+#                             "en": "Experience Ghana"
+#                         },
+#                         "text": {
+#                             "en": "Discover the beauty, culture and experiences that Ghana has to offer."
+#                         },
+#                         "button": {
+#                             "label": {
+#                                 "en": "Discover Ghana"
+#                             },
+#                             "href": "/activities"
+#                         }
+#                     }
+#                 },
+#                 {
+#                     "id": "gallery",
+#                     "type": "gallery",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Our Hotel"
+#                         },
+#                         "images": [
+#                             {
+#                                 "image": "",
+#                                 "alt": "Hotel"
+#                             },
+#                             {
+#                                 "image": "",
+#                                 "alt": "Hotel room"
+#                             },
+#                             {
+#                                 "image": "",
+#                                 "alt": "Hotel surroundings"
+#                             },
+#                             {
+#                                 "image": "",
+#                                 "alt": "Ghana"
+#                             }
+#                         ]
+#                     }
+#                 },
+#                 {
+#                     "id": "rooms",
+#                     "type": "room-grid",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Our Rooms"
+#                         },
+#                         "text": {
+#                             "en": "Choose the perfect room for your stay."
+#                         },
+#                         "limit": 6
+#                     }
+#                 },
+#                 {
+#                     "id": "amenities",
+#                     "type": "amenities",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Hotel Facilities"
+#                         },
+#                         "items": [
+#                             {
+#                                 "icon": "wifi",
+#                                 "title": {
+#                                     "en": "Free WiFi"
+#                                 },
+#                                 "text": {
+#                                     "en": "Stay connected throughout the hotel."
+#                                 }
+#                             },
+#                             {
+#                                 "icon": "pool",
+#                                 "title": {
+#                                     "en": "Swimming Pool"
+#                                 },
+#                                 "text": {
+#                                     "en": "Relax by our swimming pool."
+#                                 }
+#                             },
+#                             {
+#                                 "icon": "restaurant",
+#                                 "title": {
+#                                     "en": "Restaurant"
+#                                 },
+#                                 "text": {
+#                                     "en": "Enjoy delicious local and international food."
+#                                 }
+#                             }
+#                         ]
+#                     }
+#                 },
+#                 {
+#                     "id": "cta",
+#                     "type": "cta",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Ready to stay with us?"
+#                         },
+#                         "text": {
+#                             "en": "Book your room and experience Laughing Goat Ghana."
+#                         },
+#                         "button": {
+#                             "label": {
+#                                 "en": "Book now"
+#                             },
+#                             "href": "/booking"
+#                         }
+#                     }
+#                 }
+#             ],
+#             theme={}
+#         ),
         
-        Page(
-            tenant_id=tenant_id,
-            slug="about-us",
-            key="about",
-            name={
-                "en": "About us",
-                "sv": "Om oss",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "About Laughing Goat Ghana"
-                        },
-                        "text": {
-                            "en": "A beautiful place to relax, explore and experience Ghana."
-                        },
-                        "image": ""
-                    }
-                },
-                {
-                    "id": "story",
-                    "type": "image-text",
-                    "layout": "image-left",
-                    "content": {
-                        "image": "",
-                        "heading": {
-                            "en": "Our Story"
-                        },
-                        "text": {
-                            "en": "Tell your guests about your hotel, your team and what makes your property special."
-                        }
-                    }
-                },
-                {
-                    "id": "amenities",
-                    "type": "amenities",
-                    "content": {
-                        "heading": {
-                            "en": "Why Stay With Us?"
-                        },
-                        "items": [
-                            {
-                                "icon": "wifi",
-                                "title": {
-                                    "en": "Free WiFi"
-                                },
-                                "text": {
-                                    "en": "Fast and reliable internet."
-                                }
-                            },
-                            {
-                                "icon": "location",
-                                "title": {
-                                    "en": "Great Location"
-                                },
-                                "text": {
-                                    "en": "A beautiful location in Ghana."
-                                }
-                            },
-                            {
-                                "icon": "heart",
-                                "title": {
-                                    "en": "Personal Service"
-                                },
-                                "text": {
-                                    "en": "We want every guest to feel at home."
-                                }
-                            }
-                        ]
-                    }
-                }
-            ],
-            theme={}
-        ),
+#         Page(
+#             tenant_id=tenant_id,
+#             slug="about-us",
+#             key="about",
+#             name={
+#                 "en": "About us",
+#                 "sv": "Om oss",
+#             },
+#             sections=[
+#                 {
+#                     "id": "hero",
+#                     "type": "hero",
+#                     "content": {
+#                         "heading": {
+#                             "en": "About Laughing Goat Ghana"
+#                         },
+#                         "text": {
+#                             "en": "A beautiful place to relax, explore and experience Ghana."
+#                         },
+#                         "image": ""
+#                     }
+#                 },
+#                 {
+#                     "id": "story",
+#                     "type": "image-text",
+#                     "layout": "image-left",
+#                     "content": {
+#                         "image": "",
+#                         "heading": {
+#                             "en": "Our Story"
+#                         },
+#                         "text": {
+#                             "en": "Tell your guests about your hotel, your team and what makes your property special."
+#                         }
+#                     }
+#                 },
+#                 {
+#                     "id": "amenities",
+#                     "type": "amenities",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Why Stay With Us?"
+#                         },
+#                         "items": [
+#                             {
+#                                 "icon": "wifi",
+#                                 "title": {
+#                                     "en": "Free WiFi"
+#                                 },
+#                                 "text": {
+#                                     "en": "Fast and reliable internet."
+#                                 }
+#                             },
+#                             {
+#                                 "icon": "location",
+#                                 "title": {
+#                                     "en": "Great Location"
+#                                 },
+#                                 "text": {
+#                                     "en": "A beautiful location in Ghana."
+#                                 }
+#                             },
+#                             {
+#                                 "icon": "heart",
+#                                 "title": {
+#                                     "en": "Personal Service"
+#                                 },
+#                                 "text": {
+#                                     "en": "We want every guest to feel at home."
+#                                 }
+#                             }
+#                         ]
+#                     }
+#                 }
+#             ],
+#             theme={}
+#         ),
 
-        Page(
-            tenant_id=tenant_id,
-            slug="contact",
-            key="contact",
-            name={
-                "en": "Contact",
-                "sv": "Kontakt",
-            },
-            sections=[
-                {
-                    "id": "hero",
-                    "type": "hero",
-                    "content": {
-                        "heading": {
-                            "en": "Contact Us"
-                        },
-                        "text": {
-                            "en": "We would love to hear from you."
-                        },
-                        "image": ""
-                    }
-                },
-                {
-                    "id": "contact-info",
-                    "type": "contact-info",
-                    "content": {
-                        "address": {
-                            "en": ""
-                        },
-                        "phone": {
-                            "en": ""
-                        },
-                        "email": {
-                            "en": ""
-                        }
-                    }
-                },
-                {
-                    "id": "contact-form",
-                    "type": "contact-form",
-                    "content": {
-                        "heading": {
-                            "en": "Send us a message"
-                        }
-                    }
-                }
-            ],
-            theme={}
-        ),
-    ]
+#         Page(
+#             tenant_id=tenant_id,
+#             slug="contact",
+#             key="contact",
+#             name={
+#                 "en": "Contact",
+#                 "sv": "Kontakt",
+#             },
+#             sections=[
+#                 {
+#                     "id": "hero",
+#                     "type": "hero",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Contact Us"
+#                         },
+#                         "text": {
+#                             "en": "We would love to hear from you."
+#                         },
+#                         "image": ""
+#                     }
+#                 },
+#                 {
+#                     "id": "contact-info",
+#                     "type": "contact-info",
+#                     "content": {
+#                         "address": {
+#                             "en": ""
+#                         },
+#                         "phone": {
+#                             "en": ""
+#                         },
+#                         "email": {
+#                             "en": ""
+#                         }
+#                     }
+#                 },
+#                 {
+#                     "id": "contact-form",
+#                     "type": "contact-form",
+#                     "content": {
+#                         "heading": {
+#                             "en": "Send us a message"
+#                         }
+#                     }
+#                 }
+#             ],
+#             theme={}
+#         ),
+#     ]
 
-@router.post("", response_model=TenantOut)
-async def create_tenant(
-    payload: TenantCreate,
-    db: AsyncSession = Depends(get_db),
-    user: CurrentUser = Depends(get_current_user),
-):
-    """Any logged-in user can create a tenant — this is what a hotel owner
-    does right after registering. The creator is automatically linked as
-    an 'owner' member, which is what lets them manage it afterward (and
-    what makes it show up in GET /auth/me/tenants)."""
+# @router.post("", response_model=TenantOut)
+# async def create_tenant(
+#     payload: TenantCreate,
+#     db: AsyncSession = Depends(get_db),
+#     user: CurrentUser = Depends(get_current_user),
+# ):
+#     """Any logged-in user can create a tenant — this is what a hotel owner
+#     does right after registering. The creator is automatically linked as
+#     an 'owner' member, which is what lets them manage it afterward (and
+#     what makes it show up in GET /auth/me/tenants)."""
 
-    tenant = Tenant(**payload.model_dump())
+#     tenant = Tenant(**payload.model_dump())
 
-    print("create_tenant")
-    db.add(tenant)
+#     db.add(tenant)
 
-    try:
-        await db.flush()  # get tenant.id before inserting the membership, and surface subdomain/domain conflicts here
-    except IntegrityError:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="That subdomain (or custom domain) is already taken.",
-        )
+#     try:
+#         await db.flush()  # get tenant.id before inserting the membership, and surface subdomain/domain conflicts here
+#     except IntegrityError:
+#         await db.rollback()
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="That subdomain (or custom domain) is already taken.",
+#         )
 
-    db.add(TenantMembership(tenant_id=tenant.id, user_id=uuid.UUID(user.id), role="owner"))
-    db.add_all(_default_pages(tenant.id))
-    print("Create_tenant: --------------------------------------")
-    await db.commit()
-    await db.refresh(tenant)
-    return tenant
+#     db.add(TenantMembership(tenant_id=tenant.id, user_id=uuid.UUID(user.id), role="owner"))
+#     db.add_all(_default_pages(tenant.id))
+#     await db.commit()
+#     await db.refresh(tenant)
+#     return tenant
 
-@router.get("", response_model=list[TenantOut])
-async def get_tenants(
-    user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """The company switcher — lists every tenant this user can administer.
-    Superadmins get every tenant; everyone else gets only what they hold a
-    TenantMembership row for.
-    """
+# @router.get("", response_model=list[TenantOut])
+# async def get_tenants(
+#     user: CurrentUser = Depends(get_current_user),
+#     db: AsyncSession = Depends(get_db),
+# ):
+#     """The company switcher — lists every tenant this user can administer.
+#     Superadmins get every tenant; everyone else gets only what they hold a
+#     TenantMembership row for.
+#     """
 
-    try:
-        if user.is_superadmin:
-            result = await db.execute(
-                select(Tenant).where(
-                    Tenant.deleted.is_(False)
-                )
-            )
-        else:
-            result = await db.execute(
-                select(Tenant)
-                .join(
-                    TenantMembership,
-                    TenantMembership.tenant_id == Tenant.id,
-                )
-                .where(
-                    TenantMembership.user_id == uuid.UUID(user.id),
-                    Tenant.deleted.is_(False),
-                )
-            )
+#     try:
+#         if user.is_superadmin:
+#             result = await db.execute(
+#                 select(Tenant).where(
+#                     Tenant.deleted.is_(False)
+#                 )
+#             )
+#         else:
+#             result = await db.execute(
+#                 select(Tenant)
+#                 .join(
+#                     TenantMembership,
+#                     TenantMembership.tenant_id == Tenant.id,
+#                 )
+#                 .where(
+#                     TenantMembership.tenant_id == uuid.UUID(user.id),
+#                     Tenant.deleted.is_(False),
+#                 )
+#             )
 
-        return result.scalars().all()
+#         return result.scalars().all()
 
-    except Exception as e:
-        print(f"Error fetching tenants: {e}")
+#     except Exception as e:
+#         print(f"Error fetching tenants: {e}")
 
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch tenants",
-        )
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail="Failed to fetch tenants",
+#         )
 
 def slugify(value: str) -> str:
     value = value.strip().lower()
@@ -447,22 +443,22 @@ async def generate_project(
 
     tenant = Tenant(
         name=payload.name,
-        username=payload.username,
         subdomain=subdomain,
         short_description=payload.short_description,
-        hashed_password=hash_password(payload.password),
     )
 
     db.add(tenant)
     await db.flush()
 
-    db.add(
-        TenantMembership(
-            tenant_id=tenant.id,
-            user_id=uuid.UUID(user.id),
-            role="owner",
-        )
+    tenant_account = TenantMembership(
+        tenant_id=tenant.id,
+        username=payload.username,
+        hashed_password=hash_password(payload.password),
+        role=TenantRole.owner,
+        permissions={},
     )
+
+    db.add(tenant_account)
 
     accommodation_page = Page(
         tenant_id=tenant.id,
@@ -567,7 +563,6 @@ async def caddy_ask(
         )
 
     subdomain = domain.split(".")[0]
-    print("Caddy_ask:", subdomain)
     result = await db.execute(
         select(Tenant.id).where(
             (Tenant.custom_domain == domain)
@@ -650,7 +645,7 @@ async def resolve_tenant_by_host(
 async def get_tenant_by_id(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _user=Depends(require_tenant_access),
+    # _tenant=Depends(require_tenant_access),
 ):
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
     tenant = result.scalar_one_or_none()
@@ -680,7 +675,9 @@ async def update_tenant_theme(
     tenant_id: uuid.UUID,
     payload: ThemeSchema,
     db: AsyncSession = Depends(get_db),
-    user: CurrentUser = Depends(get_current_user),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
 ):
     result = await db.execute(
         select(Tenant).where(Tenant.id == tenant_id)
@@ -750,7 +747,9 @@ async def update_cancellation_policy(
     tenant_id: uuid.UUID,
     payload: CancellationPolicyUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    )
 ):
     result = await db.execute(
         select(Tenant).where(
@@ -813,7 +812,6 @@ async def get_unanswered_questions(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
     _access=Depends(require_tenant_access),
 ):
     offset = (page - 1) * page_size
@@ -857,8 +855,9 @@ async def delete_unanswered_question(
     tenant_id: uuid.UUID,
     question_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
 ):
     result = await db.execute(
         select(UnansweredQuestion).where(
@@ -883,8 +882,9 @@ async def update_tenant_payment_settings(
     tenant_id: uuid.UUID,
     payload: TenantPaymentSettingsUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("payments.edit")
+    ),
 ):
     result = await db.execute(
         select(TenantPaymentSettings).where(
@@ -1040,8 +1040,9 @@ async def create_booking_payment(
 async def get_tenant_payment_settings(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("payments.view")
+    ),
 ):
     methods_result = await db.execute(
         select(PaymentMethod)
@@ -1098,8 +1099,9 @@ async def get_tenant_payment_settings(
 async def get_tenant_email_settings(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("email_settings.view")
+    ),
 ):
     result = await db.execute(
         select(Tenant).where(
@@ -1125,8 +1127,9 @@ async def update_tenant_email_settings(
     tenant_id: uuid.UUID,
     payload: TenantEmailSettingsUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("email_settings.edit")
+    ),
 ):
     result = await db.execute(
         select(Tenant).where(
@@ -1169,38 +1172,28 @@ async def update_tenant_email_settings(
         )
 
 
-@router.put("/{tenant_id}/password", status_code=204)
+@router.put(
+    "/{tenant_id}/password",
+    status_code=204,
+)
 async def update_password(
     tenant_id: uuid.UUID,
     payload: PasswordUpdate,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_tenant_access
+    ),
 ):
-    result = await db.execute(
-        select(User).where(
-            User.id == uuid.UUID(user.id)
-        )
-    )
-
-    db_user = result.scalar_one_or_none()
-
-    if not db_user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
-
     if not verify_password(
         payload.current_password,
-        db_user.hashed_password,
+        _access.hashed_password,
     ):
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Current password is incorrect",
         )
 
-    db_user.hashed_password = hash_password(
+    _access.hashed_password = hash_password(
         payload.new_password
     )
 
@@ -1211,12 +1204,12 @@ async def update_password(
         await db.rollback()
 
         print(
-            "UPDATE PASSWORD ERROR:",
+            "UPDATE TENANT PASSWORD ERROR:",
             repr(error),
         )
 
         raise HTTPException(
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Could not update password",
         )
 
@@ -1227,8 +1220,9 @@ async def get_dashboard_bookings(
     year: int = Query(...),
     month: int = Query(..., ge=1, le=12),
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("bookings.view")
+    )
 ):
     first_day = date(
         year,
@@ -1362,8 +1356,9 @@ async def cancel_booking(
     tenant_id: uuid.UUID,
     booking_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    user=Depends(get_current_user),
-    _access=Depends(require_tenant_access),
+    _access: TenantMembership = Depends(
+        require_permission("bookings.edit")
+    )
 ):
     result = await db.execute(
         select(Booking).where(
