@@ -12,7 +12,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import (
     get_tenant_cache,
     add_tenant_cache,
-    delete_tenant_cache_for_tenant
+    delete_tenant_cache_for_tenant,
+    delete_tenant_cache
 )
 from app.core.config import settings
 from app.models.booking import (
@@ -348,6 +349,8 @@ async def update_tenant_theme(
 
     await db.commit()
     await db.refresh(tenant)
+
+    await delete_tenant_cache("localhost:3001")
 
     await delete_tenant_cache_for_tenant(
         tenant

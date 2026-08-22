@@ -12,10 +12,18 @@ redis_client = redis.Redis.from_url(
 async def delete_tenant_cache_for_tenant(
     tenant: Tenant,
 ) -> None:
+    # Local
     await delete_tenant_cache(
-        f"{tenant.subdomain}.{settings.tenant_base_domain}"
+        "localhost:3001"
     )
 
+    # Production subdomain
+    if tenant.subdomain:
+        await delete_tenant_cache(
+            f"{tenant.subdomain}.miche.se"
+        )
+
+    # Custom domain
     if tenant.custom_domain:
         await delete_tenant_cache(
             tenant.custom_domain

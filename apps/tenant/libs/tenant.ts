@@ -25,12 +25,16 @@ export const getTenant = cache(async () => {
       cache: "no-store",
     }
   );
-
+  
   if (!response.ok) {
     throw new Error(
       `Failed to resolve tenant: ${response.status}`
     );
   }
   const data: TenantResponse = await response.json() as TenantResponse;
+  console.log(data) // Denna ger mig
+  /*
+    backgroundColor: "#9f3c3c"
+  */
   return data;
 });

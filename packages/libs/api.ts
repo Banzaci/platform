@@ -6,7 +6,6 @@ export function createApi(url: string, tokenName: string) {
     options: RequestInit = {}
   ): Promise<T> {
     const token = getToken();
-    console.log('token', token)
     const isFormData = options.body instanceof FormData;
     const res = await fetch(`${url}${endpoint}`, {
       ...options,
@@ -29,7 +28,6 @@ export function createApi(url: string, tokenName: string) {
   }
 
   function getToken() {
-    console.log('tokenName', tokenName)
     return typeof window !== "undefined"
       ? localStorage.getItem(tokenName)
       : null;

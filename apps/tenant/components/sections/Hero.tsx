@@ -16,7 +16,6 @@ type HeroProps = {
 };
 
 export default function Hero({ content, theme }: HeroProps) {
-  console.log(theme)
   return (
     <section className="relative min-h-150 overflow-hidden"
       style={{

@@ -56,8 +56,6 @@ export default function PropertyDetailsClient({
 
         const query = params.toString();
 
-        console.log(query)
-
         const data = await apiClient.api<PublicTenantPropertyResponse>(
             `v1/tenants/${tenantId}/properties/${propertyId}/public${
               query ? `?${query}` : ""
