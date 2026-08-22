@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_superadmin
-from app.core.redis import redis_client, tenant_features_cache_key
+from app.core.redis import delete_tenant_features_cache, get_tenant_features_cache, add_tenant_features_cache
 from app.db.session import get_db
 from app.models.feature import Feature, TenantFeature
 from app.schemas.entities import FeatureOut, TenantFeatureToggle
@@ -28,8 +28,9 @@ async def get_tenant_features(tenant_id: uuid.UUID, db: AsyncSession = Depends(g
     Both the admin UI and any feature-gated API endpoint should check this
     (or the cached version) before showing/allowing anything."""
 
-    cache_key = tenant_features_cache_key(str(tenant_id))
-    cached = await redis_client.get(cache_key)
+    cached = await get_tenant_features_cache(
+        str(tenant_id)
+    )
     if cached:
         return json.loads(cached)
 
@@ -39,7 +40,7 @@ async def get_tenant_features(tenant_id: uuid.UUID, db: AsyncSession = Depends(g
         .where(TenantFeature.tenant_id == tenant_id, TenantFeature.enabled == True)  # noqa: E712
     )
     keys = [row[0] for row in result.all()]
-    await redis_client.set(cache_key, json.dumps(keys), ex=300)
+    await add_tenant_features_cache(str(tenant_id), json.dumps(keys), 300)
     return keys
 
 
@@ -70,4 +71,4 @@ async def toggle_tenant_feature(
         db.add(TenantFeature(tenant_id=tenant_id, feature_id=feature.id, enabled=payload.enabled))
 
     await db.commit()
-    await redis_client.delete(tenant_features_cache_key(str(tenant_id)))
+    await delete_tenant_features_cache(str(tenant_id))

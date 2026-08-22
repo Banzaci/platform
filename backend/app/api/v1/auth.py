@@ -98,10 +98,7 @@ async def me_session(user: CurrentUser = Depends(get_current_user), db: AsyncSes
     result = await db.execute(select(User).where(User.id == uuid.UUID(user.id)))
     return result.scalar_one()
 
-@router.get(
-    "/tenant/session",
-    response_model=TenantSessionOut,
-)
+@router.get("/tenant/session",response_model=TenantSessionOut)
 async def tenant_session(
     membership: TenantMembership = Depends(
         require_tenant_access

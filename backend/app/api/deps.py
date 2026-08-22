@@ -1,11 +1,9 @@
 import uuid
 import jwt
-from jwt.exceptions import PyJWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.redis import redis_client
 from pydantic import BaseModel
 from app.models.tenant import Tenant
 from app.core.config import settings
@@ -14,27 +12,6 @@ from app.db.session import get_db
 from app.models.tenant_membership import TenantMembership, TenantRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
-
-async def invalidate_tenant_cache_for_tenant(
-    tenant: Tenant,
-):
-    keys = []
-
-    if tenant.custom_domain:
-        keys.append(
-            f"tenant-resolve:{tenant.custom_domain}"
-        )
-
-    if tenant.subdomain:
-        keys.append(
-            f"tenant-resolve:{tenant.subdomain}"
-        )
-
-    # Development
-    keys.append("tenant-resolve:localhost:3000")
-
-    for key in keys:
-        await redis_client.delete(key)
 
 async def require_owner(
     tenant_id: uuid.UUID,

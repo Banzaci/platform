@@ -1,20 +1,27 @@
-import json
 import uuid
-from fastapi import Request
-from app.api.deps import invalidate_tenant_cache_for_tenant
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.get_current_user import CurrentUser, get_current_user
-from app.core.redis import page_cache_key, redis_client
+from app.api.deps import require_permission
+from app.core.redis import (
+    delete_tenant_cache,
+    page_cache_key,
+    delete_page_cache,
+    get_page_cache,
+    add_page_cache
+)
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.page import Page
+from app.models.tenant_membership import TenantMembership
 from app.schemas.page import PageOut, PageUpdate
-from app.models.tenant import Tenant
 
-router = APIRouter(prefix="/tenants/{tenant_id}/pages", tags=["pages"])
+router = APIRouter(
+    prefix="/tenants/{tenant_id}/pages",
+    tags=["pages"],
+)
 
 @router.put("/{page_id}", response_model=PageOut)
 async def update_page(
@@ -23,7 +30,9 @@ async def update_page(
     page_id: uuid.UUID,
     payload: PageUpdate,
     db: AsyncSession = Depends(get_db),
-    user: CurrentUser = Depends(get_current_user),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
 ):
     try:
         result = await db.execute(
@@ -37,24 +46,10 @@ async def update_page(
 
         if not page:
             raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail="Page not found",
             )
-        
-        tenant_result = await db.execute(
-            select(Tenant).where(
-                Tenant.id == tenant_id
-            )
-        )
 
-        tenant = tenant_result.scalar_one_or_none()
-
-        if not tenant:
-            raise HTTPException(
-                status_code=404,
-                detail="Tenant not found",
-            )
-        
         if payload.layout_variant is not None:
             page.layout_variant = payload.layout_variant
 
@@ -69,9 +64,20 @@ async def update_page(
 
         await db.commit()
         await db.refresh(page)
-        host = request.headers.get("x-forwarded-host") or request.headers.get("host")
+
+        await delete_page_cache(
+            str(tenant_id),
+            page.slug,
+        )
+
+        host = (
+            request.headers.get("x-forwarded-host")
+            or request.headers.get("host")
+        )
+
         if host:
-            await invalidate_tenant_cache_for_tenant(tenant)
+            await delete_tenant_cache(host)
+
         return page
 
     except HTTPException:
@@ -80,30 +86,58 @@ async def update_page(
     except Exception as e:
         await db.rollback()
 
-        print("UPDATE PAGE ERROR:", repr(e))
-
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update page: {str(e)}",
+        print(
+            "UPDATE PAGE ERROR:",
+            repr(e),
         )
 
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update page",
+        )
+
+
 @router.get("/{slug}", response_model=PageOut)
-async def get_page(tenant_id: uuid.UUID, slug: str, db: AsyncSession = Depends(get_db)):
-    """Public endpoint — this is what the tenant's live website calls to
-    render a page. Cached in Redis since page config changes rarely but is
-    read on every request."""
+async def get_page(
+    tenant_id: uuid.UUID,
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+):
+    cache_key = page_cache_key(
+        str(tenant_id),
+        slug,
+    )
 
-    cache_key = page_cache_key(str(tenant_id), slug)
-    cached = await redis_client.get(cache_key)
+    cached = await get_page_cache(
+        str(tenant_id),
+        slug,
+    )
+
     if cached:
-        return PageOut.model_validate(json.loads(cached))
+        return PageOut.model_validate_json(cached)
 
-    result = await db.execute(select(Page).where(Page.tenant_id == tenant_id, Page.slug == slug))
+    result = await db.execute(
+        select(Page).where(
+            Page.tenant_id == tenant_id,
+            Page.slug == slug,
+        )
+    )
+
     page = result.scalar_one_or_none()
+
     if not page:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Page not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Page not found",
+        )
 
     page_out = PageOut.model_validate(page)
-    await redis_client.set(cache_key, page_out.model_dump_json(), ex=settings.cache_ttl_seconds)
-    return page_out
 
+    await add_page_cache(
+        str(tenant_id),
+        slug,
+        page_out.model_dump_json(),
+        settings.cache_ttl_seconds,
+    )
+
+    return page_out

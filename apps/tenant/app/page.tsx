@@ -4,6 +4,7 @@ import PageRenderer from "./PageRenderer";
 
 export default async function HomePage() {
   const data = await getTenant();
+
   const page = data.pages.find(
     (page) => page.slug === "index"
   );
