@@ -184,7 +184,7 @@ export default function AddSection({
     setSaving(true);
 
     try {
-      const response = await apiClient.api<any>(
+      await apiClient.api<any>(
         `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
@@ -193,10 +193,6 @@ export default function AddSection({
           }),
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
 
       setOpen(false);
       window.location.reload();

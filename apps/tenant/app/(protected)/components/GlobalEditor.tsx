@@ -29,16 +29,13 @@ export default function GlobalEditor({
     setSaving(true);
 
     try {
-      const response = await apiClient.api<any>(
+      await apiClient.api<any>(
         `v1/tenants/${tenantId}/theme`,
         {
           method: "PUT",
           body: JSON.stringify(form),
         }
       );
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
       setOpen(false);
       window.location.reload();
     } catch (error) {

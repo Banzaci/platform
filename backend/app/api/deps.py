@@ -112,7 +112,6 @@ async def require_tenant_access(
     db: AsyncSession = Depends(get_db),
 ) -> TenantMembership:
     try:
-        print("RAW TOKEN:", token)
         payload = jwt.decode(
             token,
             settings.jwt_secret,
@@ -121,8 +120,6 @@ async def require_tenant_access(
                 "require": ["exp", "sub"],
             },
         )
-
-        print("PAYLOAD:", payload)
 
         if payload.get("type") != "tenant":
             raise HTTPException(

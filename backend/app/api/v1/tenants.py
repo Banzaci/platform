@@ -690,7 +690,7 @@ async def update_tenant_theme(
             status_code=404,
             detail="Tenant not found",
         )
-    
+
     if tenant.theme:
         history = ThemeHistory(
             tenant_id=tenant.id,
@@ -699,7 +699,6 @@ async def update_tenant_theme(
 
         db.add(history)
 
-    # Sätt nya temat
     incoming = payload.model_dump(
         exclude_unset=True
     )
@@ -711,7 +710,6 @@ async def update_tenant_theme(
         **incoming,
     }
 
-    # Behåll endast de 20 senaste
     await db.flush()
 
     result = await db.execute(
