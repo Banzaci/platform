@@ -43,20 +43,20 @@ app = FastAPI(
 
 API_PREFIX = "/api/v1"
 
-ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3005",
-    "http://localhost:3006",
-    "https://miche.se",
-    "https://admin.miche.se",
-]
+# ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "http://localhost:3001",
+#     "http://localhost:3005",
+#     "http://localhost:3006",
+#     "https://miche.se",
+#     "https://admin.miche.se",
+# ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=False if ALLOWED_ORIGINS == ["*"] else True,
-    allow_origin_regex=r"^https://([a-z0-9-]+\.)?miche\.se$",
+    allow_origins=[],
+    allow_origin_regex=r"^(https://([a-z0-9-]+\.)?miche\.se|http://localhost:\d+)$",
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
