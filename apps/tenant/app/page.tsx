@@ -10,7 +10,5 @@ export default async function HomePage() {
   if (!page) {
     notFound();
   }
-  console.log(data.tenant.theme)
-  console.log('--------------------------')
   return <PageRenderer page={page} editable={true} globalTheme={data.tenant.theme} />;
 }

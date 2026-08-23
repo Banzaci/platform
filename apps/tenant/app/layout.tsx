@@ -8,67 +8,94 @@ import EditorControls from "./(protected)/components/EditorControls";
 import ThemeProvider from "@/providers/ThemeProvider";
 import DevLabelToggle from "@/helpers/DevLabelToggle";
 
-export const metadata: Metadata = {
-  title: {
-    default: "Roominary — Find your perfect stay",
-    template: "%s | Roominary",
-  },
-  description:
-    "Search and book unique hotels, guesthouses and long-term stays worldwide. Tell us what you're looking for in plain language — surf spots, coworking, beachfront, budget — and we'll find your perfect stay.",
-  keywords: [
-    "hotel booking",
-    "long term stay",
-    "digital nomad accommodation",
-    "surf hotels",
-    "coworking accommodation",
-    "monthly rentals",
-    "vacation rentals",
-  ],
-  authors: [{ name: "Roominary" }],
-  creator: "Roominary",
-  publisher: "Roominary",
-  metadataBase: new URL("https://roominary.com"),
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://roominary.com",
-    siteName: "Roominary",
-    title: "Roominary — Find your perfect stay",
-    description:
-      "Search and book unique hotels, guesthouses and long-term stays worldwide using natural language.",
-    images: [
+
+export async function generateMetadata(): Promise<Metadata> {
+  const data = await getTenant();
+
+  const tenant = data.tenant;
+
+  const title = tenant.name;
+
+  const description =
+    tenant.short_description ||
+    `Book your stay at ${tenant.name}.`;
+
+  const baseUrl = tenant.custom_domain
+    ? `https://${tenant.custom_domain}`
+    : `https://${tenant.subdomain}.miche.se`;
+
+  return {
+    title: {
+      default: title,
+      template: `%s | ${title}`,
+    },
+
+    description,
+
+    authors: [
       {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Roominary — Find your perfect stay",
+        name: tenant.name,
       },
     ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Roominary — Find your perfect stay",
-    description:
-      "Search and book unique hotels, guesthouses and long-term stays worldwide using natural language.",
-    images: ["/og-image.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+
+    creator: tenant.name,
+    publisher: tenant.name,
+
+    metadataBase: new URL(baseUrl),
+
+    alternates: {
+      canonical: "/",
+    },
+
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: baseUrl,
+      siteName: tenant.name,
+      title,
+      description,
+
+      images: tenant.logo_url
+        ? [
+            {
+              url: tenant.logo_url,
+              alt: tenant.name,
+            },
+          ]
+        : [],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+
+      images: tenant.logo_url
+        ? [tenant.logo_url]
+        : [],
+    },
+
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
-  },
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏨</text></svg>",
-  },
-};
+
+    icons: tenant.logo_url
+      ? {
+          icon: tenant.logo_url,
+        }
+      : {
+          icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏨</text></svg>",
+        },
+  };
+}
 
 const inter = Inter({
   variable: "--font-inter",
