@@ -34,6 +34,7 @@ class TenantOut(BaseModel):
     latitude: float | None
     longitude: float | None
     theme: ThemeSchema
+    deleted: bool
     cancellation_policy: CancellationPolicy = CancellationPolicy()
 
     class Config:

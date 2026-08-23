@@ -68,7 +68,7 @@ async def get_my_tenants(
         select(Tenant)
         .where(
             Tenant.created_by_user_id == uuid.UUID(user.id),
-            Tenant.deleted.is_(False),
+            # Tenant.deleted.is_(False),
         )
         .order_by(Tenant.created_at.desc())
     )
@@ -421,17 +421,46 @@ async def update_cancellation_policy(
 
     return tenant.cancellation_policy
 
-
-@router.delete("/{tenant_id}")
-async def soft_delete_tenant(
+@router.delete(
+    "/{tenant_id}/hard",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def hard_delete_tenant(
     tenant_id: uuid.UUID,
-    user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
 ):
     result = await db.execute(
         select(Tenant).where(
             Tenant.id == tenant_id,
-            Tenant.deleted.is_(False),
+            Tenant.created_by_user_id == uuid.UUID(user.id),
+            Tenant.deleted.is_(True),
+        )
+    )
+
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Deleted tenant not found",
+        )
+
+    await delete_tenant_cache_for_tenant(tenant)
+
+    await db.delete(tenant)
+    await db.commit()
+    
+@router.delete("/{tenant_id}")
+async def soft_delete_tenant(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id,
+            Tenant.created_by_user_id == uuid.UUID(user.id),
         )
     )
 
@@ -444,13 +473,11 @@ async def soft_delete_tenant(
         )
 
     tenant.deleted = True
+    tenant.is_active = False
 
     await db.commit()
 
-    return {
-        "id": str(tenant.id),
-        "deleted": True,
-    }
+    await delete_tenant_cache_for_tenant(tenant)
 
 
 @router.get("/{tenant_id}/unanswered-questions")

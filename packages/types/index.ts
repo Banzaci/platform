@@ -2,6 +2,7 @@ export type Tenant = {
   id: string;
   name: string;
   subdomain: string;
+  deleted: boolean
   custom_domain?: string;
 };
 

@@ -17,7 +17,7 @@ export default function DashboardPage() {
   const deleteTenant = useMutation({
     mutationFn: (tenantId: string) =>
       apiClient.api(
-        `v1/tenants/${tenantId}`,
+        `v1/tenants/${tenantId}/hard`,
         {
           method: "DELETE",
         }
@@ -29,6 +29,7 @@ export default function DashboardPage() {
       });
     },
   });
+
   const { data: tenants, isLoading } = useQuery({
     queryKey: ["my-tenants"],
     queryFn: () => apiClient.api<Tenant[]>("v1/tenants"),
@@ -71,7 +72,7 @@ export default function DashboardPage() {
             {tenants.map((tenant) => (
               <li
                 key={tenant.id}
-                className="group flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                className={`group flex items-center gap-3 py-3 first:pt-0 last:pb-0  ${tenant.deleted ? "opacity-50" : ""}`}
               >
                 <button
                   type="button"
