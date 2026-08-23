@@ -13,7 +13,6 @@ from app.schemas.entities import FeatureOut, TenantFeatureToggle
 
 router = APIRouter(tags=["features"])
 
-
 @router.get("/features", response_model=list[FeatureOut])
 async def list_features(db: AsyncSession = Depends(get_db)):
     """The full sellable-features catalog. Public read so pricing/feature

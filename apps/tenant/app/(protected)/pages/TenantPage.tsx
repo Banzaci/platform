@@ -26,27 +26,19 @@ import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import { Page, TenantResponse } from "@hotel/types";
 
-export default function TenantJsonPage() {
-  const params = useParams<{
-    tenant_id: string;
-  }>();
+export default function TenantPage({ tenantId}: { tenantId: string }) {
 
   const queryClient = useQueryClient();
 
   const [pageName, setPageName] = useState("");
   const [localPages, setLocalPages] = useState<Page[]>([]);
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["tenant", params.tenant_id],
-
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["tenant", tenantId],
     queryFn: async () => {
       const result =
         await apiClient.api<TenantResponse>(
-          `v1/tenants/${params.tenant_id}`
+          `v1/tenants/${tenantId}`
         );
 
       setLocalPages(result.pages);
@@ -62,7 +54,7 @@ export default function TenantJsonPage() {
   const addPage = useMutation({
     mutationFn: (name: string) =>
       apiClient.api(
-        `v1/tenants/${params.tenant_id}/pages`,
+        `v1/tenants/${tenantId}/pages`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -77,7 +69,7 @@ export default function TenantJsonPage() {
       await queryClient.invalidateQueries({
         queryKey: [
           "tenant",
-          params.tenant_id,
+          tenantId,
         ],
       });
     },
@@ -86,7 +78,7 @@ export default function TenantJsonPage() {
   const deletePage = useMutation({
     mutationFn: (pageId: string) =>
       apiClient.api(
-        `v1/tenants/${params.tenant_id}/pages/${pageId}`,
+        `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "DELETE",
         }
@@ -96,7 +88,7 @@ export default function TenantJsonPage() {
       await queryClient.invalidateQueries({
         queryKey: [
           "tenant",
-          params.tenant_id,
+          tenantId,
         ],
       });
     },
@@ -105,7 +97,7 @@ export default function TenantJsonPage() {
   const reorderPages = useMutation({
     mutationFn: (pages: Page[]) =>
       apiClient.api(
-        `v1/tenants/${params.tenant_id}/pages/reorder`,
+        `v1/tenants/${tenantId}/pages/reorder`,
         {
           method: "PUT",
           body: JSON.stringify({

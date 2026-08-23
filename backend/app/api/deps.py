@@ -1,5 +1,6 @@
 import uuid
 import jwt
+import re
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
@@ -12,6 +13,12 @@ from app.db.session import get_db
 from app.models.tenant_membership import TenantMembership, TenantRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+
+def slugify(value: str) -> str:
+    value = value.strip().lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    return value.strip("-")
 
 async def require_owner(
     tenant_id: uuid.UUID,

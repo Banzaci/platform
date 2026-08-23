@@ -5,7 +5,7 @@ from datetime import date
 from calendar import monthrange
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
-from app.api.deps import require_tenant_access, require_permission
+from app.api.deps import require_tenant_access, require_permission, slugify
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +13,6 @@ from app.core.redis import (
     get_tenant_cache,
     add_tenant_cache,
     delete_tenant_cache_for_tenant,
-    delete_tenant_cache
 )
 from app.core.config import settings
 from app.models.booking import (
@@ -59,11 +58,6 @@ class TenantEmailSettingsOut(BaseModel):
 class PasswordUpdate(BaseModel):
     current_password: str
     new_password: str
-
-def slugify(value: str) -> str:
-    value = value.strip().lower()
-    value = re.sub(r"[^a-z0-9]+", "-", value)
-    return value.strip("-")
 
 @router.get("", response_model=list[TenantOut])
 async def get_my_tenants(
@@ -167,10 +161,7 @@ async def generate_project(
         is_system=True,
     )
 
-    pages = [
-        home,
-        accommodation_page,
-    ]
+    pages = []
 
     for index, page_name in enumerate(
         payload.pages,
@@ -215,6 +206,8 @@ async def generate_project(
 
         pages.append(page)
 
+    pages.append(home)
+    pages.append(accommodation_page)
     db.add_all(pages)
 
     await db.commit()
@@ -305,17 +298,41 @@ async def resolve_tenant_by_host(
 
     return full
 
-@router.get("/{tenant_id}", response_model=TenantOut)
+@router.get("/{tenant_id}", response_model=TenantFullOut)
 async def get_tenant_by_id(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    # _tenant=Depends(require_tenant_access),
 ):
-    result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
     tenant = result.scalar_one_or_none()
+
     if not tenant:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tenant not found")
-    return tenant
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tenant not found",
+        )
+
+    pages_result = await db.execute(
+        select(Page)
+        .where(
+            Page.tenant_id == tenant_id
+        )
+        .order_by(Page.sort_order)
+    )
+
+    pages = pages_result.scalars().all()
+
+    return TenantFullOut(
+        tenant=TenantOut.model_validate(
+            tenant
+        ),
+        pages=pages,
+    )
 
 
 @router.get("/{tenant_id}/pages", response_model=TenantFullOut)

@@ -1,10 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-
-import { apiClient } from "@/libs/api";
-import { Tenant } from "@hotel/types";
 import TenantJsonPage from "@/app/components/TenantJsonPage";
 
 export default function TenantPage() {

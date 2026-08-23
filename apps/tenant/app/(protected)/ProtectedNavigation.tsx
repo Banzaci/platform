@@ -46,6 +46,12 @@ export default function ProtectedNavigation() {
           >
             Settings
           </Link>
+          <Link
+            href="/pages"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+          >
+            My Pages
+          </Link>
         </nav>
 
         {/* Account */}

@@ -35,3 +35,6 @@ class PageUpdate(BaseModel):
     layout_variant: str | None = None
     sections: list[SectionSchema] | None = None
     theme: dict | None = None
+
+class PageCreate(BaseModel):
+    name: str
