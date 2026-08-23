@@ -153,35 +153,24 @@ export default function AIInputTextArea() {
               </div>
             </div>
           </div>
-
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Pages
                 </h2>
-
                 <p className="mt-1 text-sm text-gray-500">
                   Add the pages you want
                   created for the hotel.
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={addPage}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-              >
-                <Plus className="h-4 w-4" />
-                Add page
-              </button>
             </div>
             <Field
-                label="Name"
-                value={name}
-                onChange={(value) => setName(value)}
-                placeholder="Laughing Goat Ghana"
-              />
+              label="Name"
+              value={name}
+              onChange={(value) => setName(value)}
+              placeholder="Laughing Goat Ghana"
+            />
             <Field
               label="Username"
               value={username}
@@ -264,6 +253,14 @@ export default function AIInputTextArea() {
                 No pages added yet.
               </div>
             )}
+              <button
+                type="button"
+                onClick={addPage}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+              >
+                <Plus className="h-4 w-4" />
+                Add page
+              </button>
           </div>
 
           {error && (
