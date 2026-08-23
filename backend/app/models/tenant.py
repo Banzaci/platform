@@ -101,3 +101,10 @@ class Tenant(Base):
             "partial_refund_percent": 50,
         },
     )
+
+    created_by_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )

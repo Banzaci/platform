@@ -65,6 +65,21 @@ def slugify(value: str) -> str:
     value = re.sub(r"[^a-z0-9]+", "-", value)
     return value.strip("-")
 
+@router.get("", response_model=list[TenantOut])
+async def get_my_tenants(
+    user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Tenant)
+        .where(
+            Tenant.created_by_user_id == uuid.UUID(user.id),
+            Tenant.deleted.is_(False),
+        )
+        .order_by(Tenant.created_at.desc())
+    )
+
+    return result.scalars().all()
 
 @router.post("/generate", response_model=GenerateProjectResponse)
 async def generate_project(
@@ -78,11 +93,11 @@ async def generate_project(
         name=payload.name,
         subdomain=subdomain,
         short_description=payload.short_description,
+        created_by_user_id=uuid.UUID(user.id),
     )
 
     db.add(tenant)
     await db.flush()
-
     tenant_account = TenantMembership(
         tenant_id=tenant.id,
         username=payload.username,
@@ -348,9 +363,7 @@ async def update_tenant_theme(
     tenant.theme = payload.model_dump()
 
     await db.commit()
-    await db.refresh(tenant)
-
-    await delete_tenant_cache("localhost:3001")
+    await db.refresh(tenant) 
 
     await delete_tenant_cache_for_tenant(
         tenant

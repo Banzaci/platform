@@ -17,7 +17,6 @@ async def delete_tenant_cache_for_tenant(
         "localhost:3001"
     )
 
-    # Production subdomain
     if tenant.subdomain:
         await delete_tenant_cache(
             f"{tenant.subdomain}.miche.se"
