@@ -1,13 +1,13 @@
 
 import uuid
-import re
 from datetime import date
 from calendar import monthrange
 from app.models.unanswered_question import UnansweredQuestion
-from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse
+from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
 from app.api.deps import require_tenant_access, require_permission, slugify
+from app.api.open_ai import generate_hotel_plan
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy import select, delete, func
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.redis import (
     get_tenant_cache,
@@ -19,6 +19,7 @@ from app.models.booking import (
     Booking,
     BookingStatus,
 )
+from app.helpers.build_sections import build_sections, normalize_page_slug
 from app.models.property import Property
 from app.models.property_block import PropertyBlock
 from app.models.property_calendar_source import PropertyCalendarSource
@@ -1078,3 +1079,70 @@ async def cancel_booking(
             status_code=500,
             detail="Could not cancel booking",
         )
+
+@router.post("/ai-generate", response_model=GenerateProjectResponse)
+async def ai_generate_project(
+    payload: GenerateProjectAIRequest,
+    db: AsyncSession = Depends(get_db),
+    user: CurrentUser = Depends(get_current_user),
+):
+    plan = await generate_hotel_plan(
+        payload.prompt
+    )
+
+    print(plan)
+    print("-------------------------")
+
+    tenant = Tenant(
+        name=plan.tenant.name,
+        subdomain=slugify(
+            plan.tenant.name
+        ),
+        category=plan.tenant.category,
+        location=plan.tenant.location,
+        short_description=plan.tenant.short_description,
+        theme=plan.theme.model_dump(),
+        created_by_user_id=uuid.UUID(
+            user.id
+        ),
+    )
+
+    db.add(tenant)
+    await db.flush()
+
+    for index, generated_page in enumerate(
+        plan.pages
+    ):
+        slug = normalize_page_slug(
+            generated_page
+        )
+        db.add(
+            Page(
+                tenant_id=tenant.id,
+                name={
+                    "en": generated_page.name
+                },
+                slug=slug,
+                key=slug,
+                sort_order=index,
+                layout_variant="default",
+                sections=build_sections(
+                    generated_page.sections
+                ),
+                theme={},
+                is_system=(
+                    generated_page.slug
+                    in {
+                        "index",
+                        "accommodation",
+                    }
+                ),
+            )
+        )
+
+    await db.commit()
+
+    return GenerateProjectResponse(
+        tenant_id=str(tenant.id),
+        message="Project created",
+    )

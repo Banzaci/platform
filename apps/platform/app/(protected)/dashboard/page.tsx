@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import AIInputTextArea from "@/app/components/AIInputTextArea";
+import AIInputTextArea from "./AIInputTextArea";
 import { apiClient } from "@/libs/api";
 import { Tenant } from "@hotel/types";
 import { Trash2 } from "lucide-react";
@@ -57,7 +57,7 @@ export default function DashboardPage() {
           Manage your hotels or create a new one.
         </p>
       </div>
-
+      <AIInputTextArea />
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <button
           type="button"

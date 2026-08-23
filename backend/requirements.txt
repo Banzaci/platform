@@ -24,3 +24,5 @@ icalendar
 httpx
 
 spacy==3.8.14
+
+openai

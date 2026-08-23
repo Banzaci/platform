@@ -12,3 +12,6 @@ class GenerateProjectRequest(BaseModel):
 class GenerateProjectResponse(BaseModel):
     tenant_id: str
     message: str
+
+class GenerateProjectAIRequest(BaseModel):
+    prompt: str

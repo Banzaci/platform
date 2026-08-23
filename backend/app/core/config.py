@@ -6,10 +6,10 @@ class Settings(BaseSettings):
     database_url: str = os.getenv("DATABASE_URL", "postgresql+asyncpg://platform:12125tgh678xx!!6545@localhost:5435/platform")
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     jwt_secret: str = os.getenv("JWT_SECRET", "local")
-
+    openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24
-
+    environment: str = "development"
     cache_ttl_seconds: int = 300
     tenant_base_domain: str = "miche.se"
     
