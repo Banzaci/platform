@@ -56,6 +56,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False if ALLOWED_ORIGINS == ["*"] else True,
+    allow_origin_regex=r"^https://([a-z0-9-]+\.)?miche\.se$",
     allow_methods=["*"],
     allow_headers=["*"],
 )
