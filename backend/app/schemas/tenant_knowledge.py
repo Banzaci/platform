@@ -43,3 +43,4 @@ class TenantKnowledgeOut(BaseModel):
 
     class Config:
         from_attributes = True
+

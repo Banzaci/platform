@@ -14,7 +14,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
 
-
 class TenantKnowledge(Base):
     __tablename__ = "tenant_knowledge"
 

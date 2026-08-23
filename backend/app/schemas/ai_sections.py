@@ -104,9 +104,15 @@ class AITenant(BaseModel):
     location: str | None = None
     short_description: str
 
-
+class AIKnowledgeItem(BaseModel):
+    category: str
+    question: LocalizedText
+    answer: LocalizedText
+    intent: str | None = None
+    
 class AIProjectPlan(BaseModel):
     tenant: AITenant
     theme: AITheme
     pages: list[AIPage]
     property_count: int
+    knowledge: list[AIKnowledgeItem]
