@@ -3,13 +3,14 @@
 
 import EditableSection from "@/app/(protected)/components/EditableSection";
 import PropertiesPageClient from "./PropertiesPageClient";
-import { SectionTheme } from "@/types";
+import { SectionTheme, TenantFont } from "@/types";
 
 type Props = {
   tenantId: string;
   pageId: string;
   sections: any[];
   globalTheme: SectionTheme;
+  fonts: TenantFont[]
 };
 
 export default function AccommodationPageClient({
@@ -17,6 +18,7 @@ export default function AccommodationPageClient({
   pageId,
   sections,
   globalTheme,
+  fonts,
 }: Props) {
   return (
     <main
@@ -34,7 +36,6 @@ export default function AccommodationPageClient({
             ...(globalTheme ?? {}),
           },
         };
-        console.log(mergedTheme)
 
         return (
           <EditableSection
@@ -44,6 +45,7 @@ export default function AccommodationPageClient({
             pageId={pageId}
             tenantId={tenantId}
             sections={sections}
+            fonts={fonts}
           >
             <PropertiesPageClient
               tenantId={tenantId}

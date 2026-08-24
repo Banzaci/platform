@@ -261,7 +261,7 @@ async def resolve_tenant_by_host(
 ):
     cached = await get_tenant_cache(host)
 
-    if cached:
+    if cached and not host.startswith("localhost"):
         return TenantFullOut.model_validate_json(cached)
 
     if host.startswith("localhost"):

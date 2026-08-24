@@ -26,8 +26,6 @@ export default function GlobalEditor({
     }));
   }
 
-  console.log(form)
-
   async function save() {
     setSaving(true);
     try {

@@ -19,26 +19,31 @@ async def upload_font_file(
     filename = file.filename or "font"
 
     name = filename.rsplit(".", 1)[0]
+    folder = f"{tenant_id}/fonts"
 
     result = cloudinary.uploader.upload(
         file.file,
         resource_type="raw",
-        folder=f"tenant-fonts/{tenant_id}",
+        folder=folder,
         public_id=name,
         overwrite=True,
     )
-
     return result["secure_url"], result["public_id"]
 
 async def upload_image(
     file,
-    user_id: str,
     tenant_id: str,
+    path: str = "",
 ):
     filename = file.filename or "image"
     name = filename.rsplit(".", 1)[0]
 
-    folder = f"{user_id}/{tenant_id}"
+    folder = (
+        f"{tenant_id}/{path.strip('/')}"
+        if path
+        else tenant_id
+    )
+
     public_id = f"{uuid.uuid4()}-{name}"
 
     result = cloudinary.uploader.upload(

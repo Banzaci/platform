@@ -19,13 +19,17 @@ type Props = {
 
 export default function ImageText({ content, theme }: Props) {
   const imageRight = content.layout === "image-right";
+  console.log('ImageText theme')
+  console.log(theme)
   return (
     <section
       className="py-16"
       style={{
-        backgroundColor: theme?.backgroundColor,
-        color: theme?.textColor,
-      }}
+          backgroundColor: theme?.backgroundColor,
+          fontFamily: theme?.headingFontFamily,
+          paddingTop: theme?.paddingTop,
+          paddingBottom: theme?.paddingBottom,
+        }}
     >
       <div
         className={`mx-auto grid max-w-6xl items-center gap-10 px-6 md:grid-cols-2 ${
@@ -44,7 +48,12 @@ export default function ImageText({ content, theme }: Props) {
 
         <div>
           {content.heading?.en && (
-            <h2 className="text-3xl font-semibold md:text-4xl">
+            <h2 style={{
+              color: theme?.primaryColor,
+              fontSize: theme?.fontSize,
+              fontFamily: theme?.headingFontFamily,
+            }}
+            >
               {content.heading.en}
             </h2>
           )}
@@ -53,9 +62,8 @@ export default function ImageText({ content, theme }: Props) {
             <p
               className="mt-5 leading-7"
               style={{
-                color:
-                  theme?.secondaryColor ??
-                  theme?.textColor,
+                color: theme?.secondaryColor,
+                fontFamily: theme?.fontFamily,
               }}
             >
               {content.text.en}

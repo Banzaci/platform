@@ -23,7 +23,6 @@ export default function EditorControls({
   if (!hasToken) {
     return null;
   }
-  console.log("EditorControls")
   return (
     <AuthenticatedEditorControls
       tenantId={tenantId}
@@ -47,8 +46,6 @@ function AuthenticatedEditorControls({
   if (isLoading || isError || !data) {
     return null;
   }
-
-  console.log("AuthenticatedEditorControls")
 
   return (
     <>

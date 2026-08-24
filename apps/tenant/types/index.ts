@@ -78,7 +78,6 @@ export type SectionTheme = {
     heading: string
 
   }
-
   layout?: {
     columns?: number;
     gap?: string;

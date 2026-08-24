@@ -38,7 +38,7 @@ export default function FontUpload({
   }
 
   return (
-    <label className="inline-flex cursor-pointer items-center rounded-lg border px-4 py-2 text-sm">
+    <label className="mb-2 inline-flex cursor-pointer items-center rounded-lg border px-4 py-2 text-sm">
       {isUploading ? "Uploading..." : "Upload font"}
 
       <input

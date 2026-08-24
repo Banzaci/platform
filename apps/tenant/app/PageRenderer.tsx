@@ -9,6 +9,7 @@ import Booking from "@/components/sections/Booking";
 import CardGrid from "@/components/sections/CardGrid";
 import EditableSection from "./(protected)/components/EditableSection";
 import DevLabel from "@/helpers/DevLabel";
+import { TenantFont } from "@/types";
 
 const components = {
   hero: Hero,
@@ -24,11 +25,13 @@ const components = {
 export default function PageRenderer({
   page,
   globalTheme,
+  fonts,
   editable = false,
 }: {
   page: any;
   globalTheme: any;
   editable?: boolean;
+  fonts: TenantFont[]
 }) {
   return (
     <>
@@ -36,12 +39,12 @@ export default function PageRenderer({
         const Component = components[section.type as keyof typeof components];
         if (!Component) return null;
 
-          const mergedTheme = {
-            ...(section.theme ?? {}),
-            global: {
-              ...(globalTheme ?? {}),
-            },
-          };
+        const mergedTheme = {
+          ...(section.theme ?? {}),
+          global: {
+            ...(globalTheme ?? {}),
+          },
+        };
       
         return editable ? (
           <EditableSection
@@ -51,6 +54,7 @@ export default function PageRenderer({
             pageId={page.id}
             tenantId={page.tenant_id}
             sections={page.sections}
+            fonts={fonts}
           >
             <div className="relative">
               <DevLabel

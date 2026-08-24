@@ -16,11 +16,13 @@ type HeroProps = {
 };
 
 export default function Hero({ content, theme }: HeroProps) {
+  console.log('Hero theme')
+  console.log(theme)
   return (
     <section className="relative min-h-150 overflow-hidden"
       style={{
           backgroundColor: theme?.backgroundColor,
-          fontFamily: theme?.fontFamily,
+          fontFamily: theme?.headingFontFamily,
           paddingTop: theme?.paddingTop,
           paddingBottom: theme?.paddingBottom,
         }}
@@ -35,19 +37,21 @@ export default function Hero({ content, theme }: HeroProps) {
 
       <div className="relative z-10 mx-auto flex min-h-150 max-w-6xl items-center px-6">
         <div className="max-w-2xl">
-          <h1 className="text-5xl font-bold tracking-tight"
+          <h1
             style={{
               color: theme?.primaryColor,
               fontSize: theme?.fontSize,
+              fontFamily: theme?.headingFontFamily,
             }}    
           >
             {content.heading?.en}
           </h1>
 
           {content.text?.en && (
-            <p className="mt-6 text-xl" 
+            <p className="mt-6" 
               style={{
                 color: theme?.secondaryColor,
+                fontFamily: theme?.fontFamily,
               }}
             >
               {content.text.en}
@@ -61,6 +65,7 @@ export default function Hero({ content, theme }: HeroProps) {
               style={{
                 color: theme?.button?.textColor,
                 backgroundColor: theme?.button?.backgroundColor,
+                fontFamily: theme?.fontFamily,
               }}    
             >
               {content.button.label?.en}

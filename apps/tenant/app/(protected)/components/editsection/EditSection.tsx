@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
-import { SectionTheme } from "@/types";
+import { SectionTheme, TenantFont } from "@/types";
 import EditButton from "../EditButton";
 import { apiClient } from "@/libs/api";
 
@@ -15,12 +15,14 @@ export default function EditSection({
   pageId,
   tenantId,
   sections,
+  fonts,
 }: {
   section: any;
   tenantId: string;
   pageId: string;
   sections: any[];
-  theme: SectionTheme
+  theme: SectionTheme,
+  fonts: TenantFont[]
 }) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState(section.content ?? {});
@@ -38,7 +40,6 @@ export default function EditSection({
 
   async function save() {
     setSaving(true);
-
     const updatedSections = sections.map((item) =>
       item.id === section.id
         ? {
@@ -48,9 +49,8 @@ export default function EditSection({
           }
         : item
     );
-
     try {
-      const response = await apiClient.api<any>(
+      await apiClient.api<any>(
         `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
@@ -59,12 +59,6 @@ export default function EditSection({
           }),
         }
       );
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      setOpen(false);
       window.location.reload();
     } catch (error) {
       console.error("Save section failed:", error);
@@ -126,6 +120,7 @@ export default function EditSection({
                 <ThemeEditor
                   theme={localTheme}
                   onChange={setLocalTheme}
+                  fonts={fonts}
                 />
               </div>
               {/* Footer */}

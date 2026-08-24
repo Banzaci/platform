@@ -7,7 +7,7 @@ import AddSection from "./editsection/AddSection";
 import MoveSection from "./MoveSection";
 import DeleteSection from "./DeleteSection";
 import { useIsEditor } from "@/hooks/useIsEditor";
-import { SectionTheme } from "@/types";
+import { SectionTheme, TenantFont } from "@/types";
 
 type Props = {
   section: any;
@@ -16,6 +16,7 @@ type Props = {
   sections: any[];
   theme: SectionTheme;
   children: ReactNode;
+  fonts: TenantFont[]
 };
 
 export default function EditableSection({
@@ -25,6 +26,7 @@ export default function EditableSection({
   sections,
   theme,
   children,
+  fonts,
 }: Props) {
   const isEditor = useIsEditor();
   const isPropertGrid = section.type === 'property-grid';
@@ -39,6 +41,7 @@ export default function EditableSection({
             tenantId={tenantId}
             sections={sections}
             theme={theme}
+            fonts={fonts}
           />
           <AddSection
             section={section}

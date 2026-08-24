@@ -1,16 +1,17 @@
 "use client";
 
-import { SectionTheme } from "@/types";
+import { SectionTheme, TenantFont } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
-
 
 type Props = {
   theme: SectionTheme;
+  fonts: TenantFont[];
   onChange: (theme: SectionTheme) => void;
 };
 
 export default function ThemeEditor({
   theme,
+  fonts,
   onChange,
 }: Props) {
   function updateButton(
@@ -40,6 +41,7 @@ export default function ThemeEditor({
       button: nextButton,
     });
   }
+
   function update(
     key: keyof SectionTheme,
     value: string
@@ -49,17 +51,22 @@ export default function ThemeEditor({
       [key]: value,
     });
   }
+
   function reset(key: keyof SectionTheme) {
     const next = { ...theme };
+
     delete next[key];
+
     onChange(next);
   }
+
   return (
     <div className="relative mt-8 border-t pt-6 text-black">
       <DevLabel
         name="ThemeEditor"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/ThemeEditor.tsx"
       />
+
       <h3 className="mb-5 text-lg font-semibold">
         Theme
       </h3>
@@ -68,13 +75,15 @@ export default function ThemeEditor({
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Background {theme.backgroundColor}
+              Background
             </span>
 
             {theme.backgroundColor && (
               <button
                 type="button"
-                onClick={() => reset("backgroundColor")}
+                onClick={() =>
+                  reset("backgroundColor")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -84,25 +93,32 @@ export default function ThemeEditor({
 
           <input
             type="color"
-            value={theme.backgroundColor ?? "#ffffff"}
+            value={
+              theme.backgroundColor ??
+              "#ffffff"
+            }
             onChange={(e) =>
-              update("backgroundColor", e.target.value)
+              update(
+                "backgroundColor",
+                e.target.value
+              )
             }
             className="h-10 w-full cursor-pointer"
           />
         </div>
 
-        {/* Text color */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Text color {theme.textColor}
+              Text color
             </span>
 
             {theme.textColor && (
               <button
                 type="button"
-                onClick={() => reset("textColor")}
+                onClick={() =>
+                  reset("textColor")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -112,25 +128,32 @@ export default function ThemeEditor({
 
           <input
             type="color"
-            value={theme.textColor ?? "#000000"}
+            value={
+              theme.textColor ??
+              "#000000"
+            }
             onChange={(e) =>
-              update("textColor", e.target.value)
+              update(
+                "textColor",
+                e.target.value
+              )
             }
             className="h-10 w-full cursor-pointer"
           />
         </div>
 
-        {/* Primary */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Primary color {theme.primaryColor}
+              Primary color
             </span>
 
             {theme.primaryColor && (
               <button
                 type="button"
-                onClick={() => reset("primaryColor")}
+                onClick={() =>
+                  reset("primaryColor")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -140,25 +163,32 @@ export default function ThemeEditor({
 
           <input
             type="color"
-            value={theme.primaryColor ?? "#000000"}
+            value={
+              theme.primaryColor ??
+              "#000000"
+            }
             onChange={(e) =>
-              update("primaryColor", e.target.value)
+              update(
+                "primaryColor",
+                e.target.value
+              )
             }
             className="h-10 w-full cursor-pointer"
           />
         </div>
 
-        {/* Secondary */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
-              Secondary color {theme.secondaryColor}
+              Secondary color
             </span>
 
             {theme.secondaryColor && (
               <button
                 type="button"
-                onClick={() => reset("secondaryColor")}
+                onClick={() =>
+                  reset("secondaryColor")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -168,14 +198,113 @@ export default function ThemeEditor({
 
           <input
             type="color"
-            value={theme.secondaryColor ?? "#666666"}
+            value={
+              theme.secondaryColor ??
+              "#666666"
+            }
             onChange={(e) =>
-              update("secondaryColor", e.target.value)
+              update(
+                "secondaryColor",
+                e.target.value
+              )
             }
             className="h-10 w-full cursor-pointer"
           />
         </div>
-        {/* Button background */}
+
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">
+              Body font
+            </span>
+
+            {theme.fontFamily && (
+              <button
+                type="button"
+                onClick={() =>
+                  reset("fontFamily")
+                }
+                className="text-xs text-gray-500 hover:text-black"
+              >
+                Use global
+              </button>
+            )}
+          </div>
+
+          <select
+            value={theme.fontFamily ?? ""}
+            onChange={(e) =>
+              update(
+                "fontFamily",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border px-3 py-2"
+          >
+            <option value="">
+              Use global font
+            </option>
+
+            {fonts.map((font) => (
+              <option
+                key={font.id}
+                value={font.name}
+              >
+                {font.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm font-medium">
+              Heading font
+            </span>
+
+            {theme.headingFontFamily && (
+              <button
+                type="button"
+                onClick={() =>
+                  reset(
+                    "headingFontFamily"
+                  )
+                }
+                className="text-xs text-gray-500 hover:text-black"
+              >
+                Use global
+              </button>
+            )}
+          </div>
+
+          <select
+            value={
+              theme.headingFontFamily ??
+              ""
+            }
+            onChange={(e) =>
+              update(
+                "headingFontFamily",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border px-3 py-2"
+          >
+            <option value="">
+              Use global heading font
+            </option>
+
+            {fonts.map((font) => (
+              <option
+                key={font.id}
+                value={font.name}
+              >
+                {font.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -186,7 +315,9 @@ export default function ThemeEditor({
               <button
                 type="button"
                 onClick={() =>
-                  resetButton("backgroundColor")
+                  resetButton(
+                    "backgroundColor"
+                  )
                 }
                 className="text-xs text-gray-500 hover:text-black"
               >
@@ -211,7 +342,6 @@ export default function ThemeEditor({
           />
         </div>
 
-        {/* Button text */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -222,7 +352,9 @@ export default function ThemeEditor({
               <button
                 type="button"
                 onClick={() =>
-                  resetButton("textColor")
+                  resetButton(
+                    "textColor"
+                  )
                 }
                 className="text-xs text-gray-500 hover:text-black"
               >
@@ -246,7 +378,7 @@ export default function ThemeEditor({
             className="h-10 w-full cursor-pointer"
           />
         </div>
-        {/* Font size */}
+
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -256,7 +388,9 @@ export default function ThemeEditor({
             {theme.fontSize && (
               <button
                 type="button"
-                onClick={() => reset("fontSize")}
+                onClick={() =>
+                  reset("fontSize")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -268,13 +402,15 @@ export default function ThemeEditor({
             value={theme.fontSize ?? ""}
             placeholder="16px"
             onChange={(e) =>
-              update("fontSize", e.target.value)
+              update(
+                "fontSize",
+                e.target.value
+              )
             }
             className="w-full rounded-lg border px-3 py-2"
           />
         </div>
 
-        {/* Padding top */}
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -284,7 +420,9 @@ export default function ThemeEditor({
             {theme.paddingTop && (
               <button
                 type="button"
-                onClick={() => reset("paddingTop")}
+                onClick={() =>
+                  reset("paddingTop")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
@@ -293,14 +431,20 @@ export default function ThemeEditor({
           </div>
 
           <input
-            value={theme.paddingTop ?? ""}
+            value={
+              theme.paddingTop ?? ""
+            }
             placeholder="80px"
             onChange={(e) =>
-              update("paddingTop", e.target.value)
+              update(
+                "paddingTop",
+                e.target.value
+              )
             }
             className="w-full rounded-lg border px-3 py-2"
           />
         </div>
+
         <div>
           <div className="mb-2 flex items-center justify-between">
             <span className="text-sm font-medium">
@@ -310,18 +454,26 @@ export default function ThemeEditor({
             {theme.paddingBottom && (
               <button
                 type="button"
-                onClick={() => reset("paddingBottom")}
+                onClick={() =>
+                  reset("paddingBottom")
+                }
                 className="text-xs text-gray-500 hover:text-black"
               >
                 Use global
               </button>
             )}
           </div>
+
           <input
-            value={theme.paddingBottom ?? ""}
+            value={
+              theme.paddingBottom ?? ""
+            }
             placeholder="80px"
             onChange={(e) =>
-              update("paddingBottom", e.target.value)
+              update(
+                "paddingBottom",
+                e.target.value
+              )
             }
             className="w-full rounded-lg border px-3 py-2"
           />
