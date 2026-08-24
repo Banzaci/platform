@@ -21,6 +21,17 @@ export type PageData = {
   }
 };
 
+export type NavigationTheme = {
+  backgroundColor: string;
+  textColor: string;
+  hoverColor: string;
+  activeColor: string;
+  fontFamily: string;
+  fontSize: string;
+  height: string;
+  logoHeight: string;
+};
+
 export type SectionTheme = {
   backgroundColor?: string;
   textColor?: string;
@@ -61,6 +72,12 @@ export type SectionTheme = {
   image?: {
     aspectRatio?: string;
   };
+  navigation: NavigationTheme
+  fonts?: {
+    body: string;
+    heading: string
+
+  }
 
   layout?: {
     columns?: number;

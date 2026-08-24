@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@hotel/providers";
 import { getTenant } from "@/libs/tenant";
@@ -97,11 +96,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+// const inter = Inter({
+//   variable: "--font-inter",
+//   subsets: ["latin"],
+//   display: "swap",
+// }); ${inter.variable} 
 
 export default async function RootLayout({
   children,
@@ -113,7 +112,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased`}
+      className={`h-full antialiased`}
     >
       <head>
         <style>
@@ -134,7 +133,7 @@ export default async function RootLayout({
         style={{
           backgroundColor: tenant.tenant.theme.backgroundColor,
           color: tenant.tenant.theme.textColor,
-          fontFamily: tenant.tenant.theme.fontFamily,
+          fontFamily: tenant.tenant.theme.fonts?.body,
           fontSize: tenant.tenant.theme.fontSize,
         }}
       >
@@ -144,6 +143,7 @@ export default async function RootLayout({
             <EditorControls
               tenantId={tenant.tenant.id}
               theme={tenant.tenant.theme}
+              fonts={fonts}
             />
             {children}
             <DevLabelToggle />

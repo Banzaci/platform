@@ -2,8 +2,9 @@ import uuid
 from datetime import date
 from app.models.tenant_membership import TenantRole
 from app.schemas.page import PageOut
-from pydantic import BaseModel, ConfigDict
-
+from app.schemas.tenant_font_out import TenantFontOut
+from pydantic import BaseModel
+from pydantic import Field
 
 class CancellationPolicy(BaseModel):
     free_cancellation_days: int = 14
@@ -21,15 +22,14 @@ class NavigationTheme(BaseModel):
     logoHeight: str = "42px"
 
 class FontTheme(BaseModel):
-    body: str = "Inter"
-    heading: str = "Inter"
+    body: str | None = None
+    heading: str | None = None
 
 class ThemeSchema(BaseModel):
     backgroundColor: str = "#ffffff"
     textColor: str = "#222222"
     primaryColor: str = "#111111"
     secondaryColor: str = "#666666"
-
     navigation: NavigationTheme = NavigationTheme()
     fonts: FontTheme = FontTheme()
 
@@ -53,6 +53,9 @@ class TenantOut(BaseModel):
 
 class TenantSessionOut(BaseModel):
     tenant: TenantOut
+    fonts: list[TenantFontOut] = Field(
+        default_factory=list
+    )
     membership_id: uuid.UUID
     username: str
     role: TenantRole
@@ -61,6 +64,7 @@ class TenantSessionOut(BaseModel):
 class TenantFullOut(BaseModel):
     tenant: TenantOut
     pages: list[PageOut]
+    fonts: list[TenantFontOut] = Field(default_factory=list)
 
 class TenantCreate(BaseModel):
     name: str

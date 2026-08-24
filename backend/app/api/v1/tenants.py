@@ -284,6 +284,14 @@ async def resolve_tenant_by_host(
             detail="No tenant for this host",
         )
 
+    fonts_result = await db.execute(
+            select(TenantFont).where(
+                TenantFont.tenant_id == tenant.id
+            )
+        )
+    
+    fonts = fonts_result.scalars().all()
+
     result = await db.execute(
         select(Page)
         .where(Page.tenant_id == tenant.id)
@@ -295,7 +303,10 @@ async def resolve_tenant_by_host(
     full = TenantFullOut(
         tenant=TenantOut.model_validate(tenant),
         pages=pages,
+        fonts=fonts,
     )
+
+    print(fonts)
 
     await add_tenant_cache(
         host,
@@ -358,10 +369,7 @@ async def get_tenant_full(tenant_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
     return TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)
 
-@router.put(
-    "/{tenant_id}/theme",
-    response_model=ThemeSchema,
-)
+@router.put("/{tenant_id}/theme",response_model=ThemeSchema)
 async def update_tenant_theme(
     tenant_id: uuid.UUID,
     payload: ThemeSchema,

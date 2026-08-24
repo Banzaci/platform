@@ -2,6 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 import cloudinary.uploader
+from sqlalchemy import select
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
 from app.models.tenant_font import TenantFont
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +11,8 @@ from app.api.deps import require_tenant_access, require_permission
 from app.services.cloudinary import upload_image, upload_font_file
 from app.models.tenant_membership import TenantMembership
 from app.db.session import get_db
+from app.core.redis import delete_tenant_cache_for_tenant
+from app.models.tenant import Tenant
 
 router = APIRouter()
 
@@ -21,8 +24,25 @@ async def upload_tenant_image(
     tenant_id: uuid.UUID,
     file: UploadFile = File(...),
     user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
     _access=Depends(require_tenant_access),
 ):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+        
+    tenant = result.scalar_one_or_none()
+    
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+    await delete_tenant_cache_for_tenant(
+        tenant
+    )
     return await upload_image(
         file=file,
         user_id=str(user.id),
@@ -34,6 +54,7 @@ async def delete_tenant_image(
     tenant_id: uuid.UUID,
     payload: DeleteImageRequest,
     user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
     _access=Depends(require_tenant_access),
 ):
     expected_prefix = f"{user.id}/{tenant_id}/"
@@ -43,10 +64,28 @@ async def delete_tenant_image(
             status_code=403,
             detail="You cannot delete this image",
         )
+    
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+        
+    tenant = result.scalar_one_or_none()
+    
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
 
     result = cloudinary.uploader.destroy(
         payload.public_id,
         resource_type="image",
+    )
+
+    await delete_tenant_cache_for_tenant(
+        tenant
     )
 
     return {
@@ -85,6 +124,19 @@ async def upload_tenant_font(
             detail="Only WOFF and WOFF2 fonts are allowed",
         )
 
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+    
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
     # Här använder du din befintliga upload-lösning,
     # t.ex. Cloudinary/S3/etc.
     url, public_id = await upload_font_file(
@@ -112,5 +164,9 @@ async def upload_tenant_font(
 
     await db.commit()
     await db.refresh(font)
+
+    await delete_tenant_cache_for_tenant(
+        tenant
+    )
 
     return font

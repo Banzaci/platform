@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { getTenant } from "@/libs/tenant";
 import PageRenderer from "../PageRenderer";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -15,14 +16,7 @@ export default async function Page({
   );
 
   if (!page) {
-    return (
-      <main className="mx-auto max-w-6xl px-6 py-20">
-        <h1 className="text-3xl font-bold">
-          Page not found
-        </h1>
-      </main>
-    );
-  }
-
+      notFound();
+    }
   return <PageRenderer page={page} editable={true} globalTheme={data.tenant.theme} />;
 }

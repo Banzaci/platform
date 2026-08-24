@@ -2,6 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from app.schemas.tenant_font_out import TenantFontOut
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import require_tenant_access
 from app.api.get_current_user import CurrentUser, get_current_user
@@ -12,6 +13,7 @@ from app.models.tenant import Tenant
 from app.models.tenant_membership import TenantMembership
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse, TenantLoginRequest
 from app.schemas.entities import UserOut, TenantSessionOut, TenantOut
+from app.models.tenant_font import TenantFont
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -98,7 +100,10 @@ async def me_session(user: CurrentUser = Depends(get_current_user), db: AsyncSes
     result = await db.execute(select(User).where(User.id == uuid.UUID(user.id)))
     return result.scalar_one()
 
-@router.get("/tenant/session",response_model=TenantSessionOut)
+@router.get(
+    "/tenant/session",
+    response_model=TenantSessionOut,
+)
 async def tenant_session(
     membership: TenantMembership = Depends(
         require_tenant_access
@@ -121,10 +126,17 @@ async def tenant_session(
             detail="Tenant not found",
         )
 
+    fonts_result = await db.execute(
+        select(TenantFont).where(
+            TenantFont.tenant_id == tenant.id
+        )
+    )
+
+    fonts = fonts_result.scalars().all()
+
     return TenantSessionOut(
-        tenant=TenantOut.model_validate(
-            tenant
-        ),
+        tenant=TenantOut.model_validate(tenant),
+        fonts=fonts,
         membership_id=membership.id,
         username=membership.username,
         role=membership.role,
