@@ -24,10 +24,10 @@ import DateSelectorWrapper from "../(protected)/components/editsection/DateSelec
 
 export default function PropertiesPageClient({
   tenantId,
-  globalTheme,
+  theme,
 }: {
   tenantId: string;
-  globalTheme?: SectionTheme;
+  theme: SectionTheme;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,9 +37,7 @@ export default function PropertiesPageClient({
   const checkOut = searchParams.get("checkOut");
   const [properties, setProperties] = useState<TenantProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [localTheme, setLocalTheme] = useState<SectionTheme>(
-    globalTheme ?? {}
-  );
+  const [localTheme, setLocalTheme] = useState<SectionTheme>(theme ?? {});
 
   async function saveTheme() {
     const response = await apiClient.api<any>(

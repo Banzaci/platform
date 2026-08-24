@@ -1,22 +1,19 @@
 import { getTenant } from "@/libs/tenant";
-import AccommodationPageClient from "./AccommodationPageClient";
+import PageRenderer from "../PageRenderer";
+import { notFound } from "next/navigation";
 
 export default async function AccommodationPage() {
   const data = await getTenant();
-  const pageConfig = data.pages.find(
+  const page = data.pages.find(
     (page) => page.slug === "accommodation"
   );
-  
-  if (!pageConfig) {
-    throw new Error("Accommodation page config not found");
+  if (!page) {
+    notFound();
   }
-  return (
-    <AccommodationPageClient
-      tenantId={data.tenant.id}
-      globalTheme={data.tenant.theme}
-      pageId={pageConfig.id}
-      sections={pageConfig.sections}
-      fonts={data.fonts}
-    />
-  );
+  return <PageRenderer
+    page={page}
+    editable={true}
+    globalTheme={data.tenant.theme}
+    fonts={data.fonts}
+  />;
 }

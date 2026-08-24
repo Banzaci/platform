@@ -19,8 +19,6 @@ type Props = {
 
 export default function ImageText({ content, theme }: Props) {
   const imageRight = content.layout === "image-right";
-  console.log('ImageText theme')
-  console.log(theme)
   return (
     <section
       className="py-16"

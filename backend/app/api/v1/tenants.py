@@ -22,7 +22,7 @@ from app.models.booking import (
     Booking,
     BookingStatus,
 )
-from app.schemas.ai_sections import GenerateKnowledgeRequest
+from app.schemas.ai_sections import GenerateKnowledgeRequest, AIUpdatePlan
 from fastapi import status
 from app.models.tenant_membership import TenantMembership
 from app.helpers.build_sections import build_sections, normalize_page_slug, normalize_page_sections
@@ -1084,10 +1084,6 @@ async def ai_generate_project(
         payload.prompt
     )
 
-    print("AI PLAN:", plan)
-    print("TENANT NAME:", plan.tenant.name)
-    print("PAGES:", plan.pages)
-
     tenant = Tenant(
         name=plan.tenant.name,
         subdomain=slugify(
@@ -1196,15 +1192,113 @@ async def update_tenant_from_prompt(
             detail="Tenant not found",
         )
 
-    plan = await generate_tenant_update(
-        payload.prompt
+    pages_result = await db.execute(
+        select(Page).where(
+            Page.tenant_id == tenant.id
+        )
     )
+
+    pages = pages_result.scalars().all()
+
+    plan = await generate_tenant_update(
+        payload.prompt,
+        pages=pages,
+    )
+
+    # Global theme
+    if plan.theme:
+        tenant.theme = plan.theme.model_dump(
+            by_alias=True,
+            exclude_none=True,
+        )
+
+    # Section themes only
+    for generated_page in plan.pages:
+        page = next(
+            (
+                p for p in pages
+                if p.slug == generated_page.slug
+            ),
+            None,
+        )
+
+        if not page:
+            continue
+
+        sections = list(page.sections or [])
+
+        for section_update in generated_page.sections:
+            for section in sections:
+                if str(section.get("id")) == str(section_update.id):
+                    section["theme"] = section_update.theme.model_dump(
+                        exclude_none=True
+                    )
+                    break
+
+        page.sections = sections
+
+    await db.commit()
+
+    await delete_tenant_cache_for_tenant(
+        tenant
+    )
+
+    return {
+        "message": "Tenant updated successfully"
+    }
+
+@router.post("/{tenant_id}/ai/preview", response_model=AIUpdatePlan)
+async def preview_tenant_update(
+    tenant_id: uuid.UUID,
+    payload: GenerateKnowledgeRequest,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
+):
+    pages_result = await db.execute(
+        select(Page).where(
+            Page.tenant_id == tenant_id
+        )
+    )
+
+    pages = pages_result.scalars().all()
+
+    return await generate_tenant_update(
+        payload.prompt,
+        pages=pages,
+    )
+
+@router.post("/{tenant_id}/ai/apply", status_code=status.HTTP_200_OK)
+async def apply_tenant_update(
+    tenant_id: uuid.UUID,
+    plan: AIUpdatePlan,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
+):
+    tenant_result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = tenant_result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
 
     # Theme
     if plan.theme:
-        tenant.theme = plan.theme.model_dump()
+        tenant.theme = plan.theme.model_dump(
+            exclude_none=True
+        )
 
-    # Knowledge / FAQ
+    # Knowledge
     for item in plan.knowledge:
         db.add(
             TenantKnowledge(
@@ -1235,13 +1329,13 @@ async def update_tenant_from_prompt(
         page = page_result.scalar_one_or_none()
 
         if page:
-            page.sections = build_sections(
-                generated_page.sections
-            )
-
             page.name = {
                 "en": generated_page.name
             }
+
+            page.sections = normalize_page_sections(
+                generated_page
+            )
 
         else:
             db.add(
@@ -1254,8 +1348,8 @@ async def update_tenant_from_prompt(
                     },
                     layout_variant="default",
                     sort_order=100,
-                    sections=build_sections(
-                        generated_page.sections
+                    sections=normalize_page_sections(
+                        generated_page
                     ),
                     theme={},
                     is_system=False,
@@ -1271,7 +1365,6 @@ async def update_tenant_from_prompt(
     return {
         "message": "Tenant updated successfully"
     }
-
 
 
 @router.get("/{tenant_id}/fonts",response_model=list[TenantFontOut])

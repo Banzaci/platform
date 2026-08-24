@@ -6,7 +6,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
 import {
   DndContext,
   DragEndEvent,
@@ -22,9 +21,9 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, Trash2 } from "lucide-react";
-
 import { apiClient } from "@/libs/api";
 import { Page, TenantResponse } from "@hotel/types";
+import AIInputTextArea from "./AIInputTextArea";
 
 export default function TenantPage({ tenantId}: { tenantId: string }) {
 
@@ -153,9 +152,7 @@ export default function TenantPage({ tenantId}: { tenantId: string }) {
         oldIndex,
         newIndex
       );
-
       reorderPages.mutate(reordered);
-
       return reordered;
     });
   }
@@ -177,7 +174,10 @@ export default function TenantPage({ tenantId}: { tenantId: string }) {
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-4xl space-y-6">
-        {/* <AIInputTextArea /> */}
+        <AIInputTextArea
+          tenantId={tenantId}
+          pages={data.pages}
+        />
         <form
           onSubmit={handleSubmit}
           className="rounded-xl border border-gray-200 bg-white p-5"

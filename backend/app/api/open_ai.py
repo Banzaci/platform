@@ -1,11 +1,8 @@
-import os
-
 from openai import AsyncOpenAI
-
+from collections.abc import Sequence
 from app.schemas.ai_sections import AIProjectPlan, AIUpdatePlan
 from app.core.config import settings
-from app.mocked.mocked_open_ai import get_mock_hotel_plan
-
+from app.models.page import Page
 
 client = AsyncOpenAI(
     api_key=settings.openai_api_key
@@ -13,35 +10,68 @@ client = AsyncOpenAI(
 
 async def generate_tenant_update(
     prompt: str,
+    pages: Sequence[Page],
 ) -> AIUpdatePlan:
+    page_context = [
+        {
+            "slug": page.slug,
+            "sections": [
+                {
+                    "id": section.get("id"),
+                    "type": section.get("type"),
+                }
+                for section in (page.sections or [])
+            ],
+        }
+        for page in pages
+    ]
     response = await client.responses.parse(
-        model="gpt-5.6-luna",
-        input=[
-            {
-                "role": "system",
-                "content": """
-You update an existing hotel website.
+    model="gpt-5.6-luna",
+    input=[
+        {
+            "role": "system",
+            "content": """
+ou update the visual theme of an existing hotel website.
 
-Never create a new tenant.
-
-Only return changes requested by the user.
+Return ONLY theme-related changes.
 
 You may:
-- update the theme
-- add or update pages
-- add or update sections
-- add FAQ / hotel knowledge
+- update the global theme
+- update navigation design
+- update section themes
+- design property-grid cards, buttons and date selector
 
-Do not modify unrelated data.
+Rules:
+- Do not create or remove pages.
+- Do not create or remove sections.
+- Do not modify page or section content.
+- Do not modify tenant data or knowledge.
+- Do not modify unrelated theme data.
+
+Accommodation rules:
+- The accommodation page always uses slug "accommodation".
+- Accommodation contains exactly one section of type "property-grid".
+- Do not generate room cards.
+- Rooms are rendered dynamically from Property data.
+- You may only update the property-grid section theme, including card, button and date selector styling.
+
+Use only existing page slugs and section IDs provided in the website context.
+"""
+        },
+        {
+            "role": "user",
+            "content": f"""
+Existing website:
+
+{page_context}
+
+Requested change:
+{prompt}
 """,
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
-        ],
-        text_format=AIUpdatePlan,
-    )
+        },
+    ],
+    text_format=AIUpdatePlan,
+)
 
     plan = response.output_parsed
 

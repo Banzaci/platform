@@ -1,27 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { apiClient } from "@/libs/api";
+import { AIUpdatePlan } from "../types";
+import { useAIPreview } from "../context/AIPreviewProvider";
 
-type GenerateProjectResponse = {
-  tenant_id: string;
-  message: string;
-};
-
-export default function AIInputTextArea() {
+export default function AIInputTextArea({ tenantId, pages }:{ tenantId:string, pages:any[] }) {
   const router = useRouter();
-
+  const { preview, setPreview, clearPreview } = useAIPreview();
   const [prompt, setPrompt] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-
-  async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
-  ) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     if (!prompt.trim() || isSubmitting) {
       return;
     }
@@ -29,21 +23,54 @@ export default function AIInputTextArea() {
     setError("");
     setIsSubmitting(true);
 
+
     try {
-      const result =
-        await apiClient.api<GenerateProjectResponse>(
-          "v1/tenants/ai-generate",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              prompt: prompt.trim(),
-            }),
-          }
+      const plan = await apiClient.api<AIUpdatePlan>(
+        `v1/tenants/${tenantId}/ai/preview`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            prompt,
+          }),
+        }
+      );
+
+      const mergedPages = pages.map((page) => {
+        const updatedPage = plan.pages.find(
+          (updatedPage) => updatedPage.slug === page.slug
         );
 
-      router.push(
-        `/tenant/${result.tenant_id}`
-      );
+        if (!updatedPage) {
+          return page;
+        }
+
+        return {
+          ...page,
+          sections: page.sections.map((section) => {
+            const updatedSection = updatedPage.sections.find(
+              (s) => s.id === section.id
+            );
+
+            if (!updatedSection) {
+              return section;
+            }
+
+            return {
+              ...section,
+              theme: {
+                ...section.theme,
+                ...updatedSection.theme,
+              },
+            };
+          }),
+        };
+      });
+
+      setPreview({
+        theme: plan.theme,
+        pages: mergedPages,
+      });
+      router.push("/preview");
     } catch (error) {
       console.error(error);
 

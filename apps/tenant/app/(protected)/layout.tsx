@@ -1,5 +1,6 @@
 import { getTenant } from "@/libs/tenant";
 import ProtectedLayout from "./ProtectedLayout";
+import { AIPreviewProvider } from "./context/AIPreviewProvider";
 
 export default async function Layout({
   children,
@@ -9,7 +10,9 @@ export default async function Layout({
   const tenant = await getTenant();
   return (
     <ProtectedLayout tenant={tenant}>
-      {children}
+      <AIPreviewProvider>
+        {children}
+      </AIPreviewProvider>
     </ProtectedLayout>
   );
 }

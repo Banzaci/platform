@@ -10,6 +10,7 @@ import CardGrid from "@/components/sections/CardGrid";
 import EditableSection from "./(protected)/components/EditableSection";
 import DevLabel from "@/helpers/DevLabel";
 import { TenantFont } from "@/types";
+import PropertiesPageClient from "./accommodation/PropertiesPageClient";
 
 const components = {
   hero: Hero,
@@ -20,6 +21,7 @@ const components = {
   cta: CTA,
   booking: Booking,
   "card-grid": CardGrid,
+  "property-grid": PropertiesPageClient,
 };
 
 export default function PageRenderer({
@@ -38,14 +40,25 @@ export default function PageRenderer({
       {page.sections.map((section: any) => {
         const Component = components[section.type as keyof typeof components];
         if (!Component) return null;
-
         const mergedTheme = {
+          ...(globalTheme?.global ?? {}),
           ...(section.theme ?? {}),
-          global: {
-            ...(globalTheme ?? {}),
+
+          card: {
+            ...(globalTheme?.card ?? {}),
+            ...(section.theme?.card ?? {}),
           },
+
+          button: {
+            ...(globalTheme?.button ?? {}),
+            ...(section.theme?.button ?? {}),
+          },
+          dateSelector: {
+            ...(globalTheme?.dateSelector ?? {}),
+            ...(section.theme?.dateSelector ?? {}),
+          }
         };
-      
+        console.log(mergedTheme)
         return editable ? (
           <EditableSection
             key={section.id}

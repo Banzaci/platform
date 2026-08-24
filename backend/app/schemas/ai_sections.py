@@ -68,6 +68,13 @@ class AICardTheme(BaseModel):
     shadow: str | None = None
     
 class AISectionTheme(BaseModel):
+    backgroundColor: str | None = None
+    textColor: str | None = None
+    primaryColor: str | None = None
+    secondaryColor: str | None = None
+    fontFamily: str | None = None
+    headingFontFamily: str | None = None
+
     card: AICardTheme | None = None
     button: AIButtonTheme | None = None
     dateSelector: AIDateSelectorTheme | None = None
@@ -123,13 +130,36 @@ class AIPage(BaseModel):
     )
 
 
-class AITheme(BaseModel):
+class AINavigationTheme(BaseModel):
+    backgroundColor: str | None = None
+    textColor: str | None = None
+    hoverColor: str | None = None
+    activeColor: str | None = None
+    fontFamily: str | None = None
+    fontSize: str | None = None
+    height: str | None = None
+    logoHeight: str | None = None
+
+
+class AIFontsTheme(BaseModel):
+    body: str | None = None
+    heading: str | None = None
+
+
+class AIGlobalTheme(BaseModel):
     backgroundColor: str
     textColor: str
     primaryColor: str
     secondaryColor: str
-    fontFamily: str
-    headingFontFamily: str
+    navigation: AINavigationTheme
+    fonts: AIFontsTheme
+
+
+class AITheme(BaseModel):
+    card: AICardTheme
+    button: AIButtonTheme
+    dateSelector: AIDateSelectorTheme
+    global_: AIGlobalTheme = Field(alias="global")
 
 
 class AITenant(BaseModel):
@@ -148,10 +178,19 @@ class AIKnowledgeItem(BaseModel):
 class GenerateKnowledgeRequest(BaseModel):
     prompt: str
 
+class AISectionThemeUpdate(BaseModel):
+    id: str
+    theme: AISectionTheme
+
+
+class AIPageThemeUpdate(BaseModel):
+    slug: str
+    sections: list[AISectionThemeUpdate] = Field(default_factory=list)
+
+
 class AIUpdatePlan(BaseModel):
     theme: AITheme | None = None
-    pages: list[AIPage] = []
-    knowledge: list[AIKnowledgeItem] = []
+    pages: list[AIPageThemeUpdate] = Field(default_factory=list)
 
 
 class AIProjectPlan(BaseModel):
