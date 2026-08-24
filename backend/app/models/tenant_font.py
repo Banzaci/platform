@@ -35,3 +35,8 @@ class TenantFont(Base):
         String,
         nullable=False,
     )
+
+    public_id: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )

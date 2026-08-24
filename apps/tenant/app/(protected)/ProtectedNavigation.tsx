@@ -33,7 +33,12 @@ export default function ProtectedNavigation() {
           >
             Properties
           </Link>
-
+          <Link
+            href="/design"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"
+          >
+            Design
+          </Link>
           <Link
             href="/knowledge"
             className="rounded-lg px-4 py-2 text-sm font-medium text-gray-300 transition hover:bg-gray-800 hover:text-white"

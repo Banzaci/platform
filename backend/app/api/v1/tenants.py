@@ -10,6 +10,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.tenant_knowledge import TenantKnowledge
+from app.schemas.tenant_font_out import TenantFontOut
+from app.models.tenant_font import TenantFont
 from app.core.redis import (
     get_tenant_cache,
     add_tenant_cache,
@@ -1257,3 +1259,57 @@ async def update_tenant_from_prompt(
     return {
         "message": "Tenant updated successfully"
     }
+
+
+
+@router.get("/{tenant_id}/fonts",response_model=list[TenantFontOut])
+async def get_tenant_fonts(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
+):
+    result = await db.execute(
+        select(TenantFont)
+        .where(
+            TenantFont.tenant_id == tenant_id
+        )
+        .order_by(TenantFont.name)
+    )
+
+    return result.scalars().all()
+
+import cloudinary.uploader
+
+@router.delete("/{tenant_id}/fonts/{font_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_tenant_font(
+    tenant_id: uuid.UUID,
+    font_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
+):
+    result = await db.execute(
+        select(TenantFont).where(
+            TenantFont.id == font_id,
+            TenantFont.tenant_id == tenant_id,
+        )
+    )
+
+    font = result.scalar_one_or_none()
+
+    if not font:
+        raise HTTPException(
+            status_code=404,
+            detail="Font not found",
+        )
+
+    cloudinary.uploader.destroy(
+        font.public_id,
+        resource_type="raw",
+    )
+
+    await db.delete(font)
+    await db.commit()
