@@ -9,6 +9,7 @@ import { Tenant } from "@hotel/types";
 import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DevLabel from "@/app/components/DevLabel";
+import TenantDetails from "@/app/components/TenantDetails";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -53,8 +54,8 @@ export default function DashboardPage() {
       file="/Users/michellarsson/Projects/hotels/apps/platform/app/(protected)/dashboard/page.tsx"
     />
     <div className="mx-auto w-full max-w-2xl">
-      {/* <TenantDetails /> */}
-      <AITenantDetails />
+      <TenantDetails />
+      {/* <AITenantDetails /> */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <button
           type="button"
@@ -140,7 +141,8 @@ export default function DashboardPage() {
               event.stopPropagation()
             }
           >
-            <AITenantDetails />
+            {/* <AITenantDetails /> */}
+            <TenantDetails />
           </div>
         </div>
       </div>

@@ -90,7 +90,7 @@ export default function AITenantDetails() {
               placeholder="Choose a password"
             />
             </div>
-            <textarea
+            {/* <textarea
               value={prompt}
               onChange={(event) =>
                 setPrompt(event.target.value)
@@ -99,7 +99,7 @@ export default function AITenantDetails() {
               disabled={isSubmitting}
               placeholder="I want a small eight-room surf hotel in Ghana with a warm design. I need Home, Rooms, Activities, About and Contact."
               className="w-full resize-none px-5 py-5 text-base leading-7 text-gray-900 outline-none placeholder:text-gray-400 disabled:opacity-50"
-            />
+            /> */}
 
             <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3">
               <span className="text-sm text-gray-400">
