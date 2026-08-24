@@ -48,7 +48,7 @@ export default function DashboardPage() {
   }
 
   return (
-  <main className="relative min-h-screen bg-gray-50 px-6 py-16">
+  <main className="relative min-h-screen">
     <DevLabel
       name="DashboardPage"
       file="/Users/michellarsson/Projects/hotels/apps/platform/app/(protected)/dashboard/page.tsx"

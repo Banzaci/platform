@@ -110,7 +110,7 @@ export default function TenantDetails() {
   }
 
   return (
-    <main className="flex justify-center bg-[#f7f7f8] px-6 py-10">
+    <main className="flex justify-center my-4">
       <div className="w-full max-w-3xl">
         <form
           onSubmit={handleSubmit}
@@ -250,15 +250,7 @@ export default function TenantDetails() {
                 <Plus className="h-4 w-4" />
                 Add page
               </button>
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-500">
-              {error}
-            </p>
-          )}
-
-          <div className="flex justify-end">
+              <div className="flex justify-end">
             <button
               type="submit"
               disabled={
@@ -274,6 +266,15 @@ export default function TenantDetails() {
                 : "Create hotel"}
             </button>
           </div>
+          </div>
+
+          {error && (
+            <p className="text-sm text-red-500">
+              {error}
+            </p>
+          )}
+
+          
         </form>
       </div>
     </main>
