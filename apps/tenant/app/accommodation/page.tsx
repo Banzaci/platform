@@ -10,13 +10,13 @@ export default async function AccommodationPage() {
   if (!pageConfig) {
     throw new Error("Accommodation page config not found");
   }
-
   return (
     <AccommodationPageClient
       tenantId={data.tenant.id}
       globalTheme={data.tenant.theme}
       pageId={pageConfig.id}
       sections={pageConfig.sections}
+      fonts={data.fonts}
     />
   );
 }

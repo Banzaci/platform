@@ -1084,6 +1084,10 @@ async def ai_generate_project(
         payload.prompt
     )
 
+    print("AI PLAN:", plan)
+    print("TENANT NAME:", plan.tenant.name)
+    print("PAGES:", plan.pages)
+
     tenant = Tenant(
         name=plan.tenant.name,
         subdomain=slugify(

@@ -37,6 +37,8 @@ export default function AccommodationPageClient({
           },
         };
 
+        console.log(section.theme)
+
         return (
           <EditableSection
             key={section.id}

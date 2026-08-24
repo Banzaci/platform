@@ -15,7 +15,9 @@ def build_sections(
                     exclude_none=True
                 ),
                 "layout": None,
-                "theme": {},
+                "theme": section.theme.model_dump(
+                    exclude_none=True
+                ),
             }
         )
 

@@ -20,9 +20,7 @@ export function resolveSectionTheme(
     fontFamily:
       theme?.fontFamily,
 
-    headingFontFamily:
-      theme?.headingFontFamily ??
-      theme?.fontFamily,
+    headingFontFamily: theme?.headingFontFamily,
 
     fontSize:
       theme?.fontSize,
@@ -82,12 +80,8 @@ export function resolveSectionTheme(
     date_width:
       theme?.dateSelector?.width,
 
-    date_selected_background:
-      theme?.dateSelector
-        ?.selectedBackgroundColor ??
-      theme?.primaryColor,
+    date_selected_background: theme?.dateSelector?.selectedBackgroundColor,
 
-    date_selected_color:
-      theme?.dateSelector?.selectedColor,
+    date_selected_color: theme?.dateSelector?.selectedColor,
   };
 }
