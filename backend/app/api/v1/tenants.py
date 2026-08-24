@@ -940,10 +940,10 @@ async def get_dashboard_bookings(
                 "guest_name": booking.guest_name,
                 "guest_email": booking.guest_email,
                 "guest_phone": booking.guest_phone,
-
+                "payment_method": booking.payment_method,
+                "special_requests": booking.special_requests,
                 "property_id": booking.property_id,
                 "property_name": property_name,
-
                 "check_in": booking.check_in,
                 "check_out": booking.check_out,
 

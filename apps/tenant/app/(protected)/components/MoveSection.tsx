@@ -41,7 +41,7 @@ export default function MoveSection({
       updatedSections[index],
     ];
 
-    const response = await apiClient.api<any>(
+    await apiClient.api<any>(
       `v1/tenants/${tenantId}/pages/${pageId}`,
       {
         method: "PUT",
@@ -50,11 +50,6 @@ export default function MoveSection({
         }),
       }
     );
-
-    if (!response.ok) {
-      console.error("Could not move section");
-      return;
-    }
 
     window.location.reload();
   }
