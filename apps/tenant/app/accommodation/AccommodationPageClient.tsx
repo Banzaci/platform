@@ -19,7 +19,14 @@ export default function AccommodationPageClient({
   globalTheme,
 }: Props) {
   return (
-    <>
+    <main
+      style={{
+        backgroundColor: globalTheme.backgroundColor,
+        color: globalTheme.textColor,
+        fontFamily: globalTheme.fontFamily,
+        fontSize: globalTheme.fontSize,
+      }}
+    >
       {sections.map((section) => {
         const mergedTheme = {
           ...(section.theme ?? {}),
@@ -27,6 +34,8 @@ export default function AccommodationPageClient({
             ...(globalTheme ?? {}),
           },
         };
+        console.log(mergedTheme)
+
         return (
           <EditableSection
             key={section.id}
@@ -43,7 +52,7 @@ export default function AccommodationPageClient({
           </EditableSection>
         );
       })}
-    </>
+    </main>
   );
 }
 

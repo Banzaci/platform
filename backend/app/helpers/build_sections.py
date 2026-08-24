@@ -38,3 +38,41 @@ def normalize_page_slug(
         return "accommodation"
 
     return slugify(page.name)
+
+
+def normalize_page_sections(
+    page: AIPage,
+) -> list[dict]:
+    slug = normalize_page_slug(page)
+
+    if slug == "accommodation":
+        property_grid = next(
+            (
+                section
+                for section in page.sections
+                if section.type == "property-grid"
+            ),
+            None,
+        )
+
+        if property_grid:
+            return build_sections([property_grid])
+
+        return [
+            {
+                "id": "property-grid",
+                "type": "property-grid",
+                "content": {
+                    "heading": {
+                        "en": "Available rooms",
+                    },
+                    "text": {
+                        "en": "Choose your room and book your stay.",
+                    },
+                },
+                "layout": None,
+                "theme": {},
+            }
+        ]
+
+    return build_sections(page.sections)

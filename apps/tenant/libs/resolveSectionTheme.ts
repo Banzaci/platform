@@ -3,21 +3,19 @@ import { SectionTheme } from "@/types";
 export function resolveSectionTheme(
   theme?: SectionTheme
 ) {
-  const textColor =
-    theme?.textColor ?? "#111111";
-
-  const secondaryColor =
-    theme?.secondaryColor ?? "#6b7280";
-
   return {
     // Section
-    backgroundColor: theme?.backgroundColor ?? "#ffffff",
-    textColor,
+    backgroundColor:
+      theme?.backgroundColor,
 
-    secondaryColor,
+    textColor:
+      theme?.textColor,
+
+    secondaryColor:
+      theme?.secondaryColor,
 
     primaryColor:
-      theme?.primaryColor ?? "#111111",
+      theme?.primaryColor,
 
     fontFamily:
       theme?.fontFamily,
@@ -31,82 +29,65 @@ export function resolveSectionTheme(
 
     // Card
     card_background_color:
-      theme?.card?.backgroundColor ??
-      "#ffffff",
+      theme?.card?.backgroundColor,
 
     card_text_color:
-      theme?.card?.textColor ??
-      textColor,
+      theme?.card?.textColor,
 
     card_secondary_color:
-      theme?.card?.secondaryColor ??
-      secondaryColor,
+      theme?.card?.secondaryColor,
 
     card_border_color:
-      theme?.card?.borderColor ??
-      "#e5e7eb",
+      theme?.card?.borderColor,
 
     card_radius:
-      theme?.card?.borderRadius ??
-      "16px",
+      theme?.card?.borderRadius,
 
     card_padding:
-      theme?.card?.padding ??
-      "24px",
+      theme?.card?.padding,
 
     card_shadow:
       theme?.card?.shadow,
 
-      
     // Button
     button_background:
       theme?.button?.backgroundColor ??
-      theme?.primaryColor ??
-      "#111111",
+      theme?.primaryColor,
 
     button_text:
-      theme?.button?.textColor ??
-      "#ffffff",
+      theme?.button?.textColor,
 
     button_radius:
-      theme?.button?.borderRadius ??
-      "12px",
+      theme?.button?.borderRadius,
 
     // Date selector
     date_background:
-      theme?.dateSelector?.backgroundColor ??
-      "#ffffff",
+      theme?.dateSelector?.backgroundColor,
 
     date_text:
-      theme?.dateSelector?.textColor ??
-      textColor,
+      theme?.dateSelector?.textColor,
 
     date_secondary:
-      theme?.dateSelector?.secondaryColor ??
-      secondaryColor,
+      theme?.dateSelector?.secondaryColor,
 
     date_border:
-      theme?.dateSelector?.borderColor ??
-      "#e5e7eb",
+      theme?.dateSelector?.borderColor,
 
     date_radius:
-      theme?.dateSelector?.borderRadius ??
-      "16px",
+      theme?.dateSelector?.borderRadius,
 
     date_shadow:
       theme?.dateSelector?.shadow,
 
     date_width:
-      theme?.dateSelector?.width ??
-      "50%",
+      theme?.dateSelector?.width,
 
     date_selected_background:
-      theme?.dateSelector?.selectedBackgroundColor ??
-      theme?.primaryColor ??
-      "#111111",
+      theme?.dateSelector
+        ?.selectedBackgroundColor ??
+      theme?.primaryColor,
 
     date_selected_color:
-      theme?.dateSelector?.selectedColor ??
-      "#ffffff",
+      theme?.dateSelector?.selectedColor,
   };
 }

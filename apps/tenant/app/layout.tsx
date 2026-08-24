@@ -109,12 +109,35 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const tenant = await getTenant();
+  const fonts = tenant.fonts ?? [];
   return (
     <html
       lang="en"
       className={`${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <head>
+        <style>
+          {fonts
+            .map(
+              (font) => `
+                @font-face {
+                  font-family: "${font.name}";
+                  src: url("${font.url}") format("${font.format}");
+                  font-display: swap;
+                }
+              `
+            )
+            .join("\n")}
+        </style>
+      </head>
+      <body className="min-h-full flex flex-col"
+        style={{
+          backgroundColor: tenant.tenant.theme.backgroundColor,
+          color: tenant.tenant.theme.textColor,
+          fontFamily: tenant.tenant.theme.fontFamily,
+          fontSize: tenant.tenant.theme.fontSize,
+        }}
+      >
         <Providers>
           <ThemeProvider theme={tenant.tenant.theme}>
             <Navigation data={tenant} />

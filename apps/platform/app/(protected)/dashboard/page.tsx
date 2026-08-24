@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import AIInputTextArea from "./AIInputTextArea";
+import AITenantDetails from "./AITenantDetails";
 import { apiClient } from "@/libs/api";
 import { Tenant } from "@hotel/types";
 import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import DevLabel from "@/app/components/DevLabel";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function DashboardPage() {
   const deleteTenant = useMutation({
     mutationFn: (tenantId: string) =>
       apiClient.api(
-        `v1/tenants/${tenantId}/hard`,
+        `v1/tenants/${tenantId}`,
         {
           method: "DELETE",
         }
@@ -46,18 +47,14 @@ export default function DashboardPage() {
   }
 
   return (
-  <main className="min-h-screen bg-gray-50 px-6 py-16">
+  <main className="relative min-h-screen bg-gray-50 px-6 py-16">
+    <DevLabel
+      name="DashboardPage"
+      file="/Users/michellarsson/Projects/hotels/apps/platform/app/(protected)/dashboard/page.tsx"
+    />
     <div className="mx-auto w-full max-w-2xl">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-          Your hotels
-        </h1>
-
-        <p className="mt-2 text-sm text-gray-500">
-          Manage your hotels or create a new one.
-        </p>
-      </div>
-      <AIInputTextArea />
+      {/* <TenantDetails /> */}
+      <AITenantDetails />
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <button
           type="button"
@@ -69,10 +66,13 @@ export default function DashboardPage() {
 
         {tenants?.length ? (
           <ul className="divide-y divide-gray-100">
-            {tenants.map((tenant) => (
+            {tenants.map((tenant) => {
+              return (
               <li
                 key={tenant.id}
-                className={`group flex items-center gap-3 py-3 first:pt-0 last:pb-0  ${tenant.deleted ? "opacity-50" : ""}`}
+                className={`group flex items-center gap-3 py-3 first:pt-0 last:pb-0 ${
+                  tenant.deleted ? "opacity-50 line-through" : "text-gray-900"
+                }`}
               >
                 <button
                   type="button"
@@ -91,21 +91,17 @@ export default function DashboardPage() {
                     {tenant.subdomain}
                   </div>
                 </button>
-
                 <button
                   type="button"
                   title="Delete hotel"
                   disabled={deleteTenant.isPending}
                   onClick={() => {
-                    const confirmed =
-                      window.confirm(
-                        `Delete "${tenant.name}"?`
-                      );
+                    const message = tenant.deleted
+                      ? `Permanently delete "${tenant.name}"? This cannot be undone.`
+                      : `Delete "${tenant.name}"?`;
 
-                    if (confirmed) {
-                      deleteTenant.mutate(
-                        tenant.id
-                      );
+                    if (window.confirm(message)) {
+                      deleteTenant.mutate(tenant.id);
                     }
                   }}
                   className="rounded-lg p-2.5 text-gray-300 transition hover:bg-red-50 hover:text-red-500 disabled:opacity-40"
@@ -113,7 +109,8 @@ export default function DashboardPage() {
                   <Trash2 className="h-4 w-4" />
                 </button>
               </li>
-            ))}
+            )
+            })}
           </ul>
         ) : (
           <div className="py-10 text-center">
@@ -143,7 +140,7 @@ export default function DashboardPage() {
               event.stopPropagation()
             }
           >
-            <AIInputTextArea />
+            <AITenantDetails />
           </div>
         </div>
       </div>

@@ -25,7 +25,6 @@ import { GripVertical, Plus, Trash2 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
 import { Page, TenantResponse } from "@hotel/types";
-import AIInputTextArea from "./AIInputTextArea";
 
 export default function TenantPage({ tenantId}: { tenantId: string }) {
 

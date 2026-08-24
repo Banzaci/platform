@@ -2,15 +2,33 @@
 import Link from "next/link";
 
 export default function Navigation({ data }: { data: any }) {
+  const { tenant } = data;
+  const nav = tenant.theme.navigation;
   return (
-    <nav className="border-b bg-white">
+    <nav
+      style={{
+          "--nav-bg": nav.backgroundColor,
+          "--nav-text": nav.textColor,
+          "--nav-hover": nav.hoverColor,
+        } as React.CSSProperties
+      }
+      className="bg-(--nav-bg) text-(--nav-text)"
+    >
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         {/* Logo / Hotel name */}
         <Link
           href="/"
-          className="text-xl font-semibold tracking-tight text-gray-900"
+          className="transition-colors hover:text-(--nav-hover)"
         >
-          {data.tenant.name}
+          {tenant.logo_url ? (
+          <img
+            src={tenant.logo_url}
+            alt={tenant.name}
+            className="h-10 w-auto"
+          />
+        ) : (
+          <span>{tenant.name}</span>
+        )}
         </Link>
 
         {/* Navigation */}

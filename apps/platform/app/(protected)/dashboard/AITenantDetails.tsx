@@ -4,16 +4,18 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { apiClient } from "@/libs/api";
+import { Field } from "@/app/components/Field";
 
 type GenerateProjectResponse = {
   tenant_id: string;
   message: string;
 };
 
-export default function AIInputTextArea() {
+export default function AITenantDetails() {
   const router = useRouter();
-
   const [prompt, setPrompt] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,6 +39,8 @@ export default function AIInputTextArea() {
             method: "POST",
             body: JSON.stringify({
               prompt: prompt.trim(),
+              password,
+              email
             }),
           }
         );
@@ -70,6 +74,22 @@ export default function AIInputTextArea() {
 
         <form onSubmit={handleSubmit}>
           <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="px-4">
+            <Field
+              label="Email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="Email"
+            />
+            <Field
+              label="Password"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Choose a password"
+            />
+            </div>
             <textarea
               value={prompt}
               onChange={(event) =>
@@ -90,7 +110,9 @@ export default function AIInputTextArea() {
                 type="submit"
                 disabled={
                   !prompt.trim() ||
-                  isSubmitting
+                  isSubmitting ||
+                  !email ||
+                  !password
                 }
                 className="rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -101,7 +123,6 @@ export default function AIInputTextArea() {
             </div>
           </div>
         </form>
-
         {error && (
           <p className="mt-4 text-center text-sm text-red-500">
             {error}

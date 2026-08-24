@@ -150,7 +150,7 @@ export default function FAQChatClient({
   }
 
   return (
-    <main className="relative flex min-h-[calc(100vh-64px)] flex-col bg-slate-50 text-slate-950">
+    <main className="relative flex min-h-[calc(100vh-64px)] flex-col">
       <DevLabel
         name="FAQChatClient"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/faq/FAQChatClient.tsx"
@@ -303,8 +303,7 @@ export default function FAQChatClient({
           )}
         </div>
       </div>
-
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 via-slate-50 to-transparent px-4 pb-5 pt-12">
+      <div className="fixed bottom-0 left-0 right-0 from-slate-50 px-4 pb-5 pt-12">
         <form
           onSubmit={submit}
           className="mx-auto flex w-full max-w-3xl items-end gap-2 rounded-[26px] border border-slate-200 bg-white p-2 shadow-xl shadow-slate-200/60"

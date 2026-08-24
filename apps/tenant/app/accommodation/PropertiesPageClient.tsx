@@ -137,8 +137,7 @@ export default function PropertiesPageClient({
 
         const query = params.toString();
 
-        const data =
-          await apiClient.api<TenantProperty[]>(
+        const data = await apiClient.api<TenantProperty[]>(
             `v1/tenants/${tenantId}/properties/public${
               query ? `?${query}` : ""
             }`

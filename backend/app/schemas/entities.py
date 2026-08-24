@@ -10,17 +10,28 @@ class CancellationPolicy(BaseModel):
     partial_refund_hours: int = 48
     partial_refund_percent: int = 50
 
+class NavigationTheme(BaseModel):
+    backgroundColor: str = "#ffffff"
+    textColor: str = "#222222"
+    hoverColor: str = "#666666"
+    activeColor: str = "#111111"
+    fontFamily: str = "Inter"
+    fontSize: str = "16px"
+    height: str = "72px"
+    logoHeight: str = "42px"
+
+class FontTheme(BaseModel):
+    body: str = "Inter"
+    heading: str = "Inter"
+
 class ThemeSchema(BaseModel):
-    model_config = ConfigDict(
-        extra="allow"
-    )
     backgroundColor: str = "#ffffff"
     textColor: str = "#222222"
     primaryColor: str = "#111111"
     secondaryColor: str = "#666666"
-    fontFamily: str = "Inter"
-    headingFontFamily: str = "Inter"
-    fontSize: str = "16px"
+
+    navigation: NavigationTheme = NavigationTheme()
+    fonts: FontTheme = FontTheme()
 
 class TenantOut(BaseModel):
     id: uuid.UUID

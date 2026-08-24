@@ -5,10 +5,11 @@ from calendar import monthrange
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
 from app.api.deps import require_tenant_access, require_permission, slugify
-from app.api.open_ai import generate_hotel_plan
+from app.api.open_ai import generate_hotel_plan, generate_tenant_update
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.models.tenant_knowledge import TenantKnowledge
 from app.core.redis import (
     get_tenant_cache,
     add_tenant_cache,
@@ -19,7 +20,10 @@ from app.models.booking import (
     Booking,
     BookingStatus,
 )
-from app.helpers.build_sections import build_sections, normalize_page_slug
+from app.schemas.ai_sections import GenerateKnowledgeRequest
+from fastapi import status
+from app.models.tenant_membership import TenantMembership
+from app.helpers.build_sections import build_sections, normalize_page_slug, normalize_page_sections
 from app.models.property import Property
 from app.models.property_block import PropertyBlock
 from app.models.property_calendar_source import PropertyCalendarSource
@@ -421,39 +425,9 @@ async def update_cancellation_policy(
     await db.refresh(tenant)
 
     return tenant.cancellation_policy
-
-@router.delete(
-    "/{tenant_id}/hard",
-    status_code=status.HTTP_204_NO_CONTENT,
-)
-async def hard_delete_tenant(
-    tenant_id: uuid.UUID,
-    db: AsyncSession = Depends(get_db),
-    user: CurrentUser = Depends(get_current_user),
-):
-    result = await db.execute(
-        select(Tenant).where(
-            Tenant.id == tenant_id,
-            Tenant.created_by_user_id == uuid.UUID(user.id),
-            Tenant.deleted.is_(True),
-        )
-    )
-
-    tenant = result.scalar_one_or_none()
-
-    if not tenant:
-        raise HTTPException(
-            status_code=404,
-            detail="Deleted tenant not found",
-        )
-
-    await delete_tenant_cache_for_tenant(tenant)
-
-    await db.delete(tenant)
-    await db.commit()
     
-@router.delete("/{tenant_id}")
-async def soft_delete_tenant(
+@router.delete("/{tenant_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def soft_or_hard_delete_tenant(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
@@ -469,10 +443,20 @@ async def soft_delete_tenant(
 
     if not tenant:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Tenant not found",
         )
 
+    # Second delete -> hard delete
+    if tenant.deleted:
+        await delete_tenant_cache_for_tenant(tenant)
+
+        await db.delete(tenant)
+        await db.commit()
+
+        return
+
+    # First delete -> soft delete
     tenant.deleted = True
     tenant.is_active = False
 
@@ -1090,9 +1074,6 @@ async def ai_generate_project(
         payload.prompt
     )
 
-    print(plan)
-    print("-------------------------")
-
     tenant = Tenant(
         name=plan.tenant.name,
         subdomain=slugify(
@@ -1110,6 +1091,36 @@ async def ai_generate_project(
     db.add(tenant)
     await db.flush()
 
+    properties = [
+        Property(
+            tenant_id=tenant.id,
+            name=f"Property {i}",
+            description=None,
+            max_guests=2,
+            bedrooms=1,
+            beds=1,
+            bathrooms=1,
+            units=1,
+            amenities=[],
+            is_open=True,
+        )
+        for i in range(1, plan.property_count + 1)
+    ]
+
+    db.add_all(properties)
+
+    membership = TenantMembership(
+        tenant_id=tenant.id,
+        username=payload.email,
+        hashed_password=hash_password(
+            payload.password
+        ),
+        role=TenantRole.owner,
+        permissions={},
+    )
+
+    db.add(membership)
+
     for index, generated_page in enumerate(
         plan.pages
     ):
@@ -1126,8 +1137,8 @@ async def ai_generate_project(
                 key=slug,
                 sort_order=index,
                 layout_variant="default",
-                sections=build_sections(
-                    generated_page.sections
+                sections=normalize_page_sections(
+                    generated_page
                 ),
                 theme={},
                 is_system=(
@@ -1146,3 +1157,103 @@ async def ai_generate_project(
         tenant_id=str(tenant.id),
         message="Project created",
     )
+
+
+@router.post("/{tenant_id}/ai/update", status_code=status.HTTP_200_OK)
+async def update_tenant_from_prompt(
+    tenant_id: uuid.UUID,
+    payload: GenerateKnowledgeRequest,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("content.edit")
+    ),
+):
+    tenant_result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = tenant_result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    plan = await generate_tenant_update(
+        payload.prompt
+    )
+
+    # Theme
+    if plan.theme:
+        tenant.theme = plan.theme.model_dump()
+
+    # Knowledge / FAQ
+    for item in plan.knowledge:
+        db.add(
+            TenantKnowledge(
+                tenant_id=tenant.id,
+                category=item.category,
+                intent=item.intent,
+                question=item.question.model_dump(),
+                answer=item.answer.model_dump(),
+                source="ai",
+                priority=0,
+                is_active=True,
+            )
+        )
+
+    # Pages
+    for generated_page in plan.pages:
+        slug = normalize_page_slug(
+            generated_page
+        )
+
+        page_result = await db.execute(
+            select(Page).where(
+                Page.tenant_id == tenant.id,
+                Page.slug == slug,
+            )
+        )
+
+        page = page_result.scalar_one_or_none()
+
+        if page:
+            page.sections = build_sections(
+                generated_page.sections
+            )
+
+            page.name = {
+                "en": generated_page.name
+            }
+
+        else:
+            db.add(
+                Page(
+                    tenant_id=tenant.id,
+                    slug=slug,
+                    key=slug,
+                    name={
+                        "en": generated_page.name
+                    },
+                    layout_variant="default",
+                    sort_order=100,
+                    sections=build_sections(
+                        generated_page.sections
+                    ),
+                    theme={},
+                    is_system=False,
+                )
+            )
+
+    await db.commit()
+
+    await delete_tenant_cache_for_tenant(
+        tenant
+    )
+
+    return {
+        "message": "Tenant updated successfully"
+    }

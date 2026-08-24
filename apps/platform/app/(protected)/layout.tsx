@@ -6,6 +6,7 @@ import { useAuth } from "@hotel/hooks";
 import { Loader2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import Navigation from "./Navigation";
+import DevLabelToggle from "../components/DevLabelToggle";
 
 export default function ProtectedLayout({
   children,
@@ -34,6 +35,7 @@ export default function ProtectedLayout({
     <main className="flex flex-col min-h-screen bg-slate-50">
       <Navigation />
       {children}
+      <DevLabelToggle />
     </main>
   );
 }

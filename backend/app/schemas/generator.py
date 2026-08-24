@@ -15,3 +15,5 @@ class GenerateProjectResponse(BaseModel):
 
 class GenerateProjectAIRequest(BaseModel):
     prompt: str
+    email: str
+    password: str

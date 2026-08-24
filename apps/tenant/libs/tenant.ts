@@ -32,9 +32,5 @@ export const getTenant = cache(async () => {
     );
   }
   const data: TenantResponse = await response.json() as TenantResponse;
-  console.log(data) // Denna ger mig
-  /*
-    backgroundColor: "#9f3c3c"
-  */
   return data;
 });

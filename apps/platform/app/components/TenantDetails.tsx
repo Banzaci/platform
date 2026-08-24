@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
+import { Field } from "./Field";
 
 type GenerateProjectResponse = {
   tenant_id: string;
@@ -22,7 +23,7 @@ type PageInput = {
   name: string;
 };
 
-export default function AIInputTextArea() {
+export default function TenantDetails() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -111,18 +112,6 @@ export default function AIInputTextArea() {
   return (
     <main className="flex justify-center bg-[#f7f7f8] px-6 py-10">
       <div className="w-full max-w-3xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-            Create hotel
-          </h1>
-
-          <p className="mt-2 text-sm text-gray-500">
-            Add the basic hotel
-            information and choose which
-            pages should be created.
-          </p>
-        </div>
-
         <form
           onSubmit={handleSubmit}
           className="space-y-6"
@@ -288,42 +277,6 @@ export default function AIInputTextArea() {
         </form>
       </div>
     </main>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (
-    value: string
-  ) => void;
-  placeholder?: string;
-  type?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium text-gray-700">
-        {label}
-      </span>
-
-      <input
-        type={type}
-        value={value}
-        onChange={(event) =>
-          onChange(
-            event.target.value
-          )
-        }
-        placeholder={placeholder}
-        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-gray-400"
-      />
-    </label>
   );
 }
 

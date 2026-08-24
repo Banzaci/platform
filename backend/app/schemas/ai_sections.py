@@ -1,12 +1,11 @@
 from typing import Literal
 from pydantic import BaseModel
 from typing import Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class LocalizedText(BaseModel):
     en: str
-
 
 class HeroContent(BaseModel):
     heading: LocalizedText
@@ -106,13 +105,22 @@ class AITenant(BaseModel):
 
 class AIKnowledgeItem(BaseModel):
     category: str
+    intent: str | None = None
     question: LocalizedText
     answer: LocalizedText
-    intent: str | None = None
+
+
+class GenerateKnowledgeRequest(BaseModel):
+    prompt: str
+
+class AIUpdatePlan(BaseModel):
+    theme: AITheme | None = None
+    pages: list[AIPage] = []
+    knowledge: list[AIKnowledgeItem] = []
     
 class AIProjectPlan(BaseModel):
     tenant: AITenant
     theme: AITheme
     pages: list[AIPage]
     property_count: int
-    knowledge: list[AIKnowledgeItem]
+    knowledge: list[AIKnowledgeItem] = Field(default_factory=list)

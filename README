@@ -31,3 +31,30 @@ FROM tenants;
 
 DELETE FROM tenants
 WHERE id = 'TENANT_ID_HÄR';
+
+
+
+PROMPT:
+- 7 rooms
+- 2 double rooms
+- 3 queen rooms
+- 2 family rooms
+- AC in all rooms
+- breakfast available
+- bar
+- airport pickup
+- surfboard rental
+- 3 minutes from the beach
+- price range: $25–45/night
+- target guests: surfers and backpackers
+- languages: English and Swedish
+
+OR
+
+I want a small 7-room hotel in Ghana called Laughing Goat Ghana. It should have a warm, relaxed and tropical design with natural colors, large images and a friendly local feel. All rooms have air conditioning, private bathrooms and Wi-Fi. The hotel is close to the beach and should appeal to surfers, couples and independent travelers.
+
+Create a beautiful index page with a large hero image, a short introduction, a section showing the rooms, a section about the location and beach, and a few cards for activities such as surfing, beach walks and local food.
+
+I also want an About Us page and a Contact page. The About Us page should tell a short story about the hotel and its atmosphere. The Contact page should have contact information and a simple contact form.
+
+Use warm beige, sand and earthy colors, large photography, clean typography and a relaxed boutique-hotel style. Keep the text friendly and simple, not luxurious or corporate.

@@ -34,7 +34,6 @@ export default function PageRenderer({
     <>
       {page.sections.map((section: any) => {
         const Component = components[section.type as keyof typeof components];
-
         if (!Component) return null;
 
           const mergedTheme = {

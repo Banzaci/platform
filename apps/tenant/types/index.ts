@@ -74,6 +74,13 @@ export type CancellationPolicy = {
   partial_refund_percent: number;
 };
 
+export type TenantFont = {
+  id: string;
+  name: string;
+  url: string;
+  format: "woff2" | "woff";
+};
+
 export type TenantResponse = {
   tenant: {
     id: string;
@@ -87,6 +94,7 @@ export type TenantResponse = {
     theme: SectionTheme;
     cancellation_policy: CancellationPolicy
   };
+  fonts: TenantFont[];
   pages: PageData[];
 };
 
