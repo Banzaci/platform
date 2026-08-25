@@ -69,12 +69,13 @@ export default function PropertyCardEdit({
       : null;
 
   return (
-    <article className="relative flex min-h-44 overflow-hidden rounded-xl bg-white shadow-sm border-b-gray-200">
+    <article className="relative flex min-h-44 overflow-hidden rounded-xl border-b-gray-200 bg-white shadow-sm">
       <DevLabel
         name="PropertyCardEdit"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardEdit.tsx"
       />
-      <div className="w-56 shrink-0 self-stretch overflow-hidden bg-gray-100">
+
+      <div className="relative w-56 shrink-0 self-stretch overflow-hidden bg-gray-100">
         <PropertySlideshow
           images={property.images ?? []}
           alt={property.name}

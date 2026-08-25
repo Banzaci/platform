@@ -67,7 +67,6 @@ export default function PropertyCard({
       <PropertySlideshow
         images={property.images ?? []}
         alt={property.name}
-        className="h-36"
       />
 
       <div

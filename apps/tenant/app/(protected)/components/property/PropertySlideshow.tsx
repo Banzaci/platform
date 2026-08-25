@@ -22,7 +22,6 @@ export default function PropertySlideshow({
 }: {
   images: PropertyImage[];
   alt: string;
-  className?: string;
 }) {
   const [index, setIndex] = useState(0);
 
@@ -51,9 +50,8 @@ export default function PropertySlideshow({
         : current + 1
     );
   }
-
   return (
-    <div className="group relative h-full w-full overflow-hidden bg-gray-100">
+    <div className="group relative h-full w-full overflow-hidden min-h-70 bg-gray-100">
       <img
         src={images[index].url}
         alt={alt}
@@ -62,7 +60,6 @@ export default function PropertySlideshow({
         }}
         className="absolute inset-0 h-full w-full object-cover"
       />
-
       {images.length > 1 && (
         <>
           <button
@@ -82,7 +79,6 @@ export default function PropertySlideshow({
           >
             <ChevronRight className="h-4 w-4" />
           </button>
-
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5">
             {images.map((_, imageIndex) => (
               <button
