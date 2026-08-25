@@ -1,9 +1,9 @@
 
 import uuid
 from datetime import date
-import cloudinary.uploader
-
+import logging
 from calendar import monthrange
+from app.services.cloudinary import delete_tenant_cloudinary_assets, delete_file
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
 from app.api.deps import require_tenant_access, require_permission, slugify
@@ -49,6 +49,8 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -438,43 +440,72 @@ async def update_cancellation_policy(
 
     return tenant.cancellation_policy
     
-@router.delete("/{tenant_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{tenant_id}",status_code=status.HTTP_204_NO_CONTENT)
 async def soft_or_hard_delete_tenant(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     user: CurrentUser = Depends(get_current_user),
 ):
-    result = await db.execute(
-        select(Tenant).where(
-            Tenant.id == tenant_id,
-            Tenant.created_by_user_id == uuid.UUID(user.id),
-        )
-    )
-
-    tenant = result.scalar_one_or_none()
-
-    if not tenant:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Tenant not found",
+    try:
+        result = await db.execute(
+            select(Tenant).where(
+                Tenant.id == tenant_id,
+                Tenant.created_by_user_id
+                == uuid.UUID(user.id),
+            )
         )
 
-    # Second delete -> hard delete
-    if tenant.deleted:
-        await delete_tenant_cache_for_tenant(tenant)
+        tenant = result.scalar_one_or_none()
 
-        await db.delete(tenant)
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tenant not found",
+            )
+
+        # Second delete -> hard delete
+        if tenant.deleted:
+            await delete_tenant_cache_for_tenant(
+                tenant
+            )
+
+            # Delete all tenant images from Cloudinary
+            await delete_tenant_cloudinary_assets(
+                str(tenant_id)
+            )
+
+            await db.delete(tenant)
+            await db.commit()
+
+            return
+
+        # First delete -> soft delete
+        tenant.deleted = True
+        tenant.is_active = False
+
         await db.commit()
 
-        return
+        await delete_tenant_cache_for_tenant(
+            tenant
+        )
 
-    # First delete -> soft delete
-    tenant.deleted = True
-    tenant.is_active = False
+    except HTTPException:
+        raise
 
-    await db.commit()
+    except Exception as e:
+        await db.rollback()
 
-    await delete_tenant_cache_for_tenant(tenant)
+        logger.exception(
+            "Failed to delete tenant",
+            extra={
+                "tenant_id": str(tenant_id),
+            },
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to delete tenant",
+        ) from e
 
 
 @router.get("/{tenant_id}/unanswered-questions")
@@ -1411,7 +1442,7 @@ async def delete_tenant_font(
             detail="Font not found",
         )
 
-    cloudinary.uploader.destroy(
+    await delete_file(
         font.public_id,
         resource_type="raw",
     )

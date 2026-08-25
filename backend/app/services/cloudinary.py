@@ -1,12 +1,14 @@
 import uuid
 import logging
-
+import asyncio
 from cloudinary import config
 from app.core.config import settings
 
 from fastapi import HTTPException, UploadFile
 from starlette.concurrency import run_in_threadpool
-import cloudinary.uploader
+
+from cloudinary import api
+from cloudinary.uploader import upload, destroy
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +19,36 @@ config(
     secure=True,
 )
 
+async def delete_file(
+    public_id: str,
+    resource_type: str = "image",
+) -> None:
+    try:
+        result = await run_in_threadpool(
+            destroy,
+            public_id,
+            resource_type=resource_type,
+        )
+
+        if result.get("result") not in ("ok", "not found"):
+            raise RuntimeError(
+                f"Cloudinary delete failed: {result}"
+            )
+
+    except Exception as e:
+        logger.exception(
+            "Cloudinary file delete failed",
+            extra={
+                "public_id": public_id,
+                "resource_type": resource_type,
+            },
+        )
+
+        raise HTTPException(
+            status_code=502,
+            detail="File delete failed",
+        ) from e
+    
 async def upload_font_file(
     tenant_id: uuid.UUID,
     file: UploadFile,
@@ -26,17 +58,47 @@ async def upload_font_file(
     name = filename.rsplit(".", 1)[0]
     folder = f"{tenant_id}/fonts"
 
-    result = cloudinary.uploader.upload(
+    result = upload(
         file.file,
         resource_type="raw",
         folder=folder,
         public_id=name,
         overwrite=True,
     )
+
     return result["secure_url"], result["public_id"]
 
+async def delete_tenant_cloudinary_assets(
+    tenant_id: str,
+) -> None:
+    try:
+        prefix = f"{tenant_id}/"
 
+        await asyncio.to_thread(
+            api.delete_resources_by_prefix,
+            prefix,
+            resource_type="image",
+        )
 
+        await asyncio.to_thread(
+            api.delete_resources_by_prefix,
+            prefix,
+            resource_type="raw",
+        )
+
+        await asyncio.to_thread(
+            api.delete_folder,
+            tenant_id,
+        )
+
+    except Exception:
+        logger.exception(
+            "Failed to delete tenant Cloudinary assets",
+            extra={
+                "tenant_id": tenant_id,
+            },
+        )
+        raise
 
 async def upload_image(
     file: UploadFile,
@@ -62,7 +124,7 @@ async def upload_image(
         public_id = f"{uuid.uuid4()}-{name}"
 
         result = await run_in_threadpool(
-            cloudinary.uploader.upload,
+            upload,
             file.file,
             folder=folder,
             public_id=public_id,

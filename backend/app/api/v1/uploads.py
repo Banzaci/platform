@@ -1,8 +1,7 @@
 import uuid
 import logging
-
+from app.services.cloudinary import delete_file
 from pydantic import BaseModel
-import cloudinary.uploader
 from typing import Literal
 from sqlalchemy import select
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status, Form
@@ -137,7 +136,7 @@ async def delete_tenant_image(
             detail="Tenant not found",
         )
 
-    cloudinary_result = cloudinary.uploader.destroy(
+    await delete_file(
         payload.public_id,
         resource_type="image",
     )
@@ -147,7 +146,7 @@ async def delete_tenant_image(
     )
 
     return {
-        "result": cloudinary_result.get("result"),
+        "result": "success"
     }
 
 
