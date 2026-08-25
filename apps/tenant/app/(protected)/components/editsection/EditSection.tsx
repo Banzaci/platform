@@ -78,12 +78,12 @@ export default function EditSection({
       // Ny eller ersatt bild
       if (image?.file) {
         const uploaded = await uploadImage(image.file);
-
         updatedContent = {
           ...content,
           image: {
             url: uploaded.url,
             publicId: uploaded.public_id,
+            position: content.image.position,
           },
         };
       }
@@ -153,17 +153,15 @@ export default function EditSection({
               onMouseDown={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b px-7 py-5">
+              <div className="flex items-center justify-between bg-gray-100 border-b border-b-gray-200 px-7 pt-5 pb-2">
                 <div>
-                  <div className="text-xs font-medium uppercase tracking-wider text-gray-400">
-                    Section
-                  </div>
-
-                  <h2 className="mt-1 text-xl font-semibold capitalize">
+                  <h3 className="text-lg font-semibold text-gray-950">
                     Edit {section.type.replaceAll("-", " ")}
-                  </h2>
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Edit the main content shown in this section.
+                  </p>
                 </div>
-
                 <button
                   type="button"
                   onClick={cancel}
@@ -188,7 +186,7 @@ export default function EditSection({
                 />
               </div>
               {/* Footer */}
-              <div className="flex justify-end gap-3 border-t bg-gray-50 px-7 py-5">
+              <div className="flex justify-end gap-3 border-t border-t-gray-200 bg-gray-100 px-7 py-5">
                 <button
                   type="button"
                   onClick={cancel}

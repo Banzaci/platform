@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Field } from "../../Field";
 import ImageUpload from "../../ImageUpload";
+import { inputClassName } from "../ThemeEditor";
 
 type Props = {
   content: any;
@@ -24,83 +26,69 @@ export default function ImageTextEditor({
   }
 
   return (
-    <div className="text-black">
-      <div>
-        <label className="mb-2 block text-sm font-medium">
-          Image position
-        </label>
+    <div className="space-y-6">
+        {/* Layout */}
+        <Field label="Image position">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  ...content,
+                  layout: "image-left",
+                })
+              }
+              className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
+                content.layout === "image-left" || !content.layout
+                  ? "border-gray-950 bg-gray-950 text-white shadow-sm"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              Image left
+            </button>
 
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() =>
-              onChange({
-                ...content,
-                layout: "image-left",
-              })
-            }
-            className={`rounded-xl border px-4 py-3 text-sm font-medium ${
-              content.layout === "image-left" ||
-              !content.layout
-                ? "border-black bg-black text-white"
-                : "border-gray-200 bg-white text-gray-700"
-            }`}
-          >
-            Image left
-          </button>
+            <button
+              type="button"
+              onClick={() =>
+                onChange({
+                  ...content,
+                  layout: "image-right",
+                })
+              }
+              className={`rounded-xl border px-4 py-3 text-sm font-medium transition ${
+                content.layout === "image-right"
+                  ? "border-gray-950 bg-gray-950 text-white shadow-sm"
+                  : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              Image right
+            </button>
+          </div>
+        </Field>
 
-          <button
-            type="button"
-            onClick={() =>
-              onChange({
-                ...content,
-                layout: "image-right",
-              })
-            }
-            className={`rounded-xl border px-4 py-3 text-sm font-medium ${
-              content.layout === "image-right"
-                ? "border-black bg-black text-white"
-                : "border-gray-200 bg-white text-gray-700"
-            }`}
-          >
-            Image right
-          </button>
-        </div>
-      </div>
-      <div className="space-y-5">
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Heading
-          </span>
-
+        {/* Content */}
+        <Field label="Heading">
           <input
             value={content.heading?.en ?? ""}
             onChange={(e) =>
               updateLocalized("heading", e.target.value)
             }
-            className="w-full rounded-lg border px-4 py-3"
+            className={inputClassName}
           />
-        </label>
+        </Field>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Text
-          </span>
-
+        <Field label="Text">
           <textarea
             value={content.text?.en ?? ""}
             onChange={(e) =>
               updateLocalized("text", e.target.value)
             }
             rows={5}
-            className="w-full rounded-lg border px-4 py-3"
+            className={`${inputClassName} resize-none leading-6`}
           />
-        </label>
+        </Field>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Uplaod image
-          </span>
+        <Field label="Image">
           <ImageUpload
             value={content.image}
             onChange={(image) =>
@@ -110,8 +98,7 @@ export default function ImageTextEditor({
               })
             }
           />
-        </label>
-      </div>
+        </Field>
     </div>
   );
 }

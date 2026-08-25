@@ -2,12 +2,17 @@
 
 import { SectionTheme, TenantFont } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
+import { ColorField } from "../ColorField";
+import { Field } from "../Field";
 
 type Props = {
   theme: SectionTheme;
   fonts: TenantFont[];
   onChange: (theme: SectionTheme) => void;
 };
+
+export const inputClassName =
+  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900 outline-none transition hover:border-gray-300 focus:border-gray-900 focus:ring-1 focus:ring-gray-900";
 
 export default function ThemeEditor({
   theme,
@@ -61,424 +66,224 @@ export default function ThemeEditor({
   }
 
   return (
-    <div className="relative mt-8 border-t pt-6 text-black">
-      <DevLabel
-        name="ThemeEditor"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/ThemeEditor.tsx"
-      />
+  <div className="relative mt-8 border-t border-gray-200 pt-8 text-black">
+    <DevLabel
+      name="ThemeEditor"
+      file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/ThemeEditor.tsx"
+    />
 
-      <h3 className="mb-5 text-lg font-semibold">
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold text-gray-950">
         Theme
       </h3>
-
-      <div className="grid grid-cols-2 gap-5">
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Background
-            </span>
-
-            {theme.backgroundColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("backgroundColor")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.backgroundColor ??
-              "#ffffff"
-            }
-            onChange={(e) =>
-              update(
-                "backgroundColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Text color
-            </span>
-
-            {theme.textColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("textColor")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.textColor ??
-              "#000000"
-            }
-            onChange={(e) =>
-              update(
-                "textColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Primary color
-            </span>
-
-            {theme.primaryColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("primaryColor")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.primaryColor ??
-              "#000000"
-            }
-            onChange={(e) =>
-              update(
-                "primaryColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Secondary color
-            </span>
-
-            {theme.secondaryColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("secondaryColor")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.secondaryColor ??
-              "#666666"
-            }
-            onChange={(e) =>
-              update(
-                "secondaryColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Body font
-            </span>
-
-            {theme.fontFamily && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("fontFamily")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <select
-            value={theme.fontFamily ?? ""}
-            onChange={(e) =>
-              update(
-                "fontFamily",
-                e.target.value
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          >
-            <option value="">
-              Use global font
-            </option>
-
-            {fonts.map((font) => (
-              <option
-                key={font.id}
-                value={font.name}
-              >
-                {font.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Heading font
-            </span>
-
-            {theme.headingFontFamily && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset(
-                    "headingFontFamily"
-                  )
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <select
-            value={
-              theme.headingFontFamily ??
-              ""
-            }
-            onChange={(e) =>
-              update(
-                "headingFontFamily",
-                e.target.value
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          >
-            <option value="">
-              Use global heading font
-            </option>
-
-            {fonts.map((font) => (
-              <option
-                key={font.id}
-                value={font.name}
-              >
-                {font.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Button color
-            </span>
-
-            {theme.button?.backgroundColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  resetButton(
-                    "backgroundColor"
-                  )
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.button?.backgroundColor ??
-              "#111111"
-            }
-            onChange={(e) =>
-              updateButton(
-                "backgroundColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Button text color
-            </span>
-
-            {theme.button?.textColor && (
-              <button
-                type="button"
-                onClick={() =>
-                  resetButton(
-                    "textColor"
-                  )
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            type="color"
-            value={
-              theme.button?.textColor ??
-              "#ffffff"
-            }
-            onChange={(e) =>
-              updateButton(
-                "textColor",
-                e.target.value
-              )
-            }
-            className="h-10 w-full cursor-pointer"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Font size
-            </span>
-
-            {theme.fontSize && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("fontSize")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            value={theme.fontSize ?? ""}
-            placeholder="16px"
-            onChange={(e) =>
-              update(
-                "fontSize",
-                e.target.value
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Padding top
-            </span>
-
-            {theme.paddingTop && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("paddingTop")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            value={
-              theme.paddingTop ?? ""
-            }
-            placeholder="80px"
-            onChange={(e) =>
-              update(
-                "paddingTop",
-                e.target.value
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Padding bottom
-            </span>
-
-            {theme.paddingBottom && (
-              <button
-                type="button"
-                onClick={() =>
-                  reset("paddingBottom")
-                }
-                className="text-xs text-gray-500 hover:text-black"
-              >
-                Use global
-              </button>
-            )}
-          </div>
-
-          <input
-            value={
-              theme.paddingBottom ?? ""
-            }
-            placeholder="80px"
-            onChange={(e) =>
-              update(
-                "paddingBottom",
-                e.target.value
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          />
-        </div>
-      </div>
+      <p className="mt-1 text-sm text-gray-500">
+        Override the global design for this section.
+      </p>
     </div>
-  );
+
+    <div className="space-y-5">
+      {/* Colors */}
+      <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
+        <div className="mb-5">
+          <h4 className="text-sm font-semibold text-gray-900">
+            Colors
+          </h4>
+          <p className="mt-1 text-xs text-gray-500">
+            Customize the section background and text colors.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ColorField
+            label="Background"
+            value={theme.backgroundColor}
+            fallback="#ffffff"
+            onChange={(value) => update("backgroundColor", value)}
+            onReset={() => reset("backgroundColor")}
+          />
+          <ColorField
+            label="Text color"
+            value={theme.textColor}
+            fallback="#000000"
+            onChange={(value) => update("textColor", value)}
+            onReset={() => reset("textColor")}
+          />
+
+          <ColorField
+            label="Primary color"
+            value={theme.primaryColor}
+            fallback="#000000"
+            onChange={(value) => update("primaryColor", value)}
+            onReset={() => reset("primaryColor")}
+          />
+
+          <ColorField
+            label="Secondary color"
+            value={theme.secondaryColor}
+            fallback="#666666"
+            onChange={(value) => update("secondaryColor", value)}
+            onReset={() => reset("secondaryColor")}
+          />
+        </div>
+      </section>
+
+      {/* Typography */}
+      <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
+        <div className="mb-5">
+          <h4 className="text-sm font-semibold text-gray-900">
+            Typography
+          </h4>
+          <p className="mt-1 text-xs text-gray-500">
+            Control fonts and text sizing for this section.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field
+            label="Body font"
+            overridden={!!theme.fontFamily}
+            onReset={() => reset("fontFamily")}
+          >
+            <select
+              value={theme.fontFamily ?? ""}
+              onChange={(e) =>
+                update("fontFamily", e.target.value)
+              }
+              className={inputClassName}
+            >
+              <option value="">Use global font</option>
+
+              {fonts.map((font) => (
+                <option key={font.id} value={font.name}>
+                  {font.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field
+            label="Heading font"
+            overridden={!!theme.headingFontFamily}
+            onReset={() => reset("headingFontFamily")}
+          >
+            <select
+              value={theme.headingFontFamily ?? ""}
+              onChange={(e) =>
+                update("headingFontFamily", e.target.value)
+              }
+              className={inputClassName}
+            >
+              <option value="">
+                Use global heading font
+              </option>
+
+              {fonts.map((font) => (
+                <option key={font.id} value={font.name}>
+                  {font.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field
+            label="Font size"
+            overridden={!!theme.fontSize}
+            onReset={() => reset("fontSize")}
+          >
+            <input
+              value={theme.fontSize ?? ""}
+              placeholder="16px"
+              onChange={(e) =>
+                update("fontSize", e.target.value)
+              }
+              className={inputClassName}
+            />
+          </Field>
+        </div>
+      </section>
+
+      {/* Button */}
+      <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
+        <div className="mb-5">
+          <h4 className="text-sm font-semibold text-gray-900">
+            Button
+          </h4>
+          <p className="mt-1 text-xs text-gray-500">
+            Override button colors inside this section.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <ColorField
+            label="Button color"
+            value={theme.button?.backgroundColor}
+            fallback="#111111"
+            onChange={(value) =>
+              updateButton("backgroundColor", value)
+            }
+            onReset={() =>
+              resetButton("backgroundColor")
+            }
+          />
+
+          <ColorField
+            label="Button text"
+            value={theme.button?.textColor}
+            fallback="#ffffff"
+            onChange={(value) =>
+              updateButton("textColor", value)
+            }
+            onReset={() =>
+              resetButton("textColor")
+            }
+          />
+        </div>
+      </section>
+
+      {/* Spacing */}
+      <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
+        <div className="mb-5">
+          <h4 className="text-sm font-semibold text-gray-900">
+            Spacing
+          </h4>
+          <p className="mt-1 text-xs text-gray-500">
+            Adjust vertical spacing for this section.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field
+            label="Padding top"
+            overridden={!!theme.paddingTop}
+            onReset={() => reset("paddingTop")}
+          >
+            <input
+              value={theme.paddingTop ?? ""}
+              placeholder="80px"
+              onChange={(e) =>
+                update("paddingTop", e.target.value)
+              }
+              className={inputClassName}
+            />
+          </Field>
+
+          <Field
+            label="Padding bottom"
+            overridden={!!theme.paddingBottom}
+            onReset={() => reset("paddingBottom")}
+          >
+            <input
+              value={theme.paddingBottom ?? ""}
+              placeholder="80px"
+              onChange={(e) =>
+                update("paddingBottom", e.target.value)
+              }
+              className={inputClassName}
+            />
+          </Field>
+        </div>
+      </section>
+    </div>
+  </div>
+);
 }

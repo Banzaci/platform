@@ -74,14 +74,12 @@ export default function PropertyCardEdit({
         name="PropertyCardEdit"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardEdit.tsx"
       />
-
-      <div className="w-56 shrink-0 overflow-hidden bg-gray-100">
+      <div className="w-56 shrink-0 self-stretch overflow-hidden bg-gray-100">
         <PropertySlideshow
           images={property.images ?? []}
           alt={property.name}
         />
       </div>
-
       {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col p-5">
         <div className="flex items-start justify-between gap-4">
@@ -89,7 +87,6 @@ export default function PropertyCardEdit({
             <h2 className="truncate text-lg font-semibold">
               {property.name}
             </h2>
-
             <p className="mt-1 text-sm text-gray-500">
               {property.max_guests} guests ·{" "}
               {property.bedrooms} bedrooms ·{" "}

@@ -6,6 +6,10 @@ type Props = {
     image?: {
       url: string;
       publicId: string;
+      position?: {
+        x: number;
+        y: number;
+      };
     };
     heading?: { en?: string };
     text?: { en?: string };
@@ -36,14 +40,18 @@ export default function ImageText({ content, theme }: Props) {
       >
         <div className="aspect-4/3 overflow-hidden rounded-2xl bg-gray-100">
           {content.image?.url && (
-            <img
-              src={content.image.url}
-              alt=""
-              className="h-full w-full object-cover"
-            />
+            <div className="aspect-[4/3] w-full overflow-hidden">
+              <img
+                src={content.image.url}
+                alt=""
+                style={{
+                  objectPosition: `${content.image?.position?.x ?? 50}% ${content.image?.position?.y ?? 50}%`,
+                }}
+                className="h-full w-full object-cover"
+              />
+            </div>
           )}
         </div>
-
         <div>
           {content.heading?.en && (
             <h2 style={{

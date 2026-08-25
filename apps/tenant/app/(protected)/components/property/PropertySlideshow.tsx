@@ -7,15 +7,18 @@ import {
   ImageIcon,
 } from "lucide-react";
 
-type PropertyImage = {
+export type PropertyImage = {
   url: string;
   publicId: string;
+  position?: {
+    x: number;
+    y: number;
+  };
 };
 
 export default function PropertySlideshow({
   images,
   alt,
-  className = "h-40",
 }: {
   images: PropertyImage[];
   alt: string;
@@ -26,7 +29,7 @@ export default function PropertySlideshow({
   if (!images?.length) {
     return (
       <div
-        className={`flex items-center justify-center overflow-hidden bg-gray-100 ${className}`}
+        className={`flex items-center justify-center overflow-hidden bg-gray-100`}
       >
         <ImageIcon className="h-7 w-7 text-gray-300" />
       </div>
@@ -50,13 +53,14 @@ export default function PropertySlideshow({
   }
 
   return (
-    <div
-      className={`group relative overflow-hidden bg-gray-100 ${className}`}
-    >
+    <div className="group relative h-full w-full overflow-hidden bg-gray-100">
       <img
         src={images[index].url}
         alt={alt}
-        className="h-full w-full object-cover"
+        style={{
+          objectPosition: `${images[index].position?.x ?? 50}% ${images[index].position?.y ?? 50}%`,
+        }}
+        className="absolute inset-0 h-full w-full object-cover"
       />
 
       {images.length > 1 && (

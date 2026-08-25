@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Field } from "../../Field";
 import ImageUpload from "../../ImageUpload";
+import { inputClassName } from "../ThemeEditor";
 
 type Props = {
   content: any;
@@ -43,85 +45,65 @@ export default function HeroEditor({
       },
     });
   }
-
   return (
-    <div className="text-black">
-      <h3 className="mb-5 text-lg font-semibold">
-        Hero content
-      </h3>
-
-      <div className="space-y-5">
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Heading
-          </span>
-
+  <div className="text-black">
+    <div className="space-y-6">
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Heading">
           <input
             value={content.heading?.en ?? ""}
             onChange={(e) =>
               updateLocalized("heading", e.target.value)
             }
-            className="w-full rounded-lg border px-4 py-3"
+            className={inputClassName}
           />
-        </label>
+        </Field>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Text
-          </span>
-
-          <textarea
-            value={content.text?.en ?? ""}
-            onChange={(e) =>
-              updateLocalized("text", e.target.value)
-            }
-            rows={4}
-            className="w-full rounded-lg border px-4 py-3"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Uplaod image
-          </span>
-          <ImageUpload
-            value={content.image}
-            onChange={(image) =>
-              onChange({
-                ...content,
-                image,
-              })
-            }
-          />
-        </label>
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Button text
-          </span>
-
+        <Field label="Button text">
           <input
             value={content.button?.label?.en ?? ""}
             onChange={(e) =>
               updateButton("label", e.target.value)
             }
-            className="w-full rounded-lg border px-4 py-3"
+            className={inputClassName}
           />
-        </label>
-
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium">
-            Button link
-          </span>
-
-          <input
-            value={content.button?.href ?? ""}
-            onChange={(e) =>
-              updateButton("href", e.target.value)
-            }
-            className="w-full rounded-lg border px-4 py-3"
-          />
-        </label>
+        </Field>
       </div>
+
+      <Field label="Text">
+        <textarea
+          value={content.text?.en ?? ""}
+          onChange={(e) =>
+            updateLocalized("text", e.target.value)
+          }
+          rows={5}
+          className={`${inputClassName} resize-none leading-6`}
+        />
+      </Field>
+
+      <Field label="Image">
+        <ImageUpload
+          value={content.image}
+          onChange={(image) =>
+            onChange({
+              ...content,
+              image,
+            })
+          }
+        />
+      </Field>
+
+      <Field label="Button link">
+        <input
+          value={content.button?.href ?? ""}
+          onChange={(e) =>
+            updateButton("href", e.target.value)
+          }
+          placeholder="/booking"
+          className={inputClassName}
+        />
+      </Field>
     </div>
-  );
+  </div>
+);
 }

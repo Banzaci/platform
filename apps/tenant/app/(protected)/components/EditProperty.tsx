@@ -97,19 +97,17 @@ export default function EditProperty({
             return {
               url: image.url,
               publicId: image.publicId!,
+              position: image.position,
             };
           }
-
           const uploaded = await uploadImage(image.file);
-
           return {
             url: uploaded.url,
             publicId: uploaded.public_id,
+            position: image.position,
           };
         })
       );
-      console.log("FORM IMAGES:", form.images);
-      console.log("UPLOADED IMAGES:", uploadedImages);
       const response = await apiClient.api<Property>(
         `v1/tenants/${tenantId}/properties/${property.id}`,
         {
@@ -166,8 +164,6 @@ export default function EditProperty({
   return (
   <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-3 backdrop-blur-[2px] sm:p-6">
     <div className="flex max-h-[94vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-black/5 bg-[#f7f7f8] shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
-      
-      {/* Header */}
       <header className="flex shrink-0 items-start justify-between border-b border-black/5 bg-white px-6 py-5 sm:px-8">
         <div className="relative">
           <DevLabel
@@ -181,7 +177,6 @@ export default function EditProperty({
             Manage details, capacity, pricing and amenities.
           </p>
         </div>
-
         <button
           type="button"
           onClick={onClose}
@@ -191,7 +186,6 @@ export default function EditProperty({
           <X className="h-[18px] w-[18px]" />
         </button>
       </header>
-
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-3xl space-y-5 p-5 sm:p-8">
@@ -361,7 +355,7 @@ export default function EditProperty({
       <footer className="shrink-0 border-t border-black/5 bg-white px-6 py-4 sm:px-8">
         <div className="flex items-center justify-between">
           <span className="hidden text-xs text-gray-400 sm:block">
-            Changes won't be visible until you save.
+            Changes won&apos;t be visible until you save.
           </span>
 
           <div className="ml-auto flex items-center gap-2">
