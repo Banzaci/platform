@@ -74,26 +74,18 @@ async def delete_tenant_cloudinary_assets(
     tenant_id: str,
 ) -> None:
     try:
-        tenant_folder = (
-            f"{CLOUDINARY_TENANTS_ROOT}/{tenant_id}"
-        )
-        prefix = f"{tenant_folder}/"
+        tag = f"tenant:{tenant_id}"
 
         await asyncio.to_thread(
-            api.delete_resources_by_prefix,
-            prefix,
+            api.delete_resources_by_tag,
+            tag,
             resource_type="image",
         )
 
         await asyncio.to_thread(
-            api.delete_resources_by_prefix,
-            prefix,
+            api.delete_resources_by_tag,
+            tag,
             resource_type="raw",
-        )
-
-        await asyncio.to_thread(
-            api.delete_folder,
-            tenant_id,
         )
 
     except Exception:
