@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, X } from "lucide-react";
-import PropertyImagesEditor from "./PropertyImagesEditor";
+import PropertyImagesEditor, { EditablePropertyImage } from "./PropertyImagesEditor";
 import BasePriceEditor, { BasePrice, isValidBasePrice } from "./price/BasePriceEditor";
 import { Property } from "@/types";
 import { apiClient } from "@/libs/api";
@@ -13,6 +13,15 @@ type Props = {
   property: Property;
   onClose: () => void;
   onSaved: (property: Property) => void;
+};
+
+type ImageResponse = {
+  url: string;
+  public_id: string;
+};
+
+type EditableProperty = Omit<Property, "images"> & {
+  images: EditablePropertyImage[];
 };
 
 const amenities = [
@@ -35,7 +44,8 @@ export default function EditProperty({
   onClose,
   onSaved,
 }: Props) {
-  const [form, setForm] = useState(property);
+  const [form, setForm] = useState<EditableProperty>(property);
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [basePrice, setBasePrice] = useState<BasePrice>({
     daily_price: property.base_price?.daily_price ?? 0,
@@ -43,9 +53,9 @@ export default function EditProperty({
     monthly_price: property.base_price?.monthly_price ?? null,
   });
 
-  function update<K extends keyof Property>(
+  function update<K extends keyof EditableProperty>(
     key: K,
-    value: Property[K]
+    value: EditableProperty[K]
   ) {
     setForm((current) => ({
       ...current,
@@ -64,10 +74,42 @@ export default function EditProperty({
     );
   }
 
+  async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("path", "property");
+
+    return apiClient.api<ImageResponse>(
+      `v1/tenants/${tenantId}/uploads/image`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+  }
+
   async function save() {
     setSaving(true);
-
     try {
+      const uploadedImages = await Promise.all(
+        form.images.map(async (image) => {
+          if (!image.file) {
+            return {
+              url: image.url,
+              publicId: image.publicId!,
+            };
+          }
+
+          const uploaded = await uploadImage(image.file);
+
+          return {
+            url: uploaded.url,
+            publicId: uploaded.public_id,
+          };
+        })
+      );
+      console.log("FORM IMAGES:", form.images);
+      console.log("UPLOADED IMAGES:", uploadedImages);
       const response = await apiClient.api<Property>(
         `v1/tenants/${tenantId}/properties/${property.id}`,
         {
@@ -81,7 +123,7 @@ export default function EditProperty({
             bathrooms: form.bathrooms,
             units: form.units,
             amenities: form.amenities,
-            images: form.images,
+            images: uploadedImages,
             is_open: form.is_open,
           }),
         }
@@ -96,13 +138,27 @@ export default function EditProperty({
       );
 
       onSaved(response);
-      onClose();
+      if (imageToDelete) {
+        await deleteImage(imageToDelete);
+      }
       window.location.reload();
     } catch (error) {
       console.error("Update property failed:", error);
     } finally {
       setSaving(false);
     }
+  }
+
+  async function deleteImage(publicId: string) {
+    await apiClient.api(
+      `v1/tenants/${tenantId}/uploads/image`,
+      {
+        method: "DELETE",
+        body: JSON.stringify({
+          public_id: publicId,
+        }),
+      }
+    );
   }
 
   const canSave = isValidBasePrice(basePrice);
@@ -188,6 +244,7 @@ export default function EditProperty({
               tenantId={tenantId}
               images={form.images}
               onChange={(images) => update("images", images)}
+              onDelete={(publicId) => setImageToDelete(publicId)}
             />
           </section>
 

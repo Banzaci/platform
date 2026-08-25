@@ -3,8 +3,9 @@ import logging
 
 from pydantic import BaseModel
 import cloudinary.uploader
+from typing import Literal
 from sqlalchemy import select
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status, Form
 from app.models.tenant_font import TenantFont
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import require_tenant_access, require_permission
@@ -65,6 +66,7 @@ async def upload_tenant_logo(
 async def upload_tenant_image(
     tenant_id: uuid.UUID,
     file: UploadFile = File(...),
+    path: Literal["section", "property"] = Form("section"),
     db: AsyncSession = Depends(get_db),
     _access=Depends(require_tenant_access),
 ):
@@ -86,12 +88,10 @@ async def upload_tenant_image(
         image = await upload_image(
             file=file,
             tenant_id=str(tenant_id),
-            path="section",
+            path=path,
         )
 
-        await delete_tenant_cache_for_tenant(
-            tenant
-        )
+        await delete_tenant_cache_for_tenant(tenant)
 
         return image
 
@@ -99,13 +99,7 @@ async def upload_tenant_image(
         raise
 
     except Exception as e:
-        logger.exception(
-            "Failed to upload tenant image",
-            extra={
-                "tenant_id": str(tenant_id),
-                "filename": file.filename,
-            },
-        )
+        logger.exception("Failed to upload tenant image")
 
         raise HTTPException(
             status_code=500,
