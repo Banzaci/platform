@@ -67,14 +67,10 @@ export default function BasePriceEditor({
   );
 
   return (
-    <div className="border-t pt-6">
-      <h3 className="mb-5 text-lg font-semibold">
-        Base price
-      </h3>
-
+    <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-3">
         <PriceField
-          label="Daily price"
+          label="Nightly"
           value={value.daily_price}
           onChange={(price) =>
             update("daily_price", price)
@@ -82,35 +78,30 @@ export default function BasePriceEditor({
         />
 
         <PriceField
-          label="Weekly price"
+          label="Weekly"
           value={value.weekly_price}
           onChange={(price) =>
             update("weekly_price", price)
           }
+          discount={weeklyDiscount}
         />
 
         <PriceField
-          label="Monthly price"
+          label="Monthly"
           value={value.monthly_price}
           onChange={(price) =>
             update("monthly_price", price)
           }
+          discount={monthlyDiscount}
         />
       </div>
 
-      <div className="mt-4 flex gap-3 text-sm">
-        {weeklyDiscount !== null && (
-          <span className="rounded-full bg-gray-100 px-3 py-1">
-            Weekly {weeklyDiscount}% discount
-          </span>
-        )}
-
-        {monthlyDiscount !== null && (
-          <span className="rounded-full bg-gray-100 px-3 py-1">
-            Monthly {monthlyDiscount}% discount
-          </span>
-        )}
-      </div>
+      {(weeklyDiscount !== null ||
+        monthlyDiscount !== null) && (
+        <p className="text-xs text-gray-400">
+          Discounts are calculated against the nightly rate.
+        </p>
+      )}
     </div>
   );
 }
@@ -119,33 +110,55 @@ function PriceField({
   label,
   value,
   onChange,
+  discount,
 }: {
   label: string;
   value: number | null;
   onChange: (value: number | null) => void;
+  discount?: number | null;
 }) {
   return (
-    <label className="block">
-      <span className="mb-2 block text-sm font-medium">
-        {label}
-      </span>
+    <label className="block space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-gray-700">
+          {label}
+        </span>
 
-      <input
-        type="number"
-        min={0}
-        step="0.01"
-        value={value ?? ""}
-        onChange={(e) => {
-          const value = e.target.value;
+        {discount !== null && discount !== undefined && (
+          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+            {discount}% off
+          </span>
+        )}
+      </div>
 
-          onChange(
-            value === ""
-              ? null
-              : Number(value)
-          );
-        }}
-        className="w-full rounded-lg border px-4 py-3"
-      />
+      <div className="relative">
+        <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm text-gray-400">
+          $
+        </span>
+
+        <input
+          type="number"
+          min={0}
+          step="0.01"
+          value={value ?? ""}
+          onChange={(e) => {
+            const inputValue = e.target.value;
+
+            onChange(
+              inputValue === ""
+                ? null
+                : Number(inputValue)
+            );
+          }}
+          className="
+            w-full rounded-xl border border-gray-200 bg-white
+            py-3 pl-8 pr-4 text-sm text-gray-900
+            outline-none transition
+            hover:border-gray-300
+            focus:border-gray-900 focus:ring-1 focus:ring-gray-900
+          "
+        />
+      </div>
     </label>
   );
 }

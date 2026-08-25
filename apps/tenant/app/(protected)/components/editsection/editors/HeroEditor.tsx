@@ -1,20 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ImageUpload from "../../ImageUpload";
 
 type Props = {
   content: any;
-  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function HeroEditor({
   content,
-  tenantId,
   onChange,
 }: Props) {
-  function updateLocalized(
-    key: "heading" | "text",
-    value: string
-  ) {
+  function updateLocalized(key: "heading" | "text", value: string) {
     onChange({
       ...content,
       [key]: {
@@ -23,11 +19,7 @@ export default function HeroEditor({
       },
     });
   }
-
-  function updateButton(
-    key: "label" | "href",
-    value: string
-  ) {
+  function updateButton(key: "label" | "href", value: string) {
     if (key === "label") {
       onChange({
         ...content,
@@ -93,12 +85,11 @@ export default function HeroEditor({
             Uplaod image
           </span>
           <ImageUpload
-            tenantId={tenantId}
             value={content.image}
-            onChange={(url) =>
+            onChange={(image) =>
               onChange({
                 ...content,
-                image: url,
+                image,
               })
             }
           />

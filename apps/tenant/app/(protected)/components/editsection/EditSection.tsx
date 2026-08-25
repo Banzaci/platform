@@ -10,6 +10,11 @@ import { SectionTheme, TenantFont } from "@/types";
 import EditButton from "../EditButton";
 import { apiClient } from "@/libs/api";
 
+type ImageResponse = {
+  url: string;
+  public_id: string;
+};
+
 export default function EditSection({
   section,
   pageId,
@@ -28,6 +33,20 @@ export default function EditSection({
   const [content, setContent] = useState(section.content ?? {});
   const [localTheme, setLocalTheme] = useState(section.theme ?? {});
   const [saving, setSaving] = useState(false);
+
+  async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return apiClient.api<ImageResponse>(
+      `v1/tenants/${tenantId}/uploads/image`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+  }
+  
   function openEditor() {
     setContent(section.content ?? {});
     setOpen(true);
@@ -38,18 +57,55 @@ export default function EditSection({
     setOpen(false);
   }
 
+  async function deleteImage(publicId: string) {
+    await apiClient.api(
+      `v1/tenants/${tenantId}/uploads/image`,
+      {
+        method: "DELETE",
+        body: JSON.stringify({
+          public_id: publicId,
+        }),
+      }
+    );
+  }
+
   async function save() {
     setSaving(true);
-    const updatedSections = sections.map((item) =>
-      item.id === section.id
-        ? {
-            ...item,
-            content,
-            theme: localTheme,
-          }
-        : item
-    );
     try {
+      let updatedContent = content;
+      const image = content.image;
+
+      // Ny eller ersatt bild
+      if (image?.file) {
+        const uploaded = await uploadImage(image.file);
+
+        updatedContent = {
+          ...content,
+          image: {
+            url: uploaded.url,
+            publicId: uploaded.public_id,
+          },
+        };
+      }
+
+      // Bild borttagen
+      else if (image?.deletePublicId) {
+        updatedContent = {
+          ...content,
+          image: undefined,
+        };
+      }
+
+      const updatedSections = sections.map((item) =>
+        item.id === section.id
+          ? {
+              ...item,
+              content: updatedContent,
+              theme: localTheme,
+            }
+          : item
+      );
+
       await apiClient.api<any>(
         `v1/tenants/${tenantId}/pages/${pageId}`,
         {
@@ -59,6 +115,15 @@ export default function EditSection({
           }),
         }
       );
+
+      if (image?.file && image.publicId) {
+        await deleteImage(image.publicId);
+      }
+
+      if (image?.deletePublicId) {
+        await deleteImage(image.deletePublicId);
+      }
+
       window.location.reload();
     } catch (error) {
       console.error("Save section failed:", error);
@@ -115,7 +180,6 @@ export default function EditSection({
                   section={section}
                   content={content}
                   onChange={setContent}
-                  tenantId={tenantId}
                 />
                 <ThemeEditor
                   theme={localTheme}

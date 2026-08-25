@@ -3,13 +3,11 @@ import ImageUpload from "../../ImageUpload";
 
 type Props = {
   content: any;
-  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function ImageTextEditor({
   content,
-  tenantId,
   onChange,
 }: Props) {
   function updateLocalized(
@@ -104,12 +102,11 @@ export default function ImageTextEditor({
             Uplaod image
           </span>
           <ImageUpload
-            tenantId={tenantId}
             value={content.image}
-            onChange={(url) =>
+            onChange={(image) =>
               onChange({
                 ...content,
-                image: url,
+                image,
               })
             }
           />

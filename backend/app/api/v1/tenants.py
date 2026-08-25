@@ -1,6 +1,8 @@
 
 import uuid
 from datetime import date
+import cloudinary.uploader
+
 from calendar import monthrange
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
@@ -1384,8 +1386,6 @@ async def get_tenant_fonts(
     )
 
     return result.scalars().all()
-
-import cloudinary.uploader
 
 @router.delete("/{tenant_id}/fonts/{font_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_tenant_font(

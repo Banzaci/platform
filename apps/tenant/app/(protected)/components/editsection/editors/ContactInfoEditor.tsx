@@ -12,13 +12,11 @@ type Props = {
     };
     [key: string]: any;
   };
-  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function ContactInfoEditor({
   content,
-  tenantId,
   onChange,
 }: Props) {
   function update(

@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 from pydantic import BaseModel
 import cloudinary.uploader
@@ -14,6 +15,7 @@ from app.core.redis import delete_tenant_cache_for_tenant
 from app.models.tenant import Tenant
 from app.schemas.entities import TenantOut
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 class DeleteImageRequest(BaseModel):
@@ -66,27 +68,49 @@ async def upload_tenant_image(
     db: AsyncSession = Depends(get_db),
     _access=Depends(require_tenant_access),
 ):
-    result = await db.execute(
-        select(Tenant).where(
-            Tenant.id == tenant_id
+    try:
+        result = await db.execute(
+            select(Tenant).where(
+                Tenant.id == tenant_id
+            )
         )
-    )
-        
-    tenant = result.scalar_one_or_none()
-    
-    if not tenant:
+
+        tenant = result.scalar_one_or_none()
+
+        if not tenant:
+            raise HTTPException(
+                status_code=404,
+                detail="Tenant not found",
+            )
+
+        image = await upload_image(
+            file=file,
+            tenant_id=str(tenant_id),
+            path="section",
+        )
+
+        await delete_tenant_cache_for_tenant(
+            tenant
+        )
+
+        return image
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.exception(
+            "Failed to upload tenant image",
+            extra={
+                "tenant_id": str(tenant_id),
+                "filename": file.filename,
+            },
+        )
+
         raise HTTPException(
-            status_code=404,
-            detail="Tenant not found",
-        )
-    await delete_tenant_cache_for_tenant(
-        tenant
-    )
-    return await upload_image(
-        file=file,
-        tenant_id=str(tenant_id),
-        path="section"
-    )
+            status_code=500,
+            detail="Failed to upload image",
+        ) from e
 
 @router.delete("/tenants/{tenant_id}/uploads/image")
 async def delete_tenant_image(

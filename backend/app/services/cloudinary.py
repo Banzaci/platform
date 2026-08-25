@@ -1,9 +1,14 @@
 import uuid
+import logging
 
 from cloudinary import config
-import cloudinary.uploader
-from fastapi import UploadFile
 from app.core.config import settings
+
+from fastapi import HTTPException, UploadFile
+from starlette.concurrency import run_in_threadpool
+import cloudinary.uploader
+
+logger = logging.getLogger(__name__)
 
 config(
     cloud_name=settings.cloudinary_cloud_name,
@@ -30,34 +35,70 @@ async def upload_font_file(
     )
     return result["secure_url"], result["public_id"]
 
+
+
+
 async def upload_image(
-    file,
+    file: UploadFile,
     tenant_id: str,
     path: str = "",
 ):
-    filename = file.filename or "image"
-    name = filename.rsplit(".", 1)[0]
+    try:
+        if not file.content_type or not file.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=400,
+                detail="File must be an image",
+            )
 
-    folder = (
-        f"{tenant_id}/{path.strip('/')}"
-        if path
-        else tenant_id
-    )
+        filename = file.filename or "image"
+        name = filename.rsplit(".", 1)[0]
 
-    public_id = f"{uuid.uuid4()}-{name}"
+        folder = (
+            f"{tenant_id}/{path.strip('/')}"
+            if path
+            else tenant_id
+        )
 
-    result = cloudinary.uploader.upload(
-        file.file,
-        folder=folder,
-        public_id=public_id,
-        resource_type="image",
-        overwrite=False,
-    )
+        public_id = f"{uuid.uuid4()}-{name}"
 
-    return {
-        "url": result["secure_url"],
-        "public_id": result["public_id"],
-        "width": result.get("width"),
-        "height": result.get("height"),
-        "format": result.get("format"),
-    }
+        result = await run_in_threadpool(
+            cloudinary.uploader.upload,
+            file.file,
+            folder=folder,
+            public_id=public_id,
+            resource_type="image",
+            overwrite=False,
+        )
+
+        secure_url = result.get("secure_url")
+        result_public_id = result.get("public_id")
+
+        if not secure_url or not result_public_id:
+            raise RuntimeError(
+                "Cloudinary returned an invalid upload response"
+            )
+
+        return {
+            "url": secure_url,
+            "public_id": result_public_id,
+            "width": result.get("width"),
+            "height": result.get("height"),
+            "format": result.get("format"),
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        logger.exception(
+            "Cloudinary image upload failed",
+            extra={
+                "tenant_id": tenant_id,
+                "filename": file.filename,
+            },
+        )
+
+        raise HTTPException(
+            status_code=502,
+            detail="Image upload failed",
+        ) from e

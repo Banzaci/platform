@@ -13,14 +13,12 @@ import RoomGridEditor from "./editors/RoomGridEditor";
 type Props = {
   section: any;
   content: any;
-  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function ContentEditor({
   section,
   content,
-  tenantId,
   onChange,
 }: Props) {
   switch (section.type) {
@@ -29,7 +27,6 @@ export default function ContentEditor({
         <HeroEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
 
@@ -38,7 +35,6 @@ export default function ContentEditor({
         <ImageTextEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
 
@@ -47,7 +43,6 @@ export default function ContentEditor({
         <GalleryEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
   case "amenities":
@@ -71,7 +66,6 @@ export default function ContentEditor({
         <CardGridEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
     case "contact-info":
@@ -79,7 +73,6 @@ export default function ContentEditor({
         <ContactInfoEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
     case "contact-form":
@@ -87,7 +80,6 @@ export default function ContentEditor({
         <ContactFormEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
     case "room-grid":
@@ -95,7 +87,6 @@ export default function ContentEditor({
         <RoomGridEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
     case "property-grid":
@@ -103,7 +94,6 @@ export default function ContentEditor({
         <PropertyGridEditor
           content={content}
           onChange={onChange}
-          tenantId={tenantId}
         />
       );
     default:

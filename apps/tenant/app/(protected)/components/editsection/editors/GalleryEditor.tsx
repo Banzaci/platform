@@ -14,13 +14,11 @@ type Props = {
     images?: GalleryImage[];
     [key: string]: any;
   };
-  tenantId: string;
   onChange: (content: any) => void;
 };
 
 export default function GalleryEditor({
   content,
-  tenantId,
   onChange,
 }: Props) {
   const images = content.images ?? [];
@@ -119,17 +117,15 @@ export default function GalleryEditor({
                   Uplaod image
                 </span>
                 <ImageUpload
-                  tenantId={tenantId}
                   value={content.image}
-                  onChange={(url) =>
+                  onChange={(image) =>
                     onChange({
                       ...content,
-                      image: url,
+                      image,
                     })
                   }
                 />
               </label>
-
               <label className="block">
                 <span className="mb-1 block text-xs text-gray-500">
                   Alt text
