@@ -43,7 +43,6 @@ export default function PropertySlideshow({
         : current - 1
     );
   }
-
   function next() {
     setIndex((current) =>
       current === images.length - 1
