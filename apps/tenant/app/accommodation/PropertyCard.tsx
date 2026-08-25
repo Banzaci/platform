@@ -114,15 +114,13 @@ export default function PropertyCard({
             <BedDouble className="h-3.5 w-3.5" />
             {property.beds} beds
           </span>
-
           <span className="flex items-center gap-1.5">
             <Bath className="h-3.5 w-3.5" />
             {property.bathrooms} bathrooms
           </span>
         </div>
-
         {property.amenities?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-3 flex flex-wrap gap-1.5 px-2">
             {property.amenities
               .slice(0, 4)
               .map((amenity) => (
@@ -138,7 +136,6 @@ export default function PropertyCard({
               ))}
           </div>
         )}
-
         <div className="mt-4">
           {checkIn && checkOut && property.is_available ? (
             <a
