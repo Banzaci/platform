@@ -1,4 +1,4 @@
-import { TenantProperty, SectionTheme, GlobalTheme } from "@/types";
+import { TenantProperty, GlobalTheme } from "@/types";
 import PropertySlideshow from "../(protected)/components/property/PropertySlideshow";
 import {
   User,
@@ -31,7 +31,6 @@ export default function PropertyCard({
   }
 
   const bookingUrl = `/accommodation/${property.id}` + (href.size ? `?${href.toString()}` : "");
-
   const {
     card_background_color,
     card_text_color,
@@ -71,7 +70,7 @@ export default function PropertyCard({
           padding: card_padding,
         }}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 p-2">
           <div className="min-w-0">
             <h2 className="text-lg font-semibold">
               {property.name}
@@ -106,19 +105,11 @@ export default function PropertyCard({
             </div>
           )}
         </div>
-
-        <div
-          className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-y py-2.5 text-xs"
-          style={{
-            borderColor: card_border_color,
-            color: card_secondary_color,
-          }}
-        >
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 p-2 text-xs">
           <span className="flex items-center gap-1.5">
             <User className="h-3.5 w-3.5" />
             {property.max_guests} guests
           </span>
-
           <span className="flex items-center gap-1.5">
             <BedDouble className="h-3.5 w-3.5" />
             {property.beds} beds

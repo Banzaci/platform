@@ -3,6 +3,7 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { GlobalTheme } from "@/types";
 import { ColorField } from "../ColorField";
 
+type DateKey = keyof NonNullable<GlobalTheme["dateSelector"]>;
 type Props = {
   globalTheme: GlobalTheme;
   onChange: (globalTheme: GlobalTheme) => void;
@@ -12,12 +13,22 @@ export default function DateSelectorThemeEditor({
   globalTheme,
   onChange,
 }: Props) {
-  function update(key: keyof NonNullable<GlobalTheme["dateSelector"]>, value: string) {
+  function updateDate<K extends DateKey>(key: K, value: NonNullable<GlobalTheme["dateSelector"]>[K]) {
     onChange({
       ...globalTheme,
       dateSelector: {
-        ...globalTheme.dateSelector,
+        ...(globalTheme.dateSelector ?? {}),
         [key]: value,
+      },
+    });
+  }
+
+  function resetDate(key: DateKey) {
+    onChange({
+      ...globalTheme,
+      dateSelector: {
+        ...(globalTheme.dateSelector ?? {}),
+        [key]: undefined,
       },
     });
   }
@@ -33,75 +44,70 @@ export default function DateSelectorThemeEditor({
     date_width,
   } = resolveSectionTheme(globalTheme);
   return (
-    <div className="relative mt-8 border-t pt-6">
+    <div className="relative">
       <DevLabel
         name="DateSelectorThemeEditor"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/editsection/DateSelectorThemeEditor.tsx"
       />
-      <h4 className="mb-5 font-semibold">
-        Date selector
-      </h4>
-
       <div className="grid grid-cols-2 gap-5">
         <ColorField
           label="Selected color"
           value={date_selected_color}
           onChange={(value) =>
-            update(
-              "selectedColor",
-              value
-            )
+            updateDate("selectedColor", value)
           }
-          onReset={() => reset("backgroundColor")}
+          onReset={() =>
+            resetDate("selectedColor")
+          }
         />
         <ColorField
           label="Secondary color"
           value={date_secondary}
           onChange={(value) =>
-            update(
-              "secondaryColor",
-              value
-            )
+            updateDate("secondaryColor", value)
+          }
+          onReset={() =>
+            resetDate("secondaryColor")
           }
         />
         <ColorField
           label="Selected background color"
           value={date_selected_background}
           onChange={(value) =>
-            update(
-              "selectedBackgroundColor",
-              value
-            )
+            updateDate("selectedBackgroundColor", value)
+          }
+          onReset={() =>
+            resetDate("selectedBackgroundColor")
           }
         />
         <ColorField
           label="Background color"
           value={date_background}
           onChange={(value) =>
-            update(
-              "backgroundColor",
-              value
-            )
+            updateDate("backgroundColor", value)
+          }
+          onReset={() =>
+            resetDate("backgroundColor")
           }
         />
         <ColorField
           label="Text color"
           value={date_text}
           onChange={(value) =>
-            update(
-              "textColor",
-              value
-            )
+            updateDate("textColor", value)
+          }
+          onReset={() =>
+            resetDate("textColor")
           }
         />
         <ColorField
           label="Border color"
           value={date_border}
           onChange={(value) =>
-            update(
-              "borderColor",
-              value
-            )
+            updateDate("borderColor", value)
+          }
+          onReset={() =>
+            resetDate("borderColor")
           }
         />
         <label>
@@ -111,9 +117,9 @@ export default function DateSelectorThemeEditor({
           <select
             value={ date_width ?? "50%" }
             onChange={(e) =>
-              update(
+              updateDate(
                 "width",
-                e.target.value
+                e.target.value as "50%" | "100%" | undefined
               )
             }
             className="w-full rounded-lg border px-3 py-2"
@@ -127,12 +133,12 @@ export default function DateSelectorThemeEditor({
           <span className="mb-2 block text-sm font-medium">
             Shadow
           </span>
-          <select
+          <select //TODO make component
             value={ date_shadow ?? "sm" }
             onChange={(e) =>
-              update(
+              updateDate(
                 "shadow",
-                e.target.value
+                e.target.value as "none" | "sm" | "md" | "lg" | undefined
               )
             }
             className="w-full rounded-lg border px-3 py-2"

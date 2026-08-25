@@ -6,9 +6,10 @@ import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
-import { SectionTheme, TenantFont } from "@/types";
+import { TenantFont } from "@/types";
 import EditButton from "../EditButton";
 import { apiClient } from "@/libs/api";
+import { SectionType } from "../../types/section";
 
 type ImageResponse = {
   url: string;
@@ -22,11 +23,10 @@ export default function EditSection({
   sections,
   fonts,
 }: {
-  section: any;
+  section: SectionType;
   tenantId: string;
   pageId: string;
-  sections: any[];
-  theme: SectionTheme,
+  sections: SectionType[];
   fonts: TenantFont[]
 }) {
   const [open, setOpen] = useState(false);
@@ -74,8 +74,6 @@ export default function EditSection({
     try {
       let updatedContent = content;
       const image = content.image;
-
-      // Ny eller ersatt bild
       if (image?.file) {
         const uploaded = await uploadImage(image.file);
         updatedContent = {
@@ -83,7 +81,7 @@ export default function EditSection({
           image: {
             url: uploaded.url,
             publicId: uploaded.public_id,
-            position: content.image.position,
+            position: content?.image?.position,
           },
         };
       }
@@ -150,7 +148,6 @@ export default function EditSection({
               "
               onMouseDown={(e) => e.stopPropagation()}
             >
-              {/* Header */}
               <div className="flex items-center justify-between bg-gray-100 border-b border-b-gray-200 px-7 pt-5 pb-2">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-950">
@@ -169,8 +166,6 @@ export default function EditSection({
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
-              {/* Body */}
               <div className="flex-1 overflow-y-auto px-7 py-6">
                 <ContentEditor
                   section={section}

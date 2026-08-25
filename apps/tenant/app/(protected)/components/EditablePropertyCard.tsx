@@ -29,7 +29,6 @@ export default function EditablePropertyCard({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  
   async function save() {
     setSaving(true);
     console.log(JSON.stringify(globalTheme))
@@ -42,7 +41,7 @@ export default function EditablePropertyCard({
         }
       );
       setOpen(false);
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error(
         "Property theme save failed:",
@@ -64,7 +63,6 @@ export default function EditablePropertyCard({
         checkOut={checkOut}
         globalTheme={globalTheme}
       />
-
       {open && (
         <PropertyCardTheme
           globalTheme={globalTheme}

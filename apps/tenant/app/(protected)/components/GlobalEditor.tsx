@@ -7,6 +7,7 @@ import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
 import { ColorField } from "./ColorField";
 import { Field } from "./Field";
+import { SelectField } from "./SelectField";
 
 type GlobalBaseTheme = NonNullable<GlobalTheme["global"]>;
 type NavigationKey = keyof NonNullable<GlobalTheme["navigation"]>;
@@ -99,11 +100,7 @@ export default function GlobalEditor({
   }
 
   return (
-    <>
-      <DevLabel
-        name="GlobalEditor"
-        file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/GlobalEditor.tsx"
-      />
+    <div className="relative">
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -115,7 +112,11 @@ export default function GlobalEditor({
       {/* Modal */}
       {open && (
         <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/50 p-6 text-black">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+            <DevLabel
+              name="GlobalEditor"
+              file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/GlobalEditor.tsx"
+            />
             <div className="mb-6 flex items-center justify-between">
               <h2 className="text-xl font-semibold">
                 Global Theme
@@ -172,63 +173,60 @@ export default function GlobalEditor({
                   resetGlobal("secondaryColor")
                 }
               />
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Font family
-                </span>
-                <select
-                  value={form?.fonts?.body ?? ""}
-                  onChange={(e) =>
-                    setForm((current) => ({
-                      ...current,
-                      fonts: {
-                        ...(current.fonts ?? {}),
-                        body: e.target.value || undefined,
-                      },
-                    }))
-                  }
-                  className="w-full rounded-lg border px-4 py-3"
-                >
-                  <option value="">Default font</option>
-                   {fonts.map((font) => (
-                    <option
-                      key={font.id}
-                      value={font.name}
-                    >
-                      {font.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Heading font
-                </span>
-                <select
-                  value={form?.fonts?.body ?? ""}
-                  onChange={(e) =>
-                    setForm((current) => ({
-                      ...current,
-                      fonts: {
-                        ...(current.fonts ?? {}),
-                        heading: e.target.value || undefined,
-                      },
-                    }))
-                  }
-                  className="w-full rounded-lg border px-4 py-3"
-                >
-                  <option value="">Default font</option>
-                  {fonts.map((font) => (
-                    <option
-                      key={font.id}
-                      value={font.name}
-                    >
-                      {font.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <SelectField
+                label="Body font"
+                value={form.fonts?.body}
+                placeholder="Body font"
+                options={fonts.map((font) => ({
+                  value: font.name,
+                  label: font.name,
+                }))}
+                onChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    fonts: {
+                      ...(current.fonts ?? {}),
+                      body: value || undefined,
+                    },
+                  }))
+                }
+                onReset={() =>
+                  setForm((current) => ({
+                    ...current,
+                    fonts: {
+                      ...(current.fonts ?? {}),
+                      body: undefined,
+                    },
+                  }))
+                }
+              />
+              <SelectField
+                label="Heading font"
+                value={form.fonts?.heading}
+                placeholder="Heading font"
+                options={fonts.map((font) => ({
+                  value: font.name,
+                  label: font.name,
+                }))}
+                onChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    fonts: {
+                      ...(current.fonts ?? {}),
+                      heading: value || undefined,
+                    },
+                  }))
+                }
+                onReset={() =>
+                  setForm((current) => ({
+                    ...current,
+                    fonts: {
+                      ...(current.fonts ?? {}),
+                      heading: undefined,
+                    },
+                  }))
+                }
+              />
               {/* <Field
                 label="Font size"
                 overridden={!!form.global?.fontSize}
@@ -242,7 +240,7 @@ export default function GlobalEditor({
                   className="w-full rounded-lg border px-4 py-3"
                 />
               </Field> */}
-              <div className="border-t pt-5">
+              <div className="my-5">
                 <h3 className="mb-4 text-base font-semibold">
                   Navigation
                 </h3>
@@ -287,32 +285,24 @@ export default function GlobalEditor({
                       resetNavigation("activeColor")
                     }
                   />
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium">
-                      Navigation font
-                    </span>
-                    <select
-                      value={form?.navigation?.fontFamily ?? ""}
-                      onChange={(e) =>
-                        updateNavigation(
-                          "fontFamily",
-                          e.target.value || undefined
-                        )
-                      }
-                      className="w-full rounded-lg border px-4 py-3"
-                    >
-                      <option value="">Default font</option>
-
-                      {fonts.map((font) => (
-                        <option
-                          key={font.id}
-                          value={font.name}
-                        >
-                          {font.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <SelectField
+                    label="Navigation font"
+                    value={form.navigation?.fontFamily}
+                    placeholder="Default font"
+                    options={fonts.map((font) => ({
+                      value: font.name,
+                      label: font.name,
+                    }))}
+                    onChange={(value) =>
+                      updateNavigation(
+                        "fontFamily",
+                        value || undefined
+                      )
+                    }
+                    onReset={() =>
+                      resetNavigation("fontFamily")
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -336,6 +326,6 @@ export default function GlobalEditor({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

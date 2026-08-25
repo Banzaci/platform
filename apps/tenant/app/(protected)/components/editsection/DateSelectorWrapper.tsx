@@ -62,21 +62,24 @@ export default function DateSelectorWrapper({
               className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-white text-black shadow-2xl"
               onMouseDown={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between border-b px-7 py-5">
-                <h2 className="text-xl font-semibold">
-                  Date selector design
-                </h2>
-
+              <div className="flex items-center justify-between bg-gray-100 border-b border-b-gray-200 px-7 pt-5 pb-2">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-950">
+                    Date selector design
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Edit the main content shown in this section.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   disabled={saving}
-                  className="rounded-full p-2 text-gray-500 hover:bg-gray-100"
+                  className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-black"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
-
               <div className="flex-1 overflow-y-auto px-7 py-6">
                 <DateSelectorThemeEditor
                   globalTheme={globalTheme}

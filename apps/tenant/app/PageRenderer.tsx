@@ -45,7 +45,6 @@ export default function PageRenderer({
           <EditableSection
             key={section.id}
             section={section}
-            theme={sectionTheme}
             pageId={page.id}
             tenantId={page.tenant_id}
             sections={page.sections}

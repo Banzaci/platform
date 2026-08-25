@@ -25,7 +25,7 @@ import DateSelectorWrapper from "../(protected)/components/editsection/DateSelec
 export default function PropertiesPageClient({ tenantId, globalTheme, sectionTheme }: {
   tenantId: string;
   sectionTheme?: SectionTheme;
-  globalTheme?: GlobalTheme;
+  globalTheme: GlobalTheme;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -35,7 +35,7 @@ export default function PropertiesPageClient({ tenantId, globalTheme, sectionThe
   const checkOut = searchParams.get("checkOut");
   const [properties, setProperties] = useState<TenantProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [localGlobalTheme, setLocalGlobalTheme] = useState<GlobalTheme>(globalTheme ?? {});
+  const [localGlobalTheme, setLocalGlobalTheme] = useState<GlobalTheme>(globalTheme);
 
   async function saveTheme() {
     await apiClient.api<any>(
@@ -232,14 +232,14 @@ export default function PropertiesPageClient({ tenantId, globalTheme, sectionThe
           </div>
         ) : (
           <div
-            // className={getGridClass(
-            //   localTheme.layout?.columns
-            // )}
-            // style={{
-            //   gap: 
-            //     localTheme.layout?.gap ??
-            //     "24px",
-            // }}
+            className={getGridClass(
+              localGlobalTheme.layout?.columns
+            )}
+            style={{
+              gap: 
+                localGlobalTheme.layout?.gap ??
+                "24px",
+            }}
           >
             {properties.map((property) => (
               <EditablePropertyCard

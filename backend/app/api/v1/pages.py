@@ -182,7 +182,10 @@ async def update_page(
         )
 
         page = result.scalar_one_or_none()
-
+        print("payload")
+        print(payload)
+        print("payload.theme")
+        print(payload.theme)
         if not page:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -204,6 +207,7 @@ async def update_page(
         await db.commit()
         await db.refresh(page)
 
+        print("------------------------------------------------------------------------")
         await delete_page_cache(
             str(tenant_id),
             page.slug,

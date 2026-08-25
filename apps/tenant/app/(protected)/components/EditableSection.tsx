@@ -7,14 +7,13 @@ import AddSection from "./editsection/AddSection";
 import MoveSection from "./MoveSection";
 import DeleteSection from "./DeleteSection";
 import { useIsEditor } from "@/hooks/useIsEditor";
-import { SectionTheme, TenantFont } from "@/types";
+import { TenantFont } from "@/types";
 
 type Props = {
   section: any;
   pageId: string;
   tenantId: string;
   sections: any[];
-  theme: SectionTheme;
   children: ReactNode;
   fonts: TenantFont[]
 };
@@ -24,7 +23,6 @@ export default function EditableSection({
   pageId,
   tenantId,
   sections,
-  theme,
   children,
   fonts,
 }: Props) {
@@ -40,7 +38,6 @@ export default function EditableSection({
             pageId={pageId}
             tenantId={tenantId}
             sections={sections}
-            theme={theme}
             fonts={fonts}
           />
           <AddSection

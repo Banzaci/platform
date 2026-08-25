@@ -1,5 +1,6 @@
 import { Palette } from "lucide-react";
 import { Field } from "./Field";
+import DevLabel from "@/helpers/DevLabel";
 
 export function ColorField({
   label,
@@ -18,7 +19,11 @@ export function ColorField({
       overridden={!!value}
       onReset={onReset}
     >
-      <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-2.5 transition hover:border-gray-300">
+      <div className="relative flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-2.5 transition hover:border-gray-300">
+        <DevLabel
+          name="CF"
+          file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/ColorField.tsx"
+        />
         {value ? (
           <input
             type="color"

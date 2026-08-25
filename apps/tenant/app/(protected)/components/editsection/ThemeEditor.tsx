@@ -1,6 +1,6 @@
 "use client";
 
-import { GlobalTheme, SectionTheme, TenantFont } from "@/types";
+import { SectionTheme, TenantFont } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import { ColorField } from "../ColorField";
 import { Field } from "../Field";
@@ -19,27 +19,6 @@ export default function ThemeEditor({
   fonts,
   onChange,
 }: Props) {
-  function updateButton(key: keyof NonNullable<GlobalTheme["button"]>, value: string) {
-    onChange({
-      ...theme,
-      button: {
-        ...theme.button,
-        [key]: value,
-      },
-    });
-  }
-
-  function resetButton(key: keyof NonNullable<GlobalTheme["button"]>) {
-    const nextButton = {
-      ...(theme.button ?? {}),
-    };
-    delete nextButton[key];
-    onChange({
-      ...theme,
-      button: nextButton,
-    });
-  }
-
   function update(key: keyof SectionTheme, value: string) {
     onChange({
       ...theme,
@@ -80,7 +59,6 @@ export default function ThemeEditor({
             Customize the section background and text colors.
           </p>
         </div>
-
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <ColorField
             label="Background"
@@ -123,7 +101,7 @@ export default function ThemeEditor({
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field
+          <Field // TODO -> component
             label="Body font"
             overridden={!!theme.fontFamily}
             onReset={() => reset("fontFamily")}
@@ -185,43 +163,6 @@ export default function ThemeEditor({
           </Field>
         </div>
       </section>
-
-      {/* Button */}
-      <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
-        <div className="mb-5">
-          <h4 className="text-sm font-semibold text-gray-900">
-            Button
-          </h4>
-          <p className="mt-1 text-xs text-gray-500">
-            Override button colors inside this section.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <ColorField
-            label="Button color"
-            value={theme.button?.backgroundColor}
-            onChange={(value) =>
-              updateButton("backgroundColor", value)
-            }
-            onReset={() =>
-              resetButton("backgroundColor")
-            }
-          />
-
-          <ColorField
-            label="Button text"
-            value={theme.button?.textColor}
-            onChange={(value) =>
-              updateButton("textColor", value)
-            }
-            onReset={() =>
-              resetButton("textColor")
-            }
-          />
-        </div>
-      </section>
-
       {/* Spacing */}
       <section className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
         <div className="mb-5">

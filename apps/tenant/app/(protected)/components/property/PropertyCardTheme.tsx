@@ -73,33 +73,41 @@ export default function PropertyCardTheme({
   } = resolveSectionTheme(globalTheme);
 
   return (
-    <div
-      className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4"
-      onMouseDown={onClose}
-    >
-      <div
-        className="w-full max-w-md rounded-2xl bg-white p-6 text-black shadow-2xl"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onMouseDown={onClose}>
+            <div
+              className="
+                relative
+                flex max-h-[92vh] w-full max-w-2xl
+                flex-col overflow-hidden
+                rounded-3xl
+                bg-white
+                text-black
+                shadow-2xl
+              "
+              onMouseDown={(e) => e.stopPropagation()}
+            >
         <DevLabel
           name="PropertyCardTheme"
           file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardTheme.tsx"
         />
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            Property card design
-          </h2>
-
+        <div className="flex items-center justify-between bg-gray-100 border-b border-b-gray-200 px-7 pt-5 pb-2">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-950">
+              Property card design
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Edit the main content shown in this section.
+            </p>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 hover:bg-gray-100"
+            className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-black"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-2 gap-5 p-6">
           <ColorField
             label="Background"
             value={card_background_color}
@@ -247,13 +255,12 @@ export default function PropertyCardTheme({
             </select>
           </div>
         </div>
-
-        <div className="mt-8 flex justify-end">
+        <div className="flex justify-end gap-3 border-t border-t-gray-200 bg-gray-100 px-7 py-5">
           <button
             type="button"
             onClick={onSave}
             disabled={isSaving}
-            className="rounded-lg bg-black px-5 py-2.5 text-white disabled:opacity-50"
+            className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save"}
           </button>
