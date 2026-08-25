@@ -40,7 +40,6 @@ export default function EditablePropertyCard({
           body: JSON.stringify(globalTheme),
         }
       );
-      setOpen(false);
       window.location.reload();
     } catch (error) {
       console.error(

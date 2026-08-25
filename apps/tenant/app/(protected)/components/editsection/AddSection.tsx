@@ -194,7 +194,6 @@ export default function AddSection({
         }
       );
 
-      setOpen(false);
       window.location.reload();
     } catch (error) {
       console.error("Add section failed:", error);

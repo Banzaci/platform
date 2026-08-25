@@ -6,7 +6,7 @@ import { useState } from "react";
 import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
 import { ColorField } from "./ColorField";
-import { Field } from "./Field";
+import { Check, X } from "lucide-react";
 import { SelectField } from "./SelectField";
 
 type GlobalBaseTheme = NonNullable<GlobalTheme["global"]>;
@@ -90,8 +90,7 @@ export default function GlobalEditor({
           ),
         }
       );
-      setOpen(false);
-      // window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error("Theme save failed:", error);
     } finally {
@@ -111,27 +110,42 @@ export default function GlobalEditor({
 
       {/* Modal */}
       {open && (
-        <div className="fixed inset-0 z-110 flex items-center justify-center bg-black/50 p-6 text-black">
-          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onMouseDown={() => setOpen(false)}>
+          <div
+            className="
+              relative
+              flex max-h-[92vh] w-full max-w-2xl
+              flex-col overflow-hidden
+              rounded-3xl
+              bg-white
+              text-black
+              shadow-2xl
+            "
+            onMouseDown={(e) => e.stopPropagation()}
+          >
             <DevLabel
               name="GlobalEditor"
               file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/GlobalEditor.tsx"
             />
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-xl font-semibold">
-                Global Theme
-              </h2>
-
+            <div className="flex items-center justify-between bg-gray-100 border-b border-b-gray-200 px-7 pt-5 pb-2">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-950">
+                  Global Theme
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Edit the main content shown in this section.
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-xl text-gray-500"
+                disabled={saving}
+                className="rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-black"
               >
-                ×
+                <X className="h-5 w-5" />
               </button>
             </div>
-
-            <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-5 p-6">
               <ColorField
                 label="Background color"
                 value={form?.global?.backgroundColor}
@@ -152,7 +166,6 @@ export default function GlobalEditor({
                   resetGlobal("textColor")
                 }
               />
-
               <ColorField
                 label="Primary color"
                 value={form?.global?.primaryColor}
@@ -227,90 +240,81 @@ export default function GlobalEditor({
                   }))
                 }
               />
-              {/* <Field
-                label="Font size"
-                overridden={!!form.global?.fontSize}
-                onReset={() => resetGlobal("fontSize")}
-              >
-                <input
-                  value={form.global?.fontSize ?? ""}
-                  onChange={(e) =>
-                    updateGlobal("fontSize", e.target.value)
-                  }
-                  className="w-full rounded-lg border px-4 py-3"
-                />
-              </Field> */}
-              <div className="my-5">
-                <h3 className="mb-4 text-base font-semibold">
-                  Navigation
-                </h3>
-                <div className="space-y-5">
-                  <ColorField
-                    label="Background color"
-                    value={form?.navigation?.backgroundColor}
-                    onChange={(value) =>
-                      updateNavigation("backgroundColor", value)
-                    }
-                    onReset={() =>
-                      resetNavigation("backgroundColor")
-                    }
-                  />
-                  <ColorField
-                    label="Text color"
-                    value={form?.navigation?.textColor}
-                    onChange={(value) =>
-                      updateNavigation("textColor", value)
-                    }
-                    onReset={() =>
-                      resetNavigation("textColor")
-                    }
-                  />
-                  <ColorField
-                    label="Hover color"
-                    value={form?.navigation?.hoverColor}
-                    onChange={(value) =>
-                      updateNavigation("hoverColor", value)
-                    }
-                    onReset={() =>
-                      resetNavigation("hoverColor")
-                    }
-                  />
-                  <ColorField
-                    label="activeColor color"
-                    value={form?.navigation?.activeColor}
-                    onChange={(value) =>
-                      updateNavigation("activeColor", value)
-                    }
-                    onReset={() =>
-                      resetNavigation("activeColor")
-                    }
-                  />
-                  <SelectField
-                    label="Navigation font"
-                    value={form.navigation?.fontFamily}
-                    placeholder="Default font"
-                    options={fonts.map((font) => ({
-                      value: font.name,
-                      label: font.name,
-                    }))}
-                    onChange={(value) =>
-                      updateNavigation(
-                        "fontFamily",
-                        value || undefined
-                      )
-                    }
-                    onReset={() =>
-                      resetNavigation("fontFamily")
-                    }
-                  />
-                </div>
-              </div>
             </div>
-            <div className="mt-8 flex justify-end gap-3">
+            <div className="px-6">
+              <h3 className="text-lg font-semibold text-gray-950">
+                Global Theme
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Edit the main content shown in this section.
+              </p>
+            </div>
+              <div className="grid grid-cols-2 gap-5 p-6">
+                <ColorField
+                  label="Background color"
+                  value={form?.navigation?.backgroundColor}
+                  onChange={(value) =>
+                    updateNavigation("backgroundColor", value)
+                  }
+                  onReset={() =>
+                    resetNavigation("backgroundColor")
+                  }
+                />
+                <ColorField
+                  label="Text color"
+                  value={form?.navigation?.textColor}
+                  onChange={(value) =>
+                    updateNavigation("textColor", value)
+                  }
+                  onReset={() =>
+                    resetNavigation("textColor")
+                  }
+                />
+                <ColorField
+                  label="Hover color"
+                  value={form?.navigation?.hoverColor}
+                  onChange={(value) =>
+                    updateNavigation("hoverColor", value)
+                  }
+                  onReset={() =>
+                    resetNavigation("hoverColor")
+                  }
+                />
+                <ColorField
+                  label="activeColor color"
+                  value={form?.navigation?.activeColor}
+                  onChange={(value) =>
+                    updateNavigation("activeColor", value)
+                  }
+                  onReset={() =>
+                    resetNavigation("activeColor")
+                  }
+                />
+                <SelectField
+                  label="Navigation font"
+                  value={form.navigation?.fontFamily}
+                  placeholder="Default font"
+                  options={fonts.map((font) => ({
+                    value: font.name,
+                    label: font.name,
+                  }))}
+                  onChange={(value) =>
+                    updateNavigation(
+                      "fontFamily",
+                      value || undefined
+                    )
+                  }
+                  onReset={() =>
+                    resetNavigation("fontFamily")
+                  }
+                />
+            </div>
+            <div className="flex justify-end gap-3 border-t border-t-gray-200 bg-gray-100 px-7 py-2">
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-5 py-3"
+                disabled={saving}
+                className="rounded-xl bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
               >
                 Cancel
               </button>

@@ -5,6 +5,7 @@ import { GlobalTheme } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { ColorField } from "../ColorField";
+import { SelectField } from "../SelectField";
 
 type Props = {
   globalTheme: GlobalTheme;
@@ -74,18 +75,18 @@ export default function PropertyCardTheme({
 
   return (
     <div className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onMouseDown={onClose}>
-            <div
-              className="
-                relative
-                flex max-h-[92vh] w-full max-w-2xl
-                flex-col overflow-hidden
-                rounded-3xl
-                bg-white
-                text-black
-                shadow-2xl
-              "
-              onMouseDown={(e) => e.stopPropagation()}
-            >
+      <div
+        className="
+          relative
+          flex max-h-[92vh] w-full max-w-2xl
+          flex-col overflow-hidden
+          rounded-3xl
+          bg-white
+          text-black
+          shadow-2xl
+        "
+        onMouseDown={(e) => e.stopPropagation()}
+      >
         <DevLabel
           name="PropertyCardTheme"
           file="/Users/michellarsson/Projects/hotels/apps/tenant/app/(protected)/components/property/PropertyCardTheme.tsx"
@@ -96,7 +97,7 @@ export default function PropertyCardTheme({
               Property card design
             </h3>
             <p className="mt-1 text-sm text-gray-500">
-              Edit the main content shown in this section.
+              Edit the property content shown in this section.
             </p>
           </div>
           <button
@@ -132,7 +133,6 @@ export default function PropertyCardTheme({
             }
             onReset={() => resetCard("textColor")}
           />
-
           <ColorField
             label="Secondary text"
             value={ card_secondary_color }
@@ -145,7 +145,6 @@ export default function PropertyCardTheme({
             }
             onReset={() => resetCard("secondaryColor")}
           />
-
           <ColorField
             label="Border"
             value={ card_border_color }
@@ -158,53 +157,47 @@ export default function PropertyCardTheme({
             }
             onReset={() => resetCard("borderColor")}
           />
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Border radius
-            </label>
-
-            <select
-              value={ card_radius ?? 0 }
-              onChange={(e) =>
-                updateThemeGroup(
-                  "card",
-                  "borderRadius",
-                  e.target.value
-                )
-              }
-              className="w-full rounded-lg border px-3 py-2"
-            >
-              <option value="0px">None</option>
-              <option value="8px">Small</option>
-              <option value="16px">Medium</option>
-              <option value="24px">Large</option>
-              <option value="32px">Extra large</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Shadow
-            </label>
-
-            <select
-              value={card_shadow ?? "sm"}
-              onChange={(e) =>
-                updateThemeGroup(
-                  "card",
-                  "shadow",
-                  e.target.value as "none" | "sm" | "md" | "lg"
-                )
-              }
-              className="w-full rounded-lg border px-3 py-2"
-            >
-              <option value="none">None</option>
-              <option value="sm">Small</option>
-              <option value="md">Medium</option>
-              <option value="lg">Large</option>
-            </select>
-          </div>
+          <SelectField
+            label="Border radius"
+            value={card_radius}
+            options={[
+              { value: "0px", label: "None" },
+              { value: "8px", label: "Small" },
+              { value: "16px", label: "Medium" },
+              { value: "24px", label: "Large" },
+              { value: "32px", label: "Extra large" },
+            ]}
+            onChange={(value) =>
+              updateThemeGroup(
+                "card",
+                "borderRadius",
+                value
+              )
+            }
+            onReset={() =>
+              resetCard("borderRadius")
+            }
+          />
+          <SelectField
+            label="Shadow"
+            value={card_shadow}
+            options={[
+              { value: "none", label: "None" },
+              { value: "sm", label: "Small" },
+              { value: "md", label: "Medium" },
+              { value: "lg", label: "Large" },
+            ]}
+            onChange={(value) =>
+              updateThemeGroup(
+                "card",
+                "shadow",
+                value as "none" | "sm" | "md" | "lg"
+              )
+            }
+            onReset={() =>
+              resetCard("shadow")
+            }
+          />
           <ColorField
             label="Button background"
             value={ button_background }
@@ -230,30 +223,27 @@ export default function PropertyCardTheme({
             }
             onReset={() => resetButton("textColor")}
           />
-
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Button radius
-            </label>
-
-            <select
-              value={ button_radius ?? 0 }
-              onChange={(e) =>
-                updateThemeGroup(
-                  "button",
-                  "borderRadius",
-                  e.target.value
-                )
-              }
-              className="w-full rounded-lg border px-3 py-2"
-            >
-              <option value="0px">None</option>
-              <option value="8px">Small</option>
-              <option value="12px">Medium</option>
-              <option value="16px">Large</option>
-              <option value="24px">Extra large</option>
-            </select>
-          </div>
+          <SelectField
+            label="Button radius"
+            value={button_radius}
+            options={[
+              { value: "0px", label: "None" },
+              { value: "8px", label: "Small" },
+              { value: "12px", label: "Medium" },
+              { value: "16px", label: "Large" },
+              { value: "24px", label: "Extra large" },
+            ]}
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "borderRadius",
+                value
+              )
+            }
+            onReset={() =>
+              resetButton("borderRadius")
+            }
+          />
         </div>
         <div className="flex justify-end gap-3 border-t border-t-gray-200 bg-gray-100 px-7 py-5">
           <button

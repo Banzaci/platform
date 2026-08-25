@@ -12,6 +12,7 @@ from app.api.open_ai import generate_hotel_plan, generate_tenant_update
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.helpers.save_theme_history import save_theme_history
 from app.models.tenant_knowledge import TenantKnowledge
 from app.schemas.tenant_font_out import TenantFontOut
 from app.models.tenant_font import TenantFont
@@ -397,13 +398,21 @@ async def update_tenant_theme(
             detail="Tenant not found",
         )
 
+    await save_theme_history(
+        db=db,
+        tenant_id=tenant_id,
+        theme=tenant.theme or {},
+        key="global",
+    )
+
     tenant.theme = payload.model_dump(
         by_alias=True,
         exclude_none=True,
+        exclude_unset=True,
     )
-    print(tenant.theme)
+
     await db.commit()
-    await db.refresh(tenant) 
+    await db.refresh(tenant)
 
     await delete_tenant_cache_for_tenant(
         tenant

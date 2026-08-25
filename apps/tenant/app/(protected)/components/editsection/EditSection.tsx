@@ -119,7 +119,6 @@ export default function EditSection({
       if (image?.deletePublicId) {
         await deleteImage(image.deletePublicId);
       }
-
       window.location.reload();
     } catch (error) {
       console.error("Save section failed:", error);
