@@ -12,6 +12,8 @@ from cloudinary.uploader import upload, destroy
 
 logger = logging.getLogger(__name__)
 
+CLOUDINARY_TENANTS_ROOT = "tenants"
+
 config(
     cloud_name=settings.cloudinary_cloud_name,
     api_key=settings.cloudinary_api_key,
@@ -56,7 +58,7 @@ async def upload_font_file(
     filename = file.filename or "font"
 
     name = filename.rsplit(".", 1)[0]
-    folder = f"{tenant_id}/fonts"
+    folder = f"{CLOUDINARY_TENANTS_ROOT}/{tenant_id}/fonts"
 
     result = upload(
         file.file,
@@ -72,7 +74,10 @@ async def delete_tenant_cloudinary_assets(
     tenant_id: str,
 ) -> None:
     try:
-        prefix = f"{tenant_id}/"
+        tenant_folder = (
+            f"{CLOUDINARY_TENANTS_ROOT}/{tenant_id}"
+        )
+        prefix = f"{tenant_folder}/"
 
         await asyncio.to_thread(
             api.delete_resources_by_prefix,
@@ -115,10 +120,14 @@ async def upload_image(
         filename = file.filename or "image"
         name = filename.rsplit(".", 1)[0]
 
+        tenant_folder = (
+            f"{CLOUDINARY_TENANTS_ROOT}/{tenant_id}"
+        )
+
         folder = (
-            f"{tenant_id}/{path.strip('/')}"
+            f"{tenant_folder}/{path.strip('/')}"
             if path
-            else tenant_id
+            else tenant_folder
         )
 
         public_id = f"{uuid.uuid4()}-{name}"
