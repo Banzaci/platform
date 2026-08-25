@@ -28,7 +28,7 @@ export default function PropertySlideshow({
   if (!images?.length) {
     return (
       <div
-        className={`flex items-center justify-center overflow-hidden bg-gray-100`}
+        className={`flex items-center justify-center overflow-hidden bg-gray-100 min-h-70`}
       >
         <ImageIcon className="h-7 w-7 text-gray-300" />
       </div>
@@ -51,7 +51,7 @@ export default function PropertySlideshow({
     );
   }
   return (
-    <div className="group relative h-full w-full overflow-hidden min-h-70 bg-gray-100">
+    <div className="group relative h-full w-full min-h-70 overflow-hidden bg-gray-100">
       <img
         src={images[index].url}
         alt={alt}
