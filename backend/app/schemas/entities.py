@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from app.models.tenant_membership import TenantRole
 from app.schemas.page import PageOut
+from app.schemas.theme import TenantThemeSchema
 from app.schemas.tenant_font_out import TenantFontOut
 from pydantic import BaseModel
 from pydantic import Field
@@ -44,7 +45,7 @@ class TenantOut(BaseModel):
     short_description: str | None
     latitude: float | None
     longitude: float | None
-    theme: ThemeSchema
+    theme: TenantThemeSchema
     deleted: bool
     cancellation_policy: CancellationPolicy = CancellationPolicy()
 

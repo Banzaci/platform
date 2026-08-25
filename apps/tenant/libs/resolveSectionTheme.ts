@@ -1,87 +1,97 @@
-import { SectionTheme } from "@/types";
+import { GlobalTheme, SectionTheme } from "@/types";
 
 export function resolveSectionTheme(
-  theme?: SectionTheme
+  globalTheme?: GlobalTheme,
+  sectionTheme?: SectionTheme
 ) {
   return {
     // Section
     backgroundColor:
-      theme?.backgroundColor,
+      sectionTheme?.backgroundColor,
 
     textColor:
-      theme?.textColor,
+      sectionTheme?.textColor,
 
     secondaryColor:
-      theme?.secondaryColor,
+      sectionTheme?.secondaryColor,
 
     primaryColor:
-      theme?.primaryColor,
+      sectionTheme?.primaryColor,
 
     fontFamily:
-      theme?.fontFamily,
+      sectionTheme?.fontFamily,
 
-    headingFontFamily: theme?.headingFontFamily,
+    paddingTop:
+      sectionTheme?.paddingTop,
+
+    paddingBottom:
+      sectionTheme?.paddingBottom,
+
+    headingFontFamily:
+      sectionTheme?.headingFontFamily,
 
     fontSize:
-      theme?.fontSize,
+      sectionTheme?.fontSize,
 
     // Card
     card_background_color:
-      theme?.card?.backgroundColor,
+      globalTheme?.card?.backgroundColor,
 
     card_text_color:
-      theme?.card?.textColor,
+      globalTheme?.card?.textColor,
 
     card_secondary_color:
-      theme?.card?.secondaryColor,
+      globalTheme?.card?.secondaryColor,
 
     card_border_color:
-      theme?.card?.borderColor,
+      globalTheme?.card?.borderColor,
 
     card_radius:
-      theme?.card?.borderRadius,
+      globalTheme?.card?.borderRadius,
 
     card_padding:
-      theme?.card?.padding,
+      globalTheme?.card?.padding,
 
     card_shadow:
-      theme?.card?.shadow,
+      globalTheme?.card?.shadow,
 
     // Button
     button_background:
-      theme?.button?.backgroundColor ??
-      theme?.primaryColor,
+      globalTheme?.button?.backgroundColor ??
+      sectionTheme?.primaryColor,
 
     button_text:
-      theme?.button?.textColor,
+      globalTheme?.button?.textColor,
 
     button_radius:
-      theme?.button?.borderRadius,
+      globalTheme?.button?.borderRadius,
 
     // Date selector
     date_background:
-      theme?.dateSelector?.backgroundColor,
+      globalTheme?.dateSelector?.backgroundColor,
 
     date_text:
-      theme?.dateSelector?.textColor,
+      globalTheme?.dateSelector?.textColor,
 
     date_secondary:
-      theme?.dateSelector?.secondaryColor,
+      globalTheme?.dateSelector?.secondaryColor,
 
     date_border:
-      theme?.dateSelector?.borderColor,
+      globalTheme?.dateSelector?.borderColor,
 
     date_radius:
-      theme?.dateSelector?.borderRadius,
+      globalTheme?.dateSelector?.borderRadius,
 
     date_shadow:
-      theme?.dateSelector?.shadow,
+      globalTheme?.dateSelector?.shadow,
 
     date_width:
-      theme?.dateSelector?.width,
+      globalTheme?.dateSelector?.width,
 
-    date_selected_background: theme?.dateSelector?.selectedBackgroundColor,
+    date_selected_background:
+      globalTheme?.dateSelector?.selectedBackgroundColor,
 
-    date_selected_color: theme?.dateSelector?.selectedColor,
+    date_selected_color:
+      globalTheme?.dateSelector?.selectedColor,
   };
 }

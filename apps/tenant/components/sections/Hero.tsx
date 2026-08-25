@@ -1,4 +1,4 @@
-import { SectionTheme } from "@/types";
+import { GlobalTheme, SectionTheme } from "@/types";
 
 type HeroProps = {
   content: {
@@ -16,18 +16,19 @@ type HeroProps = {
       href?: string;
     };
   };
-  theme?: SectionTheme;
+  sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
-export default function Hero({ content, theme }: HeroProps) {
+export default function Hero({ content, sectionTheme, globalTheme }: HeroProps) {
   return (
     <section
       className="relative min-h-150 overflow-hidden"
       style={{
-        backgroundColor: theme?.backgroundColor,
-        fontFamily: theme?.headingFontFamily,
-        paddingTop: theme?.paddingTop,
-        paddingBottom: theme?.paddingBottom,
+        backgroundColor: sectionTheme?.backgroundColor,
+        fontFamily: sectionTheme?.headingFontFamily,
+        paddingTop: sectionTheme?.paddingTop,
+        paddingBottom: sectionTheme?.paddingBottom,
       }}
     >
       {content.image?.url && (
@@ -47,9 +48,9 @@ export default function Hero({ content, theme }: HeroProps) {
         <div className="max-w-2xl">
           <h1
             style={{
-              color: theme?.primaryColor,
-              fontSize: theme?.fontSize,
-              fontFamily: theme?.headingFontFamily,
+              color: sectionTheme?.primaryColor,
+              fontSize: sectionTheme?.fontSize,
+              fontFamily: sectionTheme?.headingFontFamily,
             }}
           >
             {content.heading?.en}
@@ -59,8 +60,8 @@ export default function Hero({ content, theme }: HeroProps) {
             <p
               className="mt-6"
               style={{
-                color: theme?.secondaryColor,
-                fontFamily: theme?.fontFamily,
+                color: sectionTheme?.secondaryColor,
+                fontFamily: sectionTheme?.fontFamily,
               }}
             >
               {content.text.en}
@@ -72,9 +73,9 @@ export default function Hero({ content, theme }: HeroProps) {
               href={content.button.href}
               className="mt-8 inline-block rounded-lg px-6 py-3"
               style={{
-                color: theme?.button?.textColor,
-                backgroundColor: theme?.button?.backgroundColor,
-                fontFamily: theme?.fontFamily,
+                color: globalTheme?.button?.textColor,
+                backgroundColor: globalTheme?.button?.backgroundColor,
+                fontFamily: globalTheme?.fontFamily,
               }}
             >
               {content.button.label?.en}

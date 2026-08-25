@@ -6,6 +6,7 @@ import Navigation from "./Navigation";
 import EditorControls from "./(protected)/components/EditorControls";
 import ThemeProvider from "@/providers/ThemeProvider";
 import DevLabelToggle from "@/helpers/DevLabelToggle";
+import { GlobalTheme } from "@/types";
 
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -109,6 +110,8 @@ export default async function RootLayout({
 }>) {
   const tenant = await getTenant();
   const fonts = tenant.fonts ?? [];
+  const globalTheme = tenant.tenant.theme as GlobalTheme;
+  console.log(JSON.stringify(globalTheme))
   return (
     <html
       lang="en"
@@ -131,18 +134,18 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col"
         style={{
-          backgroundColor: tenant.tenant.theme.backgroundColor,
-          color: tenant.tenant.theme.textColor,
-          fontFamily: tenant.tenant.theme.fonts?.body,
-          fontSize: tenant.tenant.theme.fontSize,
+          backgroundColor: globalTheme?.global?.backgroundColor,
+          color: globalTheme?.global?.textColor,
+          fontFamily: globalTheme?.fonts?.body,
+          // fontSize: globalTheme.global.fontSize,
         }}
       >
         <Providers>
-          <ThemeProvider theme={tenant.tenant.theme}>
-            <Navigation data={tenant} />
+          <ThemeProvider globalTheme={globalTheme}>
+            <Navigation tenant={tenant} />
             <EditorControls
               tenantId={tenant.tenant.id}
-              theme={tenant.tenant.theme}
+              globalTheme={tenant.tenant.theme}
               fonts={fonts}
             />
             {children}

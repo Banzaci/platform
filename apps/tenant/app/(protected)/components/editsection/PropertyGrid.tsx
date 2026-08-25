@@ -18,7 +18,6 @@ import {
 
 import { apiClient } from "@/libs/api";
 import { TenantProperty, SectionTheme } from "@/types";
-import PropertyCard from "@/app/accommodation/PropertyCard";
 import ThemedDayPicker from "./ThemedDayPicker";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
@@ -39,7 +38,6 @@ type Props = {
 
 export default function PropertyGrid({
   tenantId,
-  content,
   globalTheme,
 }: Props) {
   const router = useRouter();

@@ -1,21 +1,21 @@
-import { SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import type { CSSProperties, ReactNode } from "react";
 
 export default function ThemeProvider({
-  theme,
+  globalTheme,
   children,
 }: {
-  theme: SectionTheme;
+  globalTheme: GlobalTheme;
   children: ReactNode;
 }) {
   const style = {
-    "--background": theme.backgroundColor,
-    "--text": theme.textColor,
-    "--primary": theme.primaryColor,
-    "--secondary": theme.secondaryColor,
-    "--font-family": theme.fontFamily,
-    "--heading-font-family": theme.headingFontFamily,
-    "--font-size": theme.fontSize,
+    "--background": globalTheme?.global?.backgroundColor,
+    "--text": globalTheme?.global?.textColor,
+    "--primary": globalTheme?.global?.primaryColor,
+    "--secondary": globalTheme?.global?.secondaryColor,
+    // "--font-family": globalTheme.global.fontFamily,
+    // "--heading-font-family": globalTheme.global.headingFontFamily,
+    // "--font-size": globalTheme.global.fontSize,
   } as CSSProperties;
 
   return (

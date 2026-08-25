@@ -1,6 +1,6 @@
 "use client";
 
-import { SectionTheme, TenantFont } from "@/types";
+import { GlobalTheme, SectionTheme, TenantFont } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import { ColorField } from "../ColorField";
 import { Field } from "../Field";
@@ -19,10 +19,7 @@ export default function ThemeEditor({
   fonts,
   onChange,
 }: Props) {
-  function updateButton(
-    key: keyof NonNullable<SectionTheme["button"]>,
-    value: string
-  ) {
+  function updateButton(key: keyof NonNullable<GlobalTheme["button"]>, value: string) {
     onChange({
       ...theme,
       button: {
@@ -32,25 +29,18 @@ export default function ThemeEditor({
     });
   }
 
-  function resetButton(
-    key: keyof NonNullable<SectionTheme["button"]>
-  ) {
+  function resetButton(key: keyof NonNullable<GlobalTheme["button"]>) {
     const nextButton = {
       ...(theme.button ?? {}),
     };
-
     delete nextButton[key];
-
     onChange({
       ...theme,
       button: nextButton,
     });
   }
 
-  function update(
-    key: keyof SectionTheme,
-    value: string
-  ) {
+  function update(key: keyof SectionTheme, value: string) {
     onChange({
       ...theme,
       [key]: value,
@@ -59,9 +49,7 @@ export default function ThemeEditor({
 
   function reset(key: keyof SectionTheme) {
     const next = { ...theme };
-
     delete next[key];
-
     onChange(next);
   }
 
@@ -97,14 +85,12 @@ export default function ThemeEditor({
           <ColorField
             label="Background"
             value={theme.backgroundColor}
-            fallback="#ffffff"
             onChange={(value) => update("backgroundColor", value)}
             onReset={() => reset("backgroundColor")}
           />
           <ColorField
             label="Text color"
             value={theme.textColor}
-            fallback="#000000"
             onChange={(value) => update("textColor", value)}
             onReset={() => reset("textColor")}
           />
@@ -112,7 +98,6 @@ export default function ThemeEditor({
           <ColorField
             label="Primary color"
             value={theme.primaryColor}
-            fallback="#000000"
             onChange={(value) => update("primaryColor", value)}
             onReset={() => reset("primaryColor")}
           />
@@ -120,7 +105,6 @@ export default function ThemeEditor({
           <ColorField
             label="Secondary color"
             value={theme.secondaryColor}
-            fallback="#666666"
             onChange={(value) => update("secondaryColor", value)}
             onReset={() => reset("secondaryColor")}
           />
@@ -217,7 +201,6 @@ export default function ThemeEditor({
           <ColorField
             label="Button color"
             value={theme.button?.backgroundColor}
-            fallback="#111111"
             onChange={(value) =>
               updateButton("backgroundColor", value)
             }
@@ -229,7 +212,6 @@ export default function ThemeEditor({
           <ColorField
             label="Button text"
             value={theme.button?.textColor}
-            fallback="#ffffff"
             onChange={(value) =>
               updateButton("textColor", value)
             }

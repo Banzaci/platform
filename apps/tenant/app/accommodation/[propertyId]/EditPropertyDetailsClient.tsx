@@ -33,6 +33,7 @@ export default function EditPropertyDetailsClient({
           return (
             <EditableSection
               key={section.id}
+              fonts={[]} //TODO fonts
               theme={section.theme}
               section={section}
               pageId={pageId}

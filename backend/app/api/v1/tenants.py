@@ -3,6 +3,7 @@ import uuid
 from datetime import date
 import logging
 from calendar import monthrange
+from app.schemas.theme import TenantThemeSchema
 from app.services.cloudinary import delete_tenant_cloudinary_assets, delete_file
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
@@ -320,7 +321,7 @@ async def resolve_tenant_by_host(
 
     return full
 
-@router.get("/{tenant_id}", response_model=TenantFullOut)
+@router.get("/{tenant_id}", response_model=TenantFullOut, response_model_exclude_none=True,)
 async def get_tenant_by_id(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
@@ -373,10 +374,10 @@ async def get_tenant_full(tenant_id: uuid.UUID, db: AsyncSession = Depends(get_d
 
     return TenantFullOut(tenant=TenantOut.model_validate(tenant), pages=pages)
 
-@router.put("/{tenant_id}/theme",response_model=ThemeSchema)
+@router.put("/{tenant_id}/theme",response_model=TenantThemeSchema)
 async def update_tenant_theme(
     tenant_id: uuid.UUID,
-    payload: ThemeSchema,
+    payload: TenantThemeSchema,
     db: AsyncSession = Depends(get_db),
     _access: TenantMembership = Depends(
         require_permission("content.edit")
@@ -396,8 +397,11 @@ async def update_tenant_theme(
             detail="Tenant not found",
         )
 
-    tenant.theme = payload.model_dump()
-
+    tenant.theme = payload.model_dump(
+        by_alias=True,
+        exclude_none=True,
+    )
+    print(tenant.theme)
     await db.commit()
     await db.refresh(tenant) 
 

@@ -10,6 +10,7 @@ export default async function AccommodationPage() {
   if (!page) {
     notFound();
   }
+  console.log(data.tenant.theme)
   return <PageRenderer
     page={page}
     editable={true}

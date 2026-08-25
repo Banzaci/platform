@@ -22,26 +22,23 @@ export type PageData = {
 };
 
 export type NavigationTheme = {
-  backgroundColor: string;
-  textColor: string;
-  hoverColor: string;
-  activeColor: string;
-  fontFamily: string;
-  fontSize: string;
-  height: string;
-  logoHeight: string;
-};
-
-export type SectionTheme = {
   backgroundColor?: string;
   textColor?: string;
-  primaryColor?: string;
-  secondaryColor?: string;
+  hoverColor?: string;
+  activeColor?: string;
   fontFamily?: string;
   fontSize?: string;
-  paddingTop?: string;
-  paddingBottom?: string;
-  headingFontFamily?: string;
+  height?: string;
+  logoHeight?: string;
+};
+
+export type GlobalTheme = {
+  global: {
+    backgroundColor?: string;
+    textColor?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+  },
   dateSelector?: {
     backgroundColor?: string;
     textColor?: string;
@@ -62,26 +59,35 @@ export type SectionTheme = {
     padding?: string;
     shadow?: "none" | "sm" | "md" | "lg";
   };
-
   button?: {
     backgroundColor?: string;
     textColor?: string;
     borderRadius?: string;
   };
-
   image?: {
     aspectRatio?: string;
   };
-  navigation: NavigationTheme
+  navigation?: NavigationTheme;
   fonts?: {
-    body: string;
-    heading: string
-
-  }
+    body?: string;
+    heading?: string;
+  };
   layout?: {
     columns?: number;
     gap?: string;
   };
+}
+
+export type SectionTheme = {
+    backgroundColor?: string;
+    textColor?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    paddingTop?: string;
+    paddingBottom?: string;
+    headingFontFamily?: string;
 };
 
 export type CancellationPolicy = {
@@ -107,7 +113,7 @@ export type TenantResponse = {
     location: string;
     logo_url: string | null;
     short_description: string;
-    theme: SectionTheme;
+    theme: GlobalTheme;
     cancellation_policy: CancellationPolicy
   };
   fonts: TenantFont[];

@@ -1,4 +1,4 @@
-import { SectionTheme } from "@/types";
+import { GlobalTheme, SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -18,19 +18,20 @@ type Props = {
       href?: string;
     };
   };
-  theme?: SectionTheme;
+  sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
-export default function ImageText({ content, theme }: Props) {
+export default function ImageText({ content, sectionTheme }: Props) {
   const imageRight = content.layout === "image-right";
   return (
     <section
       className="py-16"
       style={{
-          backgroundColor: theme?.backgroundColor,
-          fontFamily: theme?.headingFontFamily,
-          paddingTop: theme?.paddingTop,
-          paddingBottom: theme?.paddingBottom,
+          backgroundColor: sectionTheme?.backgroundColor,
+          fontFamily: sectionTheme?.headingFontFamily,
+          paddingTop: sectionTheme?.paddingTop,
+          paddingBottom: sectionTheme?.paddingBottom,
         }}
     >
       <div
@@ -55,9 +56,9 @@ export default function ImageText({ content, theme }: Props) {
         <div>
           {content.heading?.en && (
             <h2 style={{
-              color: theme?.primaryColor,
-              fontSize: theme?.fontSize,
-              fontFamily: theme?.headingFontFamily,
+              color: sectionTheme?.primaryColor,
+              fontSize: sectionTheme?.fontSize,
+              fontFamily: sectionTheme?.headingFontFamily,
             }}
             >
               {content.heading.en}
@@ -68,8 +69,8 @@ export default function ImageText({ content, theme }: Props) {
             <p
               className="mt-5 leading-7"
               style={{
-                color: theme?.secondaryColor,
-                fontFamily: theme?.fontFamily,
+                color: sectionTheme?.secondaryColor,
+                fontFamily: sectionTheme?.fontFamily,
               }}
             >
               {content.text.en}

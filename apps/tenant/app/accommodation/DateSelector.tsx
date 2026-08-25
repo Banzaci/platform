@@ -1,5 +1,5 @@
 import { formatDisplayDate, getShadow } from "@/helpers";
-import { SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import { CalendarDays, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -16,7 +16,7 @@ export default function DateSelector({
   setRange: (
     range: DateRange | undefined
   ) => void;
-  globalTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 }) {
   const [ open, setOpen ] = useState(false);
   const today = new Date();
@@ -38,6 +38,7 @@ export default function DateSelector({
     date_background,
     date_text,
   } = resolveSectionTheme(globalTheme);
+  
   return (
     <div className="relative w-full">
       <div className="relative flex w-full justify-center">

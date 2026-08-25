@@ -110,9 +110,7 @@ export default function EditSection({
         `v1/tenants/${tenantId}/pages/${pageId}`,
         {
           method: "PUT",
-          body: JSON.stringify({
-            sections: updatedSections,
-          }),
+          body: JSON.stringify({ sections: updatedSections,}),
         }
       );
 

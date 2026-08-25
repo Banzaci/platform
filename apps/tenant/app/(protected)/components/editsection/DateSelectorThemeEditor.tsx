@@ -1,21 +1,18 @@
 import DevLabel from "@/helpers/DevLabel";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
-import { SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import { ColorField } from "../ColorField";
 
 type Props = {
-  globalTheme: SectionTheme;
-  onChange: (globalTheme: SectionTheme) => void;
+  globalTheme: GlobalTheme;
+  onChange: (globalTheme: GlobalTheme) => void;
 };
 
 export default function DateSelectorThemeEditor({
   globalTheme,
   onChange,
 }: Props) {
-  function update(
-    key: keyof NonNullable<SectionTheme["dateSelector"]>,
-    value: string
-  ) {
+  function update(key: keyof NonNullable<GlobalTheme["dateSelector"]>, value: string) {
     onChange({
       ...globalTheme,
       dateSelector: {
@@ -55,6 +52,7 @@ export default function DateSelectorThemeEditor({
               value
             )
           }
+          onReset={() => reset("backgroundColor")}
         />
         <ColorField
           label="Secondary color"

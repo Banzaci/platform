@@ -9,12 +9,12 @@ type Props = {
   checkIn: string;
   checkOut: string;
   cancellationPolicy: CancellationPolicy;
-  textColor: string;
-  secondaryColor: string;
+  textColor?: string;
+  secondaryColor?: string;
   headingFontFamily?: string;
-  cardBackground: string;
-  cardBorderColor: string;
-  cardBorderRadius: string;
+  cardBackground?: string;
+  cardBorderColor?: string;
+  cardBorderRadius?: string;
   nights?: number | null;
   total_price?: number | null;
   cardShadow?: "none" | "sm" | "md" | "lg";

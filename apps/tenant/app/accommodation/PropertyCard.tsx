@@ -1,4 +1,4 @@
-import { TenantProperty, SectionTheme } from "@/types";
+import { TenantProperty, SectionTheme, GlobalTheme } from "@/types";
 import PropertySlideshow from "../(protected)/components/property/PropertySlideshow";
 import {
   User,
@@ -19,7 +19,7 @@ export default function PropertyCard({
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
-  globalTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 }) {
   const href = new URLSearchParams();
   if (checkIn) {
@@ -33,8 +33,6 @@ export default function PropertyCard({
   const bookingUrl = `/accommodation/${property.id}` + (href.size ? `?${href.toString()}` : "");
 
   const {
-    fontFamily,
-    secondaryColor,
     card_background_color,
     card_text_color,
     card_secondary_color,
@@ -56,7 +54,6 @@ export default function PropertyCard({
         borderColor: card_border_color,
         borderRadius: card_radius,
         boxShadow: getShadow(card_shadow),
-        fontFamily,
       }}
     >
       <DevLabel
@@ -187,7 +184,7 @@ export default function PropertyCard({
                   <p
                     className="mt-2 text-center text-xs"
                     style={{
-                      color: secondaryColor,
+                      color: card_secondary_color,
                     }}
                   >
                     Not available for selected dates

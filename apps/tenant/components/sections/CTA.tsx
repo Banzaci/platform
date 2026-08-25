@@ -1,4 +1,4 @@
-import { SectionTheme } from "@/types";
+import { GlobalTheme, SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -9,19 +9,20 @@ type Props = {
       href?: string;
     };
   };
-  theme?: SectionTheme;
+  sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
-export default function CTA({ content, theme }: Props) {
+export default function CTA({ content, sectionTheme }: Props) {
   return (
     <section
       style={{
-            backgroundColor: theme?.backgroundColor,
-            color: theme?.textColor,
-            fontFamily: theme?.fontFamily,
-            fontSize: theme?.fontSize,
-            paddingTop: theme?.paddingTop,
-            paddingBottom: theme?.paddingBottom,
+            backgroundColor: sectionTheme?.backgroundColor,
+            color: sectionTheme?.textColor,
+            fontFamily: sectionTheme?.fontFamily,
+            fontSize: sectionTheme?.fontSize,
+            paddingTop: sectionTheme?.paddingTop,
+            paddingBottom: sectionTheme?.paddingBottom,
           }}
       >
       <div className="mx-auto max-w-4xl rounded-3xl bg-black px-8 py-16 text-center text-white">

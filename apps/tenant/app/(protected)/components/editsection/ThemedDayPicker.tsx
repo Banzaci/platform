@@ -6,11 +6,11 @@ import {
 } from "react-day-picker";
 import "react-day-picker/style.css";
 
-import { SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = DayPickerProps & {
-  globalTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
 export default function ThemedDayPicker({

@@ -14,7 +14,7 @@ import {
 } from "next/navigation";
 
 import { apiClient } from "@/libs/api";
-import { SectionTheme, TenantProperty } from "@/types";
+import { GlobalTheme, SectionTheme, TenantProperty } from "@/types";
 import { formatDate, getGridClass, parseDate } from "@/helpers";
 import EditablePropertyCard from "../(protected)/components/EditablePropertyCard";
 import { useIsEditor } from "@/hooks/useIsEditor";
@@ -22,12 +22,10 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
 import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
 
-export default function PropertiesPageClient({
-  tenantId,
-  theme,
-}: {
+export default function PropertiesPageClient({ tenantId, globalTheme, sectionTheme }: {
   tenantId: string;
-  theme: SectionTheme;
+  sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -37,32 +35,29 @@ export default function PropertiesPageClient({
   const checkOut = searchParams.get("checkOut");
   const [properties, setProperties] = useState<TenantProperty[]>([]);
   const [loading, setLoading] = useState(true);
-  const [localTheme, setLocalTheme] = useState<SectionTheme>(theme ?? {});
+  const [localGlobalTheme, setLocalGlobalTheme] = useState<GlobalTheme>(globalTheme ?? {});
 
   async function saveTheme() {
-    const response = await apiClient.api<any>(
+    await apiClient.api<any>(
       `v1/tenants/${tenantId}/theme`,
       {
         method: "PUT",
-        body: JSON.stringify(localTheme),
+        body: JSON.stringify(localGlobalTheme),
       }
     );
-
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
   }
 
   const {
     textColor,
-    secondaryColor,
     fontSize,
     backgroundColor,
+    paddingTop,
+    paddingBottom,
     card_background_color,
     card_border_color,
     card_radius,
     fontFamily,
-  } = resolveSectionTheme(localTheme);
+  } = resolveSectionTheme(localGlobalTheme, sectionTheme);
 
   const range = useMemo<DateRange | undefined>(() => {
     const from = parseDate(checkIn);
@@ -155,9 +150,7 @@ export default function PropertiesPageClient({
     load();
   }, [tenantId, checkIn, checkOut]);
 
-  function setRange(
-    nextRange: DateRange | undefined
-  ) {
+  function setRange(nextRange: DateRange | undefined) {
     const params = new URLSearchParams(
       searchParams.toString()
     );
@@ -200,8 +193,8 @@ export default function PropertiesPageClient({
         color: textColor,
         fontFamily,
         fontSize,
-        paddingTop: localTheme.paddingTop,
-        paddingBottom: localTheme.paddingBottom,
+        paddingTop: paddingTop,
+        paddingBottom: paddingBottom,
       }}
     >
       <DevLabel
@@ -210,22 +203,17 @@ export default function PropertiesPageClient({
       />
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="mb-10 flex justify-center">
-        <DateSelectorWrapper
-          range={range}
-          setRange={setRange}
-          globalTheme={localTheme}
-          editable={isEditor}
-          onThemeChange={setLocalTheme}
-          onSave={saveTheme}
-        />
+          <DateSelectorWrapper
+            range={range}
+            setRange={setRange}
+            globalTheme={localGlobalTheme}
+            editable={isEditor}
+            onThemeChange={setLocalGlobalTheme}
+            onSave={saveTheme}
+          />
         </div>
         {loading ? (
-          <div
-            className="py-20 text-center"
-            style={{
-              color: secondaryColor,
-            }}
-          >
+          <div className="py-20 text-center">
             Loading properties...
           </div>
         ) : properties.length === 0 ? (
@@ -244,14 +232,14 @@ export default function PropertiesPageClient({
           </div>
         ) : (
           <div
-            className={getGridClass(
-              localTheme.layout?.columns
-            )}
-            style={{
-              gap:
-                localTheme.layout?.gap ??
-                "24px",
-            }}
+            // className={getGridClass(
+            //   localTheme.layout?.columns
+            // )}
+            // style={{
+            //   gap: 
+            //     localTheme.layout?.gap ??
+            //     "24px",
+            // }}
           >
             {properties.map((property) => (
               <EditablePropertyCard
@@ -260,9 +248,9 @@ export default function PropertiesPageClient({
                 property={property}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                globalTheme={localTheme}
+                globalTheme={localGlobalTheme}
                 editable={isEditor}
-                onThemeChange={setLocalTheme}
+                onThemeChange={setLocalGlobalTheme}
               />
             ))}
           </div>

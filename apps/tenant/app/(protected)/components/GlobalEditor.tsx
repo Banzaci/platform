@@ -1,28 +1,67 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { SectionTheme, TenantFont } from "@/types";
+import { GlobalTheme, TenantFont } from "@/types";
 import { useState } from "react";
 import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
+import { ColorField } from "./ColorField";
+import { Field } from "./Field";
+
+type GlobalBaseTheme = NonNullable<GlobalTheme["global"]>;
+type NavigationKey = keyof NonNullable<GlobalTheme["navigation"]>;
 
 export default function GlobalEditor({
   tenantId,
-  theme,
+  globalTheme,
   fonts
 }: {
   tenantId: string;
-  theme: SectionTheme;
+  globalTheme: GlobalTheme;
   fonts: TenantFont[]
 }) {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState(theme);
+  const [form, setForm] = useState<GlobalTheme>(globalTheme);
   const [saving, setSaving] = useState(false);
-
-  function update(key: keyof SectionTheme, value: string) {
+  console.log(form)
+  function updateGlobal<K extends keyof GlobalBaseTheme>(key: K, value: GlobalBaseTheme[K]) {
     setForm((current) => ({
       ...current,
-      [key]: value,
+      global: {
+        ...(current?.global ?? {}),
+        [key]: value,
+      },
+    }));
+  }
+  function resetGlobal(key: keyof GlobalBaseTheme) {
+    setForm((current) => ({
+      ...current,
+      global: {
+        ...(current?.global ?? {}),
+        [key]: undefined,
+      },
+    }));
+  }
+
+  function updateNavigation<K extends NavigationKey>(key: K,
+    value: NonNullable<GlobalTheme["navigation"]>[K]
+  ) {
+    setForm((current) => ({
+      ...current,
+      navigation: {
+        ...(current.navigation ?? {}),
+        [key]: value,
+      },
+    }));
+  }
+
+  function resetNavigation(key: NavigationKey) {
+    setForm((current) => ({
+      ...current,
+      navigation: {
+        ...(current.navigation ?? {}),
+        [key]: undefined,
+      },
     }));
   }
 
@@ -35,21 +74,23 @@ export default function GlobalEditor({
           method: "PUT",
           body: JSON.stringify(
             {
-              backgroundColor: form.backgroundColor,
-              textColor: form.textColor,
-              primaryColor: form.primaryColor,
-              secondaryColor: form.secondaryColor,
-              navigation: form.navigation,
+              global: {
+                backgroundColor: form?.global.backgroundColor,
+                textColor: form?.global.textColor,
+                primaryColor: form?.global.primaryColor,
+                secondaryColor: form?.global.secondaryColor,
+              },
+              navigation: form?.navigation,
               fonts: {
-                body: form.fonts?.body || null,
-                heading: form.fonts?.heading || null,
+                body: form?.fonts?.body || null,
+                heading: form?.fonts?.heading || null,
               },
             }
           ),
         }
       );
       setOpen(false);
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error("Theme save failed:", error);
     } finally {
@@ -90,84 +131,67 @@ export default function GlobalEditor({
             </div>
 
             <div className="space-y-5">
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Background color
-                </span>
-                <input
-                  type="color"
-                  value={form.backgroundColor}
-                  onChange={(e) =>
-                    update("backgroundColor", e.target.value)
-                  }
-                  className="h-10 w-full cursor-pointer"
-                />
-              </label>
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Text color
-                </span>
-                <input
-                  type="color"
-                  value={form.textColor}
-                  onChange={(e) =>
-                    update("textColor", e.target.value)
-                  }
-                  className="h-10 w-full cursor-pointer"
-                />
-              </label>
+              <ColorField
+                label="Background color"
+                value={form?.global?.backgroundColor}
+                onChange={(value) =>
+                  updateGlobal("backgroundColor", value)
+                }
+                onReset={() =>
+                  resetGlobal("backgroundColor")
+                }
+              />
+              <ColorField
+                label="Text color"
+                value={form?.global?.textColor}
+                onChange={(value) =>
+                  updateGlobal("textColor", value)
+                }
+                onReset={() =>
+                  resetGlobal("textColor")
+                }
+              />
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Primary color
-                </span>
-
-                <input
-                  type="color"
-                  value={form.primaryColor}
-                  onChange={(e) =>
-                    update("primaryColor", e.target.value)
-                  }
-                  className="h-10 w-full cursor-pointer"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Secondary color
-                </span>
-
-                <input
-                  type="color"
-                  value={form.secondaryColor}
-                  onChange={(e) =>
-                    update("secondaryColor", e.target.value)
-                  }
-                  className="h-10 w-full cursor-pointer"
-                />
-              </label>
+              <ColorField
+                label="Primary color"
+                value={form?.global?.primaryColor}
+                onChange={(value) =>
+                  updateGlobal("primaryColor", value)
+                }
+                onReset={() =>
+                  resetGlobal("primaryColor")
+                }
+              />
+              <ColorField
+                label="Secondary color"
+                value={form?.global?.secondaryColor}
+                onChange={(value) =>
+                  updateGlobal("secondaryColor", value)
+                }
+                onReset={() =>
+                  resetGlobal("secondaryColor")
+                }
+              />
 
               <label className="block">
                 <span className="mb-2 block text-sm font-medium">
                   Font family
                 </span>
-
                 <select
-                  value={form.fonts?.body ?? ""}
+                  value={form?.fonts?.body ?? ""}
                   onChange={(e) =>
                     setForm((current) => ({
                       ...current,
                       fonts: {
-                        ...current.fonts,
-                        body: e.target.value || null,
+                        ...(current.fonts ?? {}),
+                        body: e.target.value || undefined,
                       },
                     }))
                   }
                   className="w-full rounded-lg border px-4 py-3"
                 >
                   <option value="">Default font</option>
-
-                  {fonts.map((font) => (
+                   {fonts.map((font) => (
                     <option
                       key={font.id}
                       value={font.name}
@@ -177,27 +201,24 @@ export default function GlobalEditor({
                   ))}
                 </select>
               </label>
-
               <label className="block">
                 <span className="mb-2 block text-sm font-medium">
                   Heading font
                 </span>
-
                 <select
-                  value={form.fonts?.heading ?? ""}
+                  value={form?.fonts?.body ?? ""}
                   onChange={(e) =>
                     setForm((current) => ({
                       ...current,
                       fonts: {
-                        ...current.fonts,
-                        heading: e.target.value || null,
+                        ...(current.fonts ?? {}),
+                        heading: e.target.value || undefined,
                       },
                     }))
                   }
                   className="w-full rounded-lg border px-4 py-3"
                 >
-                  <option value="">Default heading font</option>
-
+                  <option value="">Default font</option>
                   {fonts.map((font) => (
                     <option
                       key={font.id}
@@ -208,125 +229,75 @@ export default function GlobalEditor({
                   ))}
                 </select>
               </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium">
-                  Font size
-                </span>
-
+              {/* <Field
+                label="Font size"
+                overridden={!!form.global?.fontSize}
+                onReset={() => resetGlobal("fontSize")}
+              >
                 <input
-                  value={form.fontSize}
+                  value={form.global?.fontSize ?? ""}
                   onChange={(e) =>
-                    update("fontSize", e.target.value)
+                    updateGlobal("fontSize", e.target.value)
                   }
                   className="w-full rounded-lg border px-4 py-3"
                 />
-              </label>
+              </Field> */}
               <div className="border-t pt-5">
                 <h3 className="mb-4 text-base font-semibold">
                   Navigation
                 </h3>
-
                 <div className="space-y-5">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium">
-                      Background color
-                    </span>
-
-                    <input
-                      type="color"
-                      value={form.navigation.backgroundColor}
-                      onChange={(e) =>
-                        setForm((current) => ({
-                          ...current,
-                          navigation: {
-                            ...current.navigation,
-                            backgroundColor: e.target.value,
-                          },
-                        }))
-                      }
-                      className="h-10 w-full cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium">
-                      Text color
-                    </span>
-
-                    <input
-                      type="color"
-                      value={form.navigation.textColor}
-                      onChange={(e) =>
-                        setForm((current) => ({
-                          ...current,
-                          navigation: {
-                            ...current.navigation,
-                            textColor: e.target.value,
-                          },
-                        }))
-                      }
-                      className="h-10 w-full cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium">
-                      Hover color
-                    </span>
-
-                    <input
-                      type="color"
-                      value={form.navigation.hoverColor}
-                      onChange={(e) =>
-                        setForm((current) => ({
-                          ...current,
-                          navigation: {
-                            ...current.navigation,
-                            hoverColor: e.target.value,
-                          },
-                        }))
-                      }
-                      className="h-10 w-full cursor-pointer"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium">
-                      Active color
-                    </span>
-
-                    <input
-                      type="color"
-                      value={form.navigation.activeColor}
-                      onChange={(e) =>
-                        setForm((current) => ({
-                          ...current,
-                          navigation: {
-                            ...current.navigation,
-                            activeColor: e.target.value,
-                          },
-                        }))
-                      }
-                      className="h-10 w-full cursor-pointer"
-                    />
-                  </label>
-
+                  <ColorField
+                    label="Background color"
+                    value={form?.navigation?.backgroundColor}
+                    onChange={(value) =>
+                      updateNavigation("backgroundColor", value)
+                    }
+                    onReset={() =>
+                      resetNavigation("backgroundColor")
+                    }
+                  />
+                  <ColorField
+                    label="Text color"
+                    value={form?.navigation?.textColor}
+                    onChange={(value) =>
+                      updateNavigation("textColor", value)
+                    }
+                    onReset={() =>
+                      resetNavigation("textColor")
+                    }
+                  />
+                  <ColorField
+                    label="Hover color"
+                    value={form?.navigation?.hoverColor}
+                    onChange={(value) =>
+                      updateNavigation("hoverColor", value)
+                    }
+                    onReset={() =>
+                      resetNavigation("hoverColor")
+                    }
+                  />
+                  <ColorField
+                    label="activeColor color"
+                    value={form?.navigation?.activeColor}
+                    onChange={(value) =>
+                      updateNavigation("activeColor", value)
+                    }
+                    onReset={() =>
+                      resetNavigation("activeColor")
+                    }
+                  />
                   <label className="block">
                     <span className="mb-2 block text-sm font-medium">
                       Navigation font
                     </span>
-
                     <select
-                      value={form.navigation.fontFamily ?? ""}
+                      value={form?.navigation?.fontFamily ?? ""}
                       onChange={(e) =>
-                        setForm((current) => ({
-                          ...current,
-                          navigation: {
-                            ...current.navigation,
-                            fontFamily: e.target.value,
-                          },
-                        }))
+                        updateNavigation(
+                          "fontFamily",
+                          e.target.value || undefined
+                        )
                       }
                       className="w-full rounded-lg border px-4 py-3"
                     >
@@ -345,7 +316,6 @@ export default function GlobalEditor({
                 </div>
               </div>
             </div>
-
             <div className="mt-8 flex justify-end gap-3">
               <button
                 type="button"
@@ -354,7 +324,6 @@ export default function GlobalEditor({
               >
                 Cancel
               </button>
-
               <button
                 type="button"
                 onClick={save}

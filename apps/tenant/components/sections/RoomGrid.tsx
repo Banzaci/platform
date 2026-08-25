@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { apiClient } from "@/libs/api";
 import {
+  GlobalTheme,
   SectionTheme,
   TenantProperty,
 } from "@/types";
@@ -11,20 +12,20 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 
 type Props = {
   tenantId: string;
-
   content: {
     heading?: { en?: string };
     text?: { en?: string };
     limit?: number;
   };
-
-  theme?: SectionTheme;
+  sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
 export default function RoomGrid({
   tenantId,
   content,
-  theme,
+  sectionTheme,
+  globalTheme,
 }: Props) {
   const [properties, setProperties] = useState<
     TenantProperty[]
@@ -39,12 +40,14 @@ export default function RoomGrid({
     fontFamily,
     headingFontFamily,
     fontSize,
+    paddingTop,
+    paddingBottom,
     card_background_color,
     card_text_color,
     card_secondary_color,
     card_border_color,
     card_radius,
-  } = resolveSectionTheme(theme);
+  } = resolveSectionTheme({...sectionTheme, ...globalTheme });
   useEffect(() => {
     let cancelled = false;
 
@@ -89,8 +92,8 @@ export default function RoomGrid({
         color: textColor,
         fontFamily,
         fontSize,
-        paddingTop: theme?.paddingTop,
-        paddingBottom: theme?.paddingBottom,
+        paddingTop: paddingTop,
+        paddingBottom: paddingBottom,
       }}
     >
       <div className="mx-auto max-w-6xl px-6">

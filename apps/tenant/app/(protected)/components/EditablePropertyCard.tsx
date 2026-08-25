@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { SectionTheme, TenantProperty } from "@/types";
+import { GlobalTheme, TenantProperty } from "@/types";
 import PropertyCardTheme from "./property/PropertyCardTheme";
 import PropertyCard from "@/app/accommodation/PropertyCard";
 import EditButton from "./EditButton";
@@ -12,10 +12,10 @@ type Props = {
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
-  globalTheme: SectionTheme;
+  globalTheme: GlobalTheme;
   tenantId: string;
   editable?: boolean;
-  onThemeChange: (theme: SectionTheme) => void;
+  onThemeChange: (theme: GlobalTheme) => void;
 };
 
 export default function EditablePropertyCard({
@@ -29,11 +29,10 @@ export default function EditablePropertyCard({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
+  
   async function save() {
-
     setSaving(true);
-
+    console.log(JSON.stringify(globalTheme))
     try {
       await apiClient.api<any>(
         `v1/tenants/${tenantId}/theme`,
@@ -43,7 +42,7 @@ export default function EditablePropertyCard({
         }
       );
       setOpen(false);
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.error(
         "Property theme save failed:",
@@ -59,7 +58,6 @@ export default function EditablePropertyCard({
       {editable && (
         <EditButton onClick={() => setOpen(true)} />
       )}
-
       <PropertyCard
         property={property}
         checkIn={checkIn}

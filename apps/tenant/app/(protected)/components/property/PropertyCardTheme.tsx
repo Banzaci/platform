@@ -1,13 +1,14 @@
 "use client";
 
 import { X } from "lucide-react";
-import { SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
+import { ColorField } from "../ColorField";
 
 type Props = {
-  globalTheme: SectionTheme;
-  onChange: (theme: SectionTheme) => void;
+  globalTheme: GlobalTheme;
+  onChange: (theme: GlobalTheme) => void;
   onSave: () => Promise<void>;
   isSaving: boolean;
   onClose: () => void;
@@ -25,13 +26,36 @@ export default function PropertyCardTheme({
   onSave,
   isSaving,
 }: Props) {
-  
-  function updateThemeGroup(group: ThemeGroup, key: string, value: string) {
+  function updateThemeGroup< G extends ThemeGroup, K extends keyof NonNullable<GlobalTheme[G]>>(
+    group: G,
+    key: K,
+    value: NonNullable<GlobalTheme[G]>[K]
+  ) {
     onChange({
       ...globalTheme,
       [group]: {
         ...(globalTheme[group] ?? {}),
         [key]: value,
+      },
+    });
+  }
+
+  function resetCard(key: keyof NonNullable<GlobalTheme["card"]>) {
+    onChange({
+      ...globalTheme,
+      card: {
+        ...globalTheme.card,
+        [key]: undefined,
+      },
+    });
+  }
+
+  function resetButton(key: keyof NonNullable<GlobalTheme["button"]>) {
+    onChange({
+      ...globalTheme,
+      button: {
+        ...globalTheme.card,
+        [key]: undefined,
       },
     });
   }
@@ -78,10 +102,7 @@ export default function PropertyCardTheme({
         <div className="grid grid-cols-2 gap-5">
           <ColorField
             label="Background"
-            value={
-              card_background_color ??
-              "#ffffff"
-            }
+            value={card_background_color}
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -89,11 +110,11 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetCard("backgroundColor")}
           />
-
           <ColorField
             label="Text"
-            value={ card_text_color ?? "#111111" }
+            value={ card_text_color }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -101,11 +122,12 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetCard("textColor")}
           />
 
           <ColorField
             label="Secondary text"
-            value={ card_secondary_color ?? "#666666" }
+            value={ card_secondary_color }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -113,11 +135,12 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetCard("secondaryColor")}
           />
 
           <ColorField
             label="Border"
-            value={ card_border_color ?? "#e5e7eb" }
+            value={ card_border_color }
             onChange={(value) =>
               updateThemeGroup(
                 "card",
@@ -125,6 +148,7 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetCard("borderColor")}
           />
 
           <div>
@@ -162,7 +186,7 @@ export default function PropertyCardTheme({
                 updateThemeGroup(
                   "card",
                   "shadow",
-                  e.target.value
+                  e.target.value as "none" | "sm" | "md" | "lg"
                 )
               }
               className="w-full rounded-lg border px-3 py-2"
@@ -175,7 +199,7 @@ export default function PropertyCardTheme({
           </div>
           <ColorField
             label="Button background"
-            value={ button_background ?? "#111111" }
+            value={ button_background }
             onChange={(value) =>
               updateThemeGroup(
                 "button",
@@ -183,14 +207,12 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetButton("backgroundColor")}
           />
 
           <ColorField
             label="Button text"
-            value={
-              button_text ??
-              "#ffffff"
-            }
+            value={ button_text }
             onChange={(value) =>
               updateThemeGroup(
                 "button",
@@ -198,6 +220,7 @@ export default function PropertyCardTheme({
                 value
               )
             }
+            onReset={() => resetButton("textColor")}
           />
 
           <div>
@@ -210,7 +233,7 @@ export default function PropertyCardTheme({
               onChange={(e) =>
                 updateThemeGroup(
                   "button",
-                  "textColor",
+                  "borderRadius",
                   e.target.value
                 )
               }
@@ -236,31 +259,6 @@ export default function PropertyCardTheme({
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ColorField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-2 block text-sm font-medium">
-        {label} {value}
-      </label>
-
-      <input
-        type="color"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full cursor-pointer"
-      />
     </div>
   );
 }

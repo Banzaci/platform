@@ -5,7 +5,7 @@ import { DateRange } from "react-day-picker";
 import { Pencil, X } from "lucide-react";
 import { createPortal } from "react-dom";
 
-import { SectionTheme } from "@/types";
+import { GlobalTheme, SectionTheme } from "@/types";
 import DateSelector from "@/app/accommodation/DateSelector";
 import DateSelectorThemeEditor from "./DateSelectorThemeEditor";
 import EditButton from "../EditButton";
@@ -13,9 +13,9 @@ import EditButton from "../EditButton";
 type Props = {
   range?: DateRange;
   setRange: (range: DateRange | undefined) => void;
-  globalTheme: SectionTheme;
+  globalTheme: GlobalTheme;
   editable?: boolean;
-  onThemeChange: (theme: SectionTheme) => void;
+  onThemeChange: (theme: GlobalTheme) => void;
   onSave: () => Promise<void>;
 };
 
@@ -32,7 +32,6 @@ export default function DateSelectorWrapper({
 
   async function save() {
     setSaving(true);
-
     try {
       await onSave();
       setOpen(false);
@@ -56,7 +55,7 @@ export default function DateSelectorWrapper({
       {open &&
         createPortal(
           <div
-            className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4"
+            className="fixed inset-0 z-99999 flex items-center justify-center bg-black/60 p-4"
             onMouseDown={() => setOpen(false)}
           >
             <div
