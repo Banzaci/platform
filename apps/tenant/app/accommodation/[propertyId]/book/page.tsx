@@ -7,27 +7,13 @@ export default async function BookingPage({
   params: Promise<{ propertyId: string }>;
 }) {
   const { propertyId } = await params;
-  const data = await getTenant();
-
-  const pageConfig = data.pages.find(
-    (page) => page.slug === "accommodation"
-  );
-
-  const propertyGridSection = pageConfig?.sections?.find(
-    (section) => section.type === "property-grid"
-  );
-
-  const theme = {
-    ...data.tenant.theme,
-    ...(propertyGridSection?.theme ?? {}),
-  };
-
+  const tenant = await getTenant();
   return (
     <BookingPageClient
-      tenantId={data.tenant.id}
+      tenantId={tenant.tenant.id}
       propertyId={propertyId}
-      cancellationPolicy={data.tenant.cancellation_policy}
-      theme={theme}
+      cancellationPolicy={tenant.tenant.cancellation_policy}
+      globalTheme={tenant.tenant.theme}
     />
   );
 }
