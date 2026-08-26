@@ -90,7 +90,7 @@ export default function BookingPageClient({
     card_shadow,
     card_padding,
     button_background,
-    button_text,
+    button_text_color,
     button_radius,
   } = resolveSectionTheme(globalTheme);
 
@@ -630,7 +630,7 @@ export default function BookingPageClient({
                       className="w-full px-5 py-3.5 text-sm font-semibold transition hover:opacity-90 disabled:opacity-50"
                       style={{
                         backgroundColor: button_background,
-                        color: button_text,
+                        color: button_text_color,
                         borderRadius: button_radius,
                       }}
                     >

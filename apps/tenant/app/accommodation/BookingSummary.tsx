@@ -36,50 +36,35 @@ export default function BookingSummary({
 }: Props) {
   return (
     <div
-      className="sticky top-24 border p-6"
+      className="sticky top-24 p-6"
       style={{
         backgroundColor: cardBackground,
         color: textColor,
-        borderColor: cardBorderColor,
+        border: cardBorderColor ? `1px solid ${cardBorderColor}` : "none",
         borderRadius: cardBorderRadius,
         boxShadow: getShadow(cardShadow),
       }}
     >
       <DevLabel
-        name="CalendarSyncSettings"
+        name="BookingSummary"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/BookingSummary.tsx"
       />
-      <h2
-        className="text-xl font-semibold"
-        style={{
-          fontFamily: headingFontFamily,
-        }}
-      >
+      <h2 className="text-lg font-semibold">
         Your stay
       </h2>
-
-      <div
-        className="mt-5 space-y-3"
-        style={{
-          color: secondaryColor,
-        }}
-      >
+      <div className="mt-5 space-y-3 text-md" style={{ color: secondaryColor }}>
         <div className="flex justify-between">
           <span>Check in</span>
-
           <span style={{ color: textColor }}>
             {checkIn}
           </span>
         </div>
-
         <div className="flex justify-between">
           <span>Check out</span>
-
           <span style={{ color: textColor }}>
             {checkOut}
           </span>
         </div>
-
         {nights != null && (
           <div className="flex justify-between">
             <span>Nights</span>
@@ -89,39 +74,20 @@ export default function BookingSummary({
           </div>
         )}
         {total_price != null && (
-          <div
-            className="flex justify-between border-t pt-4"
-            style={{
-              borderColor: cardBorderColor,
-            }}
-          >
+          <div className="flex justify-between border-t pt-4" style={{ border: cardBorderColor ? `1px solid ${cardBorderColor}` : "none" }}>
             <span className="font-semibold">
               Total
             </span>
-
-            <span
-              className="text-xl font-semibold"
-              style={{
-                color: textColor,
-                fontFamily: headingFontFamily,
-              }}
-            >
+            <span className="font-semibold" style={{ color: textColor }}>
               ${total_price}
             </span>
           </div>
         )}
       </div>
-
-      <div
-        className="mt-6 border-t pt-5"
-        style={{
-          borderColor: cardBorderColor,
-        }}
-      >
+      <div className="mt-6 border-t pt-5" style={{ border: cardBorderColor ? `1px solid ${cardBorderColor}` : "none" }}>
         <h3 className="font-semibold">
           Cancellation policy
         </h3>
-
         <div
           className="mt-3 space-y-2 text-sm"
           style={{

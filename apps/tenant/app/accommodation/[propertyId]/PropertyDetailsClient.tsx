@@ -84,7 +84,7 @@ export default function PropertyDetailsClient({
     card_padding,
     card_secondary_color,
     button_background,
-    button_text,
+    button_text_color,
     button_radius,
   } = resolveSectionTheme(globalTheme);
   if (loading) {
@@ -106,7 +106,6 @@ export default function PropertyDetailsClient({
   const query = params.toString();
   const bookingUrl = `/accommodation/${property.id}/book` + (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
-  console.log(section)
   return (
     <main className="relative min-h-screen w-full" style={{
         backgroundColor: card_background_color,
@@ -206,7 +205,7 @@ export default function PropertyDetailsClient({
                 className="flex w-full justify-center px-5 py-4 font-medium transition hover:opacity-90"
                 style={{
                   backgroundColor: button_background,
-                  color: button_text,
+                  color: button_text_color,
                   borderRadius: button_radius,
                 }}
               >
@@ -219,7 +218,7 @@ export default function PropertyDetailsClient({
                 className="w-full cursor-not-allowed px-5 py-4 font-medium opacity-40"
                 style={{
                   backgroundColor: button_background,
-                  color: button_text,
+                  color: button_text_color,
                   borderRadius: button_radius,
                 }}
               >
