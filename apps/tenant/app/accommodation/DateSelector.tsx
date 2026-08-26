@@ -6,6 +6,7 @@ import { DateRange } from "react-day-picker";
 import ThemedDayPicker from "../(protected)/components/editsection/ThemedDayPicker";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
+import { Field } from "../(protected)/components/Field";
 
 export default function DateSelector({
   range,
@@ -71,27 +72,25 @@ export default function DateSelector({
             />
             <div className="flex gap-8">
               <div>
-                <div
-                  className="text-xs uppercase"
+                <label
+                  className="text-xs"
                   style={{
                     color: date_secondary,
                   }}
                 >
                   Check in
-                </div>
+                </label>
                 <div className="font-medium">
                   {formatDisplayDate(displayFrom)}
                 </div>
               </div>
               <div>
-                <div
-                  className="text-xs uppercase"
-                  style={{
-                    color: date_secondary,
-                  }}
+                <label
+                  className="text-xs"
+                  style={{ color: date_secondary }}
                 >
                   Check out
-                </div>
+                </label>
                 <div className="font-medium">
                   {formatDisplayDate(displayTo)}
                 </div>
