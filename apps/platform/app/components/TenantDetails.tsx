@@ -13,6 +13,7 @@ import {
 
 import { apiClient } from "@/libs/api";
 import { Field } from "./Field";
+import DevLabel from "./DevLabel";
 
 type GenerateProjectResponse = {
   tenant_id: string;
@@ -110,7 +111,11 @@ export default function TenantDetails() {
   }
 
   return (
-    <main className="flex justify-center my-4">
+    <main className="relative flex justify-center my-4">
+      <DevLabel
+        name="TenantDetails"
+        file="/Users/michellarsson/Projects/hotels/apps/platform/app/components/TenantDetails.tsx"
+      />
       <div className="w-full max-w-3xl">
         <form
           onSubmit={handleSubmit}

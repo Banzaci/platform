@@ -78,7 +78,7 @@ export default function BlockDatesForm({
         return;
       }
 
-      const response = await apiClient.api<any>(
+      await apiClient.api<any>(
         `v1/tenants/${tenantId}/properties/${propertyId}/blocked-periods`,
         {
           method: "POST",
@@ -90,12 +90,6 @@ export default function BlockDatesForm({
           }),
         }
       );
-
-      if (!response.ok) {
-        throw new Error(
-          await response.text()
-        );
-      }
 
       setNote("");
       clearRange();

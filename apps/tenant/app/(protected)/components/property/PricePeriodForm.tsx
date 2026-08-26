@@ -56,10 +56,6 @@ export default function PricePeriodForm({
         }
       );
 
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
       setName("");
       setDailyPrice("");
       setWeeklyPrice("");

@@ -7,6 +7,8 @@ import EditorControls from "./(protected)/components/EditorControls";
 import ThemeProvider from "@/providers/ThemeProvider";
 import DevLabelToggle from "@/helpers/DevLabelToggle";
 import { GlobalTheme } from "@/types";
+import { notFound } from "next/navigation";
+import NoTenant from "./NoTenant";
 
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -96,19 +98,15 @@ export async function generateMetadata(): Promise<Metadata> {
         },
   };
 }
-
-// const inter = Inter({
-//   variable: "--font-inter",
-//   subsets: ["latin"],
-//   display: "swap",
-// }); ${inter.variable} 
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const tenant = await getTenant();
+  if(!tenant?.tenant) {
+    return <NoTenant />
+  }
   const fonts = tenant.fonts ?? [];
   const globalTheme = tenant.tenant.theme as GlobalTheme;
   return (

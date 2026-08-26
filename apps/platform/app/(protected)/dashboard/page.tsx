@@ -10,6 +10,7 @@ import { Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import DevLabel from "@/app/components/DevLabel";
 import TenantDetails from "@/app/components/TenantDetails";
+import { PageLoader } from "@hotel/ui";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function DashboardPage() {
       await queryClient.invalidateQueries({
         queryKey: ["tenants"],
       });
+      window.location.reload();
     },
   });
 
@@ -36,15 +38,9 @@ export default function DashboardPage() {
     queryKey: ["my-tenants"],
     queryFn: () => apiClient.api<Tenant[]>("v1/tenants"),
   });
-  
-  useEffect(() => {
-    if (!isLoading && !tenants?.length) {
-      setIsAddTenantOpen(true);
-    }
-  }, [isLoading, tenants]);
 
   if (isLoading) {
-    return null
+    return <PageLoader />
   }
 
   return (
@@ -64,7 +60,6 @@ export default function DashboardPage() {
         >
           + Add hotel
         </button>
-
         {tenants?.length ? (
           <ul className="divide-y divide-gray-100">
             {tenants.map((tenant) => {

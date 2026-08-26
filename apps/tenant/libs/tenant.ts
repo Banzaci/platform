@@ -26,11 +26,6 @@ export const getTenant = cache(async () => {
     }
   );
   
-  if (!response.ok) {
-    throw new Error(
-      `Failed to resolve tenant: ${response.status}`
-    );
-  }
   const data: TenantResponse = await response.json() as TenantResponse;
   return data;
 });
