@@ -43,7 +43,6 @@ export function ColorField({
         ) : (
           <label className="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition hover:bg-gray-50 hover:text-gray-600">
             <Palette className="h-4 w-4" />
-
             <input
               type="color"
               onChange={(e) => onChange(e.target.value)}

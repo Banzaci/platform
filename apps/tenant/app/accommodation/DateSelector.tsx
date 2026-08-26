@@ -6,13 +6,9 @@ import { DateRange } from "react-day-picker";
 import ThemedDayPicker from "../(protected)/components/editsection/ThemedDayPicker";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
-import { Field } from "../(protected)/components/Field";
+import EditableTextColor from "../(protected)/components/EditableTextColor";
 
-export default function DateSelector({
-  range,
-  setRange,
-  globalTheme,
-}: {
+export default function DateSelector({ range, setRange, globalTheme}: {
   range?: DateRange;
   setRange: (
     range: DateRange | undefined

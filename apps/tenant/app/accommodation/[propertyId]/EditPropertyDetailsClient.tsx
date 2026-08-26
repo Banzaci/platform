@@ -4,12 +4,13 @@
 import EditableSection from "@/app/(protected)/components/EditableSection";
 import PropertyDetailsClient from "./PropertyDetailsClient";
 import { CancellationPolicy, GlobalTheme, TenantFont } from "@/types";
+import { SectionType } from "@/app/(protected)/types/section";
 
 type Props = {
   tenantId: string;
   propertyId: string;
   pageId: string;
-  sections: any[];
+  sections: SectionType[];
   globalTheme: GlobalTheme;
   cancellationPolicy: CancellationPolicy
   fonts: TenantFont[]
@@ -25,7 +26,7 @@ export default function EditPropertyDetailsClient({
 }: Props) {
     return (
       <>
-        {sections.map((section) => {
+        {sections.map((section: SectionType) => {
           return (
             <EditableSection
               key={section.id}
@@ -40,6 +41,7 @@ export default function EditPropertyDetailsClient({
                 propertyId={propertyId}
                 cancellationPolicy={cancellationPolicy}
                 globalTheme={globalTheme}
+                section={section}
               />
             </EditableSection>
           );

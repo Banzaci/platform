@@ -14,6 +14,7 @@ import {
   CancellationPolicy,
   GlobalTheme,
   PublicTenantPropertyResponse,
+  SectionTheme,
   TenantProperty,
 } from "@/types";
 import PropertySlideshow from "@/app/(protected)/components/property/PropertySlideshow";
@@ -22,12 +23,14 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import BookingSummary from "../BookingSummary";
 import DevLabel from "@/helpers/DevLabel";
 import { EmptyState, PageLoader } from "@hotel/ui";
+import { SectionType } from "@/app/(protected)/types/section";
 
 export type PropertyDetailsClientProps = {
   tenantId: string;
   propertyId: string;
   cancellationPolicy: CancellationPolicy;
   globalTheme?: GlobalTheme;
+  section?: SectionType;
 };
 
 export default function PropertyDetailsClient({
@@ -35,6 +38,7 @@ export default function PropertyDetailsClient({
   propertyId,
   cancellationPolicy,
   globalTheme,
+  section,
 }: PropertyDetailsClientProps) {
   const searchParams = useSearchParams();
   const checkIn = searchParams.get("checkIn");
@@ -102,7 +106,7 @@ export default function PropertyDetailsClient({
   const query = params.toString();
   const bookingUrl = `/accommodation/${property.id}/book` + (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
-
+  console.log(section)
   return (
     <main className="relative min-h-screen w-full" style={{
         backgroundColor: card_background_color,
@@ -114,6 +118,10 @@ export default function PropertyDetailsClient({
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/[propertyId]/PropertyDetailsClient.tsx"
       />
       <div className="mx-auto max-w-6xl p-10">
+        <div className="mb-2">
+          {section?.content.heading && <h2>{section?.content.heading.en}</h2>}
+          {section?.content.text && <p className="text-sm">{section?.content.text.en}</p>}
+        </div>
         {/* COLUMN 1: Image + property information */}
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_360px] ">
           <div
