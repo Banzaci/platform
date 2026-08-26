@@ -41,6 +41,7 @@ export default function PropertyCard({
     card_padding,
     button_background,
     button_text,
+    button_text_color,
     button_radius,
     button_position,
     button_width
@@ -59,10 +60,9 @@ export default function PropertyCard({
   const buttonStyle = {
     width: button_width ?? "100%",
     backgroundColor: button_background,
-    color: button_text,
+    color: button_text_color,
     borderRadius: button_radius,
   };
-
   return (
     <article
       className="overflow-hidden"
