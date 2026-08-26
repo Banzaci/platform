@@ -6,6 +6,7 @@ import DevLabel from "@/helpers/DevLabel";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { ColorField } from "../ColorField";
 import { SelectField } from "../SelectField";
+import { TextField } from "../TextField";
 
 type Props = {
   globalTheme: GlobalTheme;
@@ -69,8 +70,11 @@ export default function PropertyCardTheme({
     card_radius,
     card_shadow,
     button_background,
+    button_position,
     button_radius,
     button_text,
+    button_text_color,
+    button_width,
   } = resolveSectionTheme(globalTheme);
 
   return (
@@ -212,8 +216,8 @@ export default function PropertyCardTheme({
           />
 
           <ColorField
-            label="Button text"
-            value={ button_text }
+            label="Button text color"
+            value={ button_text_color }
             onChange={(value) =>
               updateThemeGroup(
                 "button",
@@ -242,6 +246,52 @@ export default function PropertyCardTheme({
             }
             onReset={() =>
               resetButton("borderRadius")
+            }
+          />
+          <SelectField
+            label="Button width"
+            value={button_width}
+            placeholder="Button width"
+            options={[
+                { value: "30%", label: "30%" },
+                { value: "50%", label: "50%" },
+                { value: "75%", label: "75%" },
+                { value: "100%", label: "100%" },
+              ]}
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "width",
+                value as "30%" | "50%" | "75%" | "100%"
+              )
+            }
+          />
+          <SelectField
+            label="Button position"
+            value={button_position}
+            placeholder="Button position"
+            options={[
+                { value: "left", label: "Left" },
+                { value: "center", label: "Center" },
+                { value: "right", label: "Right" },
+              ]}
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "position",
+                value as "left" | "center" | "right"
+              )
+            }
+          />
+          <TextField
+            label="Button text"
+            value={button_text}
+            onChange={(value) =>
+              updateThemeGroup(
+                "button",
+                "text",
+                value
+              )
             }
           />
         </div>

@@ -9,8 +9,8 @@ export default async function Page({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const data = await getTenant();
-  const page = data.pages.find(
+  const tenant = await getTenant();
+  const page = tenant.pages.find(
     (page: any) => page.slug === slug
   );
 
@@ -20,7 +20,7 @@ export default async function Page({
   return <PageRenderer
     page={page}
     editable={true}
-    globalTheme={data.tenant.theme}
-    fonts={data.fonts}
+    globalTheme={tenant.tenant.theme}
+    fonts={tenant.fonts}
   />;
 }

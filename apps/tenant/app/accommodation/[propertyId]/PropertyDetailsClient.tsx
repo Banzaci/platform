@@ -5,15 +5,15 @@ import { useSearchParams } from "next/navigation";
 import {
   Bath,
   BedDouble,
+  User,
   Users,
 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
 import {
   CancellationPolicy,
-  PublicPropertyResponse,
+  GlobalTheme,
   PublicTenantPropertyResponse,
-  SectionTheme,
   TenantProperty,
 } from "@/types";
 import PropertySlideshow from "@/app/(protected)/components/property/PropertySlideshow";
@@ -21,19 +21,20 @@ import { getShadow } from "@/helpers";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import BookingSummary from "../BookingSummary";
 import DevLabel from "@/helpers/DevLabel";
+import { EmptyState, PageLoader } from "@hotel/ui";
 
 export type PropertyDetailsClientProps = {
   tenantId: string;
   propertyId: string;
   cancellationPolicy: CancellationPolicy;
-  theme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
 export default function PropertyDetailsClient({
   tenantId,
   propertyId,
   cancellationPolicy,
-  theme,
+  globalTheme,
 }: PropertyDetailsClientProps) {
   const searchParams = useSearchParams();
   const checkIn = searchParams.get("checkIn");
@@ -45,23 +46,18 @@ export default function PropertyDetailsClient({
     async function load() {
       try {
         const params = new URLSearchParams();
-
         if (checkIn) {
           params.set("check_in", checkIn);
         }
-
         if (checkOut) {
           params.set("check_out", checkOut);
         }
-
         const query = params.toString();
-
         const data = await apiClient.api<PublicTenantPropertyResponse>(
-            `v1/tenants/${tenantId}/properties/${propertyId}/public${
-              query ? `?${query}` : ""
-            }`
-          );
-
+          `v1/tenants/${tenantId}/properties/${propertyId}/public${
+            query ? `?${query}` : ""
+          }`
+        );
         setProperty(data.property);
       } catch (error) {
         console.error(
@@ -76,44 +72,23 @@ export default function PropertyDetailsClient({
   }, [tenantId, propertyId, checkIn, checkOut]);
 
   const {
-    fontFamily,
-    textColor,
-    backgroundColor,
-    secondaryColor,
     card_background_color,
     card_text_color,
     card_border_color,
     card_radius,
     card_shadow,
     card_padding,
+    card_secondary_color,
     button_background,
     button_text,
     button_radius,
-  } = resolveSectionTheme(theme);
+  } = resolveSectionTheme(globalTheme);
   if (loading) {
-    return (
-      <div
-        className="mx-auto max-w-7xl px-6 py-20"
-        style={{
-          color: secondaryColor,
-        }}
-      >
-        Loading...
-      </div>
-    );
+    return <PageLoader />
   }
 
   if (!property) {
-    return (
-      <div
-        className="mx-auto max-w-7xl px-6 py-20"
-        style={{
-          color: secondaryColor,
-        }}
-      >
-        Property not found.
-      </div>
-    );
+    return <EmptyState title="No property found"/>
   }
 
   const params = new URLSearchParams();
@@ -127,13 +102,11 @@ export default function PropertyDetailsClient({
   const query = params.toString();
   const bookingUrl = `/accommodation/${property.id}/book` + (query ? `?${query}` : "");
   const canBook = !!checkIn && !!checkOut && property.is_available;
+
   return (
-    <main
-      className="relative min-h-screen w-full"
-      style={{
-        backgroundColor: backgroundColor,
-        color: textColor,
-        fontFamily,
+    <main className="relative min-h-screen w-full" style={{
+        backgroundColor: card_background_color,
+        color: card_text_color,
       }}
     >
       <DevLabel
@@ -159,72 +132,45 @@ export default function PropertyDetailsClient({
                 alt={property.name}
               />
             </div>
-
-            <div className="mt-10"
-              style={{
-                  padding: card_padding,
-                }}
-              >
-              <h1
-                className="text-4xl font-semibold tracking-tight">
+            <div style={{ padding: card_padding }} className="p-4">
+              <h2 className="text-lg font-semibold">
                 {property.name}
-              </h1>
-
-              <div
-                className="mt-5 flex flex-wrap gap-6 text-sm"
-                style={{
-                  color: secondaryColor,
-                }}
-              >
-                <span className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  {property.max_guests} guests
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <BedDouble className="h-4 w-4" />
-                  {property.beds} beds
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <Bath className="h-4 w-4" />
-                  {property.bathrooms} bathrooms
-                </span>
-              </div>
-
+              </h2>
               {property.description && (
                 <p
-                  className="mt-8 max-w-3xl whitespace-pre-line text-lg leading-8"
+                  className="mt-1.5 line-clamp-2 text-sm leading-5"
                   style={{
-                    color: secondaryColor,
+                    color: card_secondary_color,
                   }}
                 >
                   {property.description}
                 </p>
               )}
-
+              <div className="my-8 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+                <span className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {property.max_guests} guests
+                </span>
+                <span className="flex items-center gap-2">
+                  <BedDouble className="h-4 w-4" />
+                  {property.beds} beds
+                </span>
+                <span className="flex items-center gap-2">
+                  <Bath className="h-4 w-4" />
+                  {property.bathrooms} bathrooms
+                </span>
+              </div>
               {property.amenities?.length > 0 && (
-                <section
-                  className="mt-10 border-t pt-8"
-                  style={{
-                    borderColor: card_border_color,
-                  }}
-                >
-                  <h2 className="text-2xl font-semibold">
-                    Amenities
-                  </h2>
-
-                  <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3">
+                <section className="mt-8">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {property.amenities.map((amenity) => (
-                      <div
+                      <span
                         key={amenity}
-                        className="border px-4 py-3"
-                        style={{
-                          color: secondaryColor,
-                        }}
+                        className="rounded-full border py-2 px-4 text-xs"
+                        style={{ borderColor: card_border_color, color: card_secondary_color }}
                       >
                         {amenity}
-                      </div>
+                      </span>
                     ))}
                   </div>
                 </section>
@@ -238,8 +184,8 @@ export default function PropertyDetailsClient({
             checkIn={checkIn}
             checkOut={checkOut}
             cancellationPolicy={cancellationPolicy}
-            textColor={textColor}
-            secondaryColor={secondaryColor}
+            textColor={card_text_color}
+            secondaryColor={card_secondary_color}
             cardBackground={card_background_color}
             cardBorderColor={card_border_color}
             cardBorderRadius={card_radius}

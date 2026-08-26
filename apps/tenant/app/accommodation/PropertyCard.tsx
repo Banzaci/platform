@@ -42,15 +42,34 @@ export default function PropertyCard({
     button_background,
     button_text,
     button_radius,
+    button_position,
+    button_width
   } = resolveSectionTheme(globalTheme);
+
+  const hasDates = !!checkIn && !!checkOut;
+  const canView = hasDates && property.is_available;
+
+  const buttonJustify =
+    button_position === "left"
+      ? "flex-start"
+      : button_position === "center"
+        ? "center"
+        : "flex-end";
+
+  const buttonStyle = {
+    width: button_width ?? "100%",
+    backgroundColor: button_background,
+    color: button_text,
+    borderRadius: button_radius,
+  };
 
   return (
     <article
-      className="overflow-hidden border"
+      className="overflow-hidden"
       style={{
         backgroundColor: card_background_color,
         color: card_text_color,
-        borderColor: card_border_color,
+        border: card_border_color ? `1px solid ${card_border_color}` : "none",
         borderRadius: card_radius,
         boxShadow: getShadow(card_shadow),
       }}
@@ -59,23 +78,16 @@ export default function PropertyCard({
         name="PropertyCard"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/accommodation/PropertyCard.tsx"
       />
-
       <PropertySlideshow
         images={property.images ?? []}
         alt={property.name}
       />
-
-      <div
-        style={{
-          padding: card_padding,
-        }}
-      >
-        <div className="flex items-start justify-between gap-4 p-2">
+      <div style={{ padding: card_padding }} className="p-4">
+        <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h2 className="text-lg font-semibold">
               {property.name}
             </h2>
-
             {property.description && (
               <p
                 className="mt-1.5 line-clamp-2 text-sm leading-5"
@@ -87,7 +99,6 @@ export default function PropertyCard({
               </p>
             )}
           </div>
-
           {property.total_price && (
             <div className="shrink-0 text-right">
               <div className="text-md font-semibold">
@@ -95,7 +106,7 @@ export default function PropertyCard({
               </div>
 
               <div
-                className="text-[11px]"
+                className="text-md"
                 style={{
                   color: card_secondary_color,
                 }}
@@ -105,80 +116,73 @@ export default function PropertyCard({
             </div>
           )}
         </div>
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 p-2 text-xs">
-          <span className="flex items-center gap-1.5">
-            <User className="h-3.5 w-3.5" />
+        <div className="my-8 flex flex-wrap gap-x-4 gap-y-2 text-xs">
+          <span className="flex items-center gap-2">
+            <User className="h-4 w-4" />
             {property.max_guests} guests
           </span>
-          <span className="flex items-center gap-1.5">
-            <BedDouble className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-2">
+            <BedDouble className="h-4 w-4" />
             {property.beds} beds
           </span>
-          <span className="flex items-center gap-1.5">
-            <Bath className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-2">
+            <Bath className="h-4 w-4" />
             {property.bathrooms} bathrooms
           </span>
         </div>
         {property.amenities?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5 px-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {property.amenities
               .slice(0, 4)
               .map((amenity) => (
                 <span
                   key={amenity}
-                  className="rounded-full border px-2 py-0.5 text-[11px]"
-                  style={{
-                    borderColor: card_border_color,
-                  }}
+                  className="rounded-full border py-2 px-4 text-xs"
+                  style={{ borderColor: card_border_color, color: card_secondary_color }}
                 >
                   {amenity}
                 </span>
               ))}
           </div>
         )}
-        <div className="mt-4">
-          {checkIn && checkOut && property.is_available ? (
-            <a
-              href={bookingUrl}
-              className="inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition hover:opacity-90"
-              style={{
-                backgroundColor: button_background,
-                color: button_text,
-                borderRadius: button_radius,
-              }}
-            >
-              View property
-              <ChevronRight className="h-4 w-4" />
-            </a>
-          ) : (
-            <>
+        <div className="mt-8">
+          <div
+            className="flex w-full"
+            style={{
+              justifyContent: buttonJustify,
+            }}
+          >
+            {canView ? (
+              <a
+                href={bookingUrl}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition hover:opacity-90"
+                style={buttonStyle}
+              >
+                {button_text}
+                <ChevronRight className="h-4 w-4" />
+              </a>
+            ) : (
               <button
                 type="button"
                 disabled
-                className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium opacity-50"
-                style={{
-                  backgroundColor: button_background,
-                  color: button_text,
-                  borderRadius: button_radius,
-                }}
+                className="inline-flex cursor-not-allowed items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium opacity-50"
+                style={buttonStyle}
               >
-                View property
+                {button_text}
                 <ChevronRight className="h-4 w-4" />
               </button>
+            )}
+          </div>
 
-              {checkIn &&
-                checkOut &&
-                !property.is_available && (
-                  <p
-                    className="mt-2 text-center text-xs"
-                    style={{
-                      color: card_secondary_color,
-                    }}
-                  >
-                    Not available for selected dates
-                  </p>
-                )}
-            </>
+          {hasDates && !property.is_available && (
+            <p
+              className="mt-2 text-center text-xs"
+              style={{
+                color: card_secondary_color,
+              }}
+            >
+              Not available for selected dates
+            </p>
           )}
         </div>
       </div>

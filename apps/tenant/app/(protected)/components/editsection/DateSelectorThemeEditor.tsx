@@ -2,6 +2,7 @@ import DevLabel from "@/helpers/DevLabel";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import { GlobalTheme } from "@/types";
 import { ColorField } from "../ColorField";
+import { SelectField } from "../SelectField";
 
 type DateKey = keyof NonNullable<GlobalTheme["dateSelector"]>;
 type Props = {
@@ -51,6 +52,16 @@ export default function DateSelectorThemeEditor({
       />
       <div className="grid grid-cols-2 gap-5">
         <ColorField
+          label="Selected background color"
+          value={date_selected_background}
+          onChange={(value) =>
+            updateDate("selectedBackgroundColor", value)
+          }
+          onReset={() =>
+            resetDate("selectedBackgroundColor")
+          }
+        />
+        <ColorField
           label="Selected color"
           value={date_selected_color}
           onChange={(value) =>
@@ -68,16 +79,6 @@ export default function DateSelectorThemeEditor({
           }
           onReset={() =>
             resetDate("secondaryColor")
-          }
-        />
-        <ColorField
-          label="Selected background color"
-          value={date_selected_background}
-          onChange={(value) =>
-            updateDate("selectedBackgroundColor", value)
-          }
-          onReset={() =>
-            resetDate("selectedBackgroundColor")
           }
         />
         <ColorField
@@ -110,45 +111,38 @@ export default function DateSelectorThemeEditor({
             resetDate("borderColor")
           }
         />
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Width
-          </span>
-          <select
-            value={ date_width ?? "50%" }
-            onChange={(e) =>
-              updateDate(
-                "width",
-                e.target.value as "50%" | "100%" | undefined
-              )
-            }
-            className="w-full rounded-lg border px-3 py-2"
-          >
-            <option value="50%">50%</option>
-            <option value="100%">100%</option>
-          </select>
-        </label>
-
-        <label>
-          <span className="mb-2 block text-sm font-medium">
-            Shadow
-          </span>
-          <select //TODO make component
-            value={ date_shadow ?? "sm" }
-            onChange={(e) =>
+        <SelectField
+          label="Width"
+          value={date_width}
+          placeholder="Body font"
+          options={[
+              { value: "50%", label: "50%" },
+              { value: "75%", label: "75%" },
+              { value: "100%", label: "100%" },
+            ]}
+          onChange={(value) =>
+            updateDate(
+              "width",
+              value as "50%" | "100%" | undefined
+            )
+          }
+        />
+        <SelectField
+            label="Shadow"
+            value={date_shadow}
+            options={[
+              { value: "none", label: "None" },
+              { value: "sm", label: "Small" },
+              { value: "md", label: "Medium" },
+              { value: "lg", label: "Large" },
+            ]}
+            onChange={(value) =>
               updateDate(
                 "shadow",
-                e.target.value as "none" | "sm" | "md" | "lg" | undefined
+                value as "none" | "sm" | "md" | "lg" | undefined
               )
             }
-            className="w-full rounded-lg border px-3 py-2"
-          >
-            <option value="none">None</option>
-            <option value="sm">Small</option>
-            <option value="md">Medium</option>
-            <option value="lg">Large</option>
-          </select>
-        </label>
+          />
       </div>
     </div>
   );

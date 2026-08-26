@@ -29,6 +29,9 @@ class ButtonThemeSchema(BaseModel):
     backgroundColor: str | None = None
     textColor: str | None = None
     borderRadius: str | None = None
+    width: Literal["30%", "50%", "75%", "100%"] | None = None
+    text: str | None = None
+    position: Literal["left", "center", "right"] | None = None
 
 
 class DateSelectorThemeSchema(BaseModel):

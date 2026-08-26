@@ -11,9 +11,6 @@ export default function PreviewPage() {
   const params = useParams<{slug?: string[]}>();
   const { preview } = useAIPreview();
 
-  // console.log("PARAMS:", params);
-  // console.log("PREVIEW:", preview);
-
   if (!preview) {
     return (
       <div className="p-8">

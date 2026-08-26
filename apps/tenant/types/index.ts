@@ -63,6 +63,9 @@ export type GlobalTheme = {
     backgroundColor?: string;
     textColor?: string;
     borderRadius?: string;
+    width?: "30%" | "50%" | "75%" | "100%";
+    text?: string;
+    position?: "left" | "center" | "right";
   };
   image?: {
     aspectRatio?: string;

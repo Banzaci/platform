@@ -56,42 +56,22 @@ export function resolveSectionTheme(
       globalTheme?.card?.shadow,
 
     // Button
-    button_background:
-      globalTheme?.button?.backgroundColor ??
-      sectionTheme?.primaryColor,
-
-    button_text:
-      globalTheme?.button?.textColor,
-
-    button_radius:
-      globalTheme?.button?.borderRadius,
+    button_background: globalTheme?.button?.backgroundColor,
+    button_text: globalTheme?.button?.text,
+    button_text_color: globalTheme?.button?.textColor,
+    button_width: globalTheme?.button?.width,
+    button_position: globalTheme?.button?.position,
+    button_radius: globalTheme?.button?.borderRadius,
 
     // Date selector
-    date_background:
-      globalTheme?.dateSelector?.backgroundColor,
-
-    date_text:
-      globalTheme?.dateSelector?.textColor,
-
-    date_secondary:
-      globalTheme?.dateSelector?.secondaryColor,
-
-    date_border:
-      globalTheme?.dateSelector?.borderColor,
-
-    date_radius:
-      globalTheme?.dateSelector?.borderRadius,
-
-    date_shadow:
-      globalTheme?.dateSelector?.shadow,
-
-    date_width:
-      globalTheme?.dateSelector?.width,
-
-    date_selected_background:
-      globalTheme?.dateSelector?.selectedBackgroundColor,
-
-    date_selected_color:
-      globalTheme?.dateSelector?.selectedColor,
+    date_background: globalTheme?.dateSelector?.backgroundColor,
+    date_text: globalTheme?.dateSelector?.textColor,
+    date_secondary: globalTheme?.dateSelector?.secondaryColor,
+    date_border: globalTheme?.dateSelector?.borderColor,
+    date_radius: globalTheme?.dateSelector?.borderRadius,
+    date_shadow: globalTheme?.dateSelector?.shadow,
+    date_width: globalTheme?.dateSelector?.width,
+    date_selected_background: globalTheme?.dateSelector?.selectedBackgroundColor,
+    date_selected_color: globalTheme?.dateSelector?.selectedColor,
   };
 }

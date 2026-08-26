@@ -1,28 +1,25 @@
 import { getTenant } from "@/libs/tenant";
 import EditPropertyDetailsClient from "./EditPropertyDetailsClient";
+import { notFound } from "next/navigation";
 
-export default async function PropertyPage({
-  params,
-}: {
-  params: Promise<{ propertyId: string }>;
-}) {
+export default async function PropertyPage({ params }: { params: Promise<{ propertyId: string }> }) {
   const { propertyId } = await params;
-  const data = await getTenant();
-
-  const pageConfig = data.pages.find(
+  const tenant = await getTenant();
+  const page = tenant.pages.find(
     (page) => page.slug === "accommodation"
   );
-
-  if(!pageConfig) return null
-
+  if (!page) {
+    notFound();
+  }
   return (
     <EditPropertyDetailsClient
-      tenantId={data.tenant.id}
+      tenantId={tenant.tenant.id}
+      fonts={tenant.fonts}
       propertyId={propertyId}
-      cancellationPolicy={data.tenant.cancellation_policy}
-      globalTheme={{}}
-      pageId={pageConfig.id}
-      sections={pageConfig.sections}
+      cancellationPolicy={tenant.tenant.cancellation_policy}
+      globalTheme={tenant.tenant.theme}
+      pageId={page.id}
+      sections={page.sections}
     />
   );
 }

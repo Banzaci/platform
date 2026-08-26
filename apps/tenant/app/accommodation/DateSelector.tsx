@@ -38,7 +38,6 @@ export default function DateSelector({
     date_background,
     date_text,
   } = resolveSectionTheme(globalTheme);
-  
   return (
     <div className="relative w-full">
       <div className="relative flex w-full justify-center">
@@ -51,12 +50,14 @@ export default function DateSelector({
           onClick={() =>
             setOpen((current) => !current)
           }
-          className="relative flex items-center justify-between border px-5 py-4 text-left w-full"
+          className="relative flex w-full items-center justify-between px-5 py-4 text-left"
           style={{
             width: date_width,
             backgroundColor: date_background,
             color: date_text,
-            borderColor: date_border,
+            border: date_border
+              ? `1px solid ${date_border}`
+              : "none",
             borderRadius: date_radius,
             boxShadow: getShadow(date_shadow),
           }}

@@ -38,13 +38,11 @@ export default function RegisterPage() {
       apiClient.setToken(result.access_token);
       router.push("/login");
     } catch (error){
-      console.log(error)
       setError("root", {
         message: "Registration failed",
       });
     }
   }
-  console.log(errors)
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">

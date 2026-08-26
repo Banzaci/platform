@@ -31,7 +31,6 @@ export default function EditablePropertyCard({
   const [saving, setSaving] = useState(false);
   async function save() {
     setSaving(true);
-    console.log(JSON.stringify(globalTheme))
     try {
       await apiClient.api<any>(
         `v1/tenants/${tenantId}/theme`,

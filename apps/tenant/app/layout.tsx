@@ -111,7 +111,6 @@ export default async function RootLayout({
   const tenant = await getTenant();
   const fonts = tenant.fonts ?? [];
   const globalTheme = tenant.tenant.theme as GlobalTheme;
-  console.log(JSON.stringify(globalTheme))
   return (
     <html
       lang="en"

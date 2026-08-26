@@ -24,7 +24,6 @@ export default function GlobalEditor({
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<GlobalTheme>(globalTheme);
   const [saving, setSaving] = useState(false);
-  console.log(form)
   function updateGlobal<K extends keyof GlobalBaseTheme>(key: K, value: GlobalBaseTheme[K]) {
     setForm((current) => ({
       ...current,
