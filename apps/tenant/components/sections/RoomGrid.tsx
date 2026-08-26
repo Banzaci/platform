@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { apiClient } from "@/libs/api";
 import {
+  GlobalTheme,
   SectionTheme,
   TenantProperty,
 } from "@/types";
@@ -17,20 +18,20 @@ type Props = {
     limit?: number;
   };
   sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
 export default function RoomGrid({
   content,
   sectionTheme,
+  globalTheme
 }: Props) {
-  const { globalTheme } = useSettings();
   const [properties, setProperties] = useState<
     TenantProperty[]
   >([]);
   const { tenantId } = useSettings()
   const [loading, setLoading] = useState(true);
   
-
   const {
     backgroundColor,
     textColor,
@@ -45,7 +46,7 @@ export default function RoomGrid({
     card_secondary_color,
     card_border_color,
     card_radius,
-  } = resolveSectionTheme({...sectionTheme, ...globalTheme });
+  } = resolveSectionTheme(globalTheme, sectionTheme);
   useEffect(() => {
     let cancelled = false;
 

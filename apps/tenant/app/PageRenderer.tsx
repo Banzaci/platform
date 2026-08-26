@@ -10,6 +10,7 @@ import CardGrid from "@/components/sections/CardGrid";
 import EditableSection from "./(protected)/components/EditableSection";
 import DevLabel from "@/helpers/DevLabel";
 import PropertiesPageClient from "./accommodation/PropertiesPageClient";
+import { GlobalTheme } from "@/types";
 
 const components = {
   hero: Hero,
@@ -25,10 +26,12 @@ const components = {
 
 export default function PageRenderer({
   page,
+  globalTheme,
   editable = false,
 }: {
   page: any;
   editable?: boolean;
+  globalTheme: GlobalTheme
 }) {
   return (
     <>
@@ -51,6 +54,7 @@ export default function PageRenderer({
               <Component
                 content={section.content}
                 sectionTheme={sectionTheme}
+                globalTheme={globalTheme}
               />
             </div>
           </EditableSection>

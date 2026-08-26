@@ -1,4 +1,3 @@
-import { useSettings } from "@/providers/SettingsProvider";
 import { GlobalTheme, SectionTheme } from "@/types";
 
 type HeroProps = {
@@ -18,10 +17,10 @@ type HeroProps = {
     };
   };
   sectionTheme?: SectionTheme;
+  globalTheme?: GlobalTheme;
 };
 
-export default function Hero({ content, sectionTheme }: HeroProps) {
-  const { globalTheme } = useSettings();
+export default function Hero({ content, sectionTheme, globalTheme }: HeroProps) {
   return (
     <section
       className="relative min-h-150 overflow-hidden"

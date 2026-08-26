@@ -13,7 +13,6 @@ export default async function HomePage() {
   return <PageRenderer
     page={page}
     editable={true}
-    fonts={data.fonts}
     globalTheme={data.tenant.theme}
   />;
 }
