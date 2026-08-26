@@ -18,7 +18,6 @@ type Props = {
   onCopy: () => void;
   onToggleOpen: () => void;
   onDelete: () => void;
-  tenantId: string
 };
 
 export default function PropertyCardEdit({
@@ -27,8 +26,7 @@ export default function PropertyCardEdit({
   onCalendar,
   onCopy,
   onToggleOpen,
-  onDelete,
-  tenantId,
+  onDelete, 
 }: Props) {
   const price = property.base_price;
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -197,7 +195,6 @@ export default function PropertyCardEdit({
         { isSettingsOpen && <CalendarSyncSettings
             calendarToken={property.calendar_token}
             propertyId={property.id}
-            tenantId={tenantId}
           />}
       </div>
     </article>

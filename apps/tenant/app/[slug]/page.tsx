@@ -17,10 +17,5 @@ export default async function Page({
   if (!page) {
     notFound();
   }
-  return <PageRenderer
-    page={page}
-    editable={true}
-    globalTheme={tenant.tenant.theme}
-    fonts={tenant.fonts}
-  />;
+  return <PageRenderer page={page} editable={true} />;
 }

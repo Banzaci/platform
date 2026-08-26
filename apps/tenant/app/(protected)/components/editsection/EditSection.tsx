@@ -6,10 +6,10 @@ import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import ContentEditor from "./ContentEditor";
 import ThemeEditor from "./ThemeEditor";
-import { TenantFont } from "@/types";
 import EditButton from "../EditButton";
 import { apiClient } from "@/libs/api";
 import { SectionType } from "../../types/section";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type ImageResponse = {
   url: string;
@@ -19,16 +19,13 @@ type ImageResponse = {
 export default function EditSection({
   section,
   pageId,
-  tenantId,
   sections,
-  fonts,
 }: {
   section: SectionType;
-  tenantId: string;
   pageId: string;
   sections: SectionType[];
-  fonts: TenantFont[]
 }) {
+  const { tenantId } = useSettings();
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState(section.content ?? {});
   const [localTheme, setLocalTheme] = useState(section.theme ?? {});
@@ -174,7 +171,6 @@ export default function EditSection({
                 <ThemeEditor
                   theme={localTheme}
                   onChange={setLocalTheme}
-                  fonts={fonts}
                 />
               </div>
               {/* Footer */}

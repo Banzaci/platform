@@ -1,3 +1,4 @@
+import { useSettings } from "@/providers/SettingsProvider";
 import { GlobalTheme, SectionTheme } from "@/types";
 
 type HeroProps = {
@@ -17,10 +18,10 @@ type HeroProps = {
     };
   };
   sectionTheme?: SectionTheme;
-  globalTheme?: GlobalTheme;
 };
 
-export default function Hero({ content, sectionTheme, globalTheme }: HeroProps) {
+export default function Hero({ content, sectionTheme }: HeroProps) {
+  const { globalTheme } = useSettings();
   return (
     <section
       className="relative min-h-150 overflow-hidden"
@@ -75,7 +76,6 @@ export default function Hero({ content, sectionTheme, globalTheme }: HeroProps) 
               style={{
                 color: globalTheme?.button?.textColor,
                 backgroundColor: globalTheme?.button?.backgroundColor,
-                fontFamily: globalTheme?.fontFamily,
               }}
             >
               {content.button.label?.en}

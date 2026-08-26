@@ -8,12 +8,10 @@ import { Property } from "@/types";
 import PropertyCardEdit from "../components/property/PropertyCardEdit";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
+import { useSettings } from "@/providers/SettingsProvider";
 
-export default function PropertiesEditor({
-  tenantId,
-}: {
-  tenantId: string;
-}) {
+export default function PropertiesEditor() {
+  const { tenantId } = useSettings()
   const [properties, setProperties] = useState<Property[]>([]);
   const [count, setCount] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -194,7 +192,6 @@ export default function PropertiesEditor({
           {properties.map((property) => (
             <PropertyCardEdit
               key={property.id}
-              tenantId={tenantId}
               property={property}
               onEdit={() =>
                 setEditingProperty(property)
@@ -219,7 +216,6 @@ export default function PropertiesEditor({
 
       {editingProperty && (
         <EditProperty
-          tenantId={tenantId}
           property={editingProperty}
           onClose={() =>
             setEditingProperty(null)

@@ -3,6 +3,7 @@
 import { ChangeEvent, useState } from "react";
 
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type UploadLogoResponse = {
   id: string;
@@ -11,12 +12,11 @@ type UploadLogoResponse = {
 };
 
 export default function TenantLogoUpload({
-  tenantId,
   currentLogoUrl,
 }: {
-  tenantId: string;
   currentLogoUrl?: string | null;
 }) {
+  const { tenantId } = useSettings()
   const [logoUrl, setLogoUrl] = useState(
     currentLogoUrl ?? null
   );

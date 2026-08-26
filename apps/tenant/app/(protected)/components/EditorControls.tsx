@@ -3,15 +3,10 @@
 import { useState } from "react";
 import { useAuth } from "@hotel/hooks";
 import { apiClient } from "@/libs/api";
-import { GlobalTheme, TenantFont } from "@/types";
 import ProtectedNavigation from "../ProtectedNavigation";
 import GlobalEditor from "./GlobalEditor";
 
-export default function EditorControls({ tenantId, globalTheme, fonts }: {
-  tenantId: string;
-  globalTheme: GlobalTheme;
-  fonts: TenantFont[]
-}) {
+export default function EditorControls() {
   const [hasToken] = useState(() => {
     return !!apiClient.getToken();
   });
@@ -20,23 +15,11 @@ export default function EditorControls({ tenantId, globalTheme, fonts }: {
     return null;
   }
   return (
-    <AuthenticatedEditorControls
-      tenantId={tenantId}
-      globalTheme={globalTheme}
-      fonts={fonts}
-    />
+    <AuthenticatedEditorControls />
   );
 }
 
-function AuthenticatedEditorControls({
-  tenantId,
-  globalTheme,
-  fonts,
-}: {
-  tenantId: string;
-  globalTheme: GlobalTheme;
-  fonts: TenantFont[]
-}) {
+function AuthenticatedEditorControls() {
   const { data, isLoading, isError } = useAuth(apiClient, "v1/auth/tenant/session");
 
   if (isLoading || isError || !data) {
@@ -46,11 +29,7 @@ function AuthenticatedEditorControls({
   return (
     <>
       <ProtectedNavigation />
-      <GlobalEditor
-        tenantId={tenantId}
-        globalTheme={globalTheme}
-        fonts={fonts}
-      />
+      <GlobalEditor />
     </>
   );
 }

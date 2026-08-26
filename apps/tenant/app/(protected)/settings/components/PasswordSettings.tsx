@@ -2,17 +2,12 @@
 
 import { useState } from "react";
 import { KeyRound, Save } from "lucide-react";
-
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
+import { useSettings } from "@/providers/SettingsProvider";
 
-type Props = {
-  tenantId: string;
-};
-
-export default function PasswordSettings({
-  tenantId,
-}: Props) {
+export default function PasswordSettings() {
+  const { tenantId } = useSettings()
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

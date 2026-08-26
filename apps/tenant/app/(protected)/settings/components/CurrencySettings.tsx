@@ -6,10 +6,7 @@ import { Save } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { SelectField } from "../../components/SelectField";
-
-type Props = {
-  tenantId: string;
-};
+import { useSettings } from "@/providers/SettingsProvider";
 
 const currencies = [
   { value: "USD", label: "USD - US Dollar" },
@@ -19,7 +16,8 @@ const currencies = [
   { value: "EUR", label: "EUR - Euro" },
 ];
 
-export default function CurrencySettings({ tenantId }: Props) {
+export default function CurrencySettings() {
+  const { tenantId } = useSettings()
   const [currency, setCurrency] = useState<(typeof currencies)[number]>(currencies[0]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

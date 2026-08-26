@@ -1,4 +1,4 @@
-import { GlobalTheme, SectionTheme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
@@ -10,7 +10,6 @@ type Props = {
     }[];
   };
   sectionTheme?: SectionTheme;
-  globalTheme?: GlobalTheme;
 };
 
 export default function CardGrid({ content, sectionTheme }: Props) {

@@ -14,6 +14,7 @@ import {
 
 import { apiClient } from "@/libs/api";
 import PaymentForm from "./PaymentForm";
+import { useSettings } from "@/providers/SettingsProvider";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -34,17 +35,13 @@ type Booking = {
 };
 
 export default function PaymentPageClient({
-  tenantId,
   bookingId,
 }: {
-  tenantId: string;
   bookingId: string;
 }) {
-  const [booking, setBooking] =
-    useState<Booking | null>(null);
-
+  const { tenantId } = useSettings()
+  const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paying, setPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);

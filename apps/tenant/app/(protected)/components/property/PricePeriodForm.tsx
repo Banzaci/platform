@@ -2,11 +2,11 @@
 "use client";
 
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
 type Props = {
-  tenantId: string;
   propertyId: string;
   range?: DateRange;
   onSaved: () => Promise<void> | void;
@@ -14,12 +14,12 @@ type Props = {
 };
 
 export default function PricePeriodForm({
-  tenantId,
   propertyId,
   range,
   onSaved,
   clearRange,
 }: Props) {
+  const { tenantId } = useSettings()
   const [name, setName] = useState("");
   const [dailyPrice, setDailyPrice] = useState("");
   const [weeklyPrice, setWeeklyPrice] = useState("");

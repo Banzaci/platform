@@ -2,24 +2,23 @@
 "use client";
 
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   section: any;
   sections: any[];
   pageId: string;
-  tenantId: string;
 };
 
 export default function MoveSection({
   section,
   sections,
   pageId,
-  tenantId,
 }: Props) {
+  const { tenantId } = useSettings();
   const index = sections.findIndex(
     (item) => item.id === section.id
   );
-
   async function move(direction: "up" | "down") {
     const newIndex =
       direction === "up" ? index - 1 : index + 1;

@@ -114,6 +114,7 @@ export type TenantResponse = {
     custom_domain: string | null;
     category: string;
     location: string;
+    currency: string;
     logo_url: string | null;
     short_description: string;
     theme: GlobalTheme;

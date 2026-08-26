@@ -5,12 +5,12 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   section: any;
   sections: any[];
   pageId: string;
-  tenantId: string;
 };
 
 const SECTION_TYPES = [
@@ -161,8 +161,8 @@ export default function AddSection({
   section,
   sections,
   pageId,
-  tenantId,
 }: Props) {
+  const { tenantId } = useSettings();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 

@@ -9,7 +9,6 @@ import Booking from "@/components/sections/Booking";
 import CardGrid from "@/components/sections/CardGrid";
 import EditableSection from "./(protected)/components/EditableSection";
 import DevLabel from "@/helpers/DevLabel";
-import { GlobalTheme, TenantFont } from "@/types";
 import PropertiesPageClient from "./accommodation/PropertiesPageClient";
 
 const components = {
@@ -26,14 +25,10 @@ const components = {
 
 export default function PageRenderer({
   page,
-  globalTheme,
-  fonts,
   editable = false,
 }: {
   page: any;
-  globalTheme: GlobalTheme;
   editable?: boolean;
-  fonts: TenantFont[]
 }) {
   return (
     <>
@@ -46,9 +41,7 @@ export default function PageRenderer({
             key={section.id}
             section={section}
             pageId={page.id}
-            tenantId={page.tenant_id}
             sections={page.sections}
-            fonts={fonts}
           >
             <div className="relative">
               <DevLabel
@@ -58,8 +51,6 @@ export default function PageRenderer({
               <Component
                 content={section.content}
                 sectionTheme={sectionTheme}
-                globalTheme={globalTheme}
-                tenantId={page.tenant_id}
               />
             </div>
           </EditableSection>
@@ -67,9 +58,7 @@ export default function PageRenderer({
           <Component
             key={section.id}
             sectionTheme={sectionTheme}
-            globalTheme={globalTheme}
             content={section.content}
-            tenantId={page.tenant_id}
           />
         );
       })}

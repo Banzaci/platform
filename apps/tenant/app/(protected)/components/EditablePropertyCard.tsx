@@ -7,13 +7,13 @@ import PropertyCardTheme from "./property/PropertyCardTheme";
 import PropertyCard from "@/app/accommodation/PropertyCard";
 import EditButton from "./EditButton";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   property: TenantProperty;
   checkIn: string | null;
   checkOut: string | null;
   globalTheme: GlobalTheme;
-  tenantId: string;
   editable?: boolean;
   onThemeChange: (theme: GlobalTheme) => void;
 };
@@ -24,9 +24,9 @@ export default function EditablePropertyCard({
   checkOut,
   globalTheme,
   editable = false,
-  tenantId,
   onThemeChange
 }: Props) {
+  const { tenantId } = useSettings()
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   async function save() {

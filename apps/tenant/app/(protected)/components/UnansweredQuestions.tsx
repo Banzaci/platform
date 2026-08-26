@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type UnansweredQuestion = {
   id: string;
@@ -21,13 +22,9 @@ type Response = {
   pages: number;
 };
 
-export default function UnansweredQuestions({
-  tenantId,
-}: {
-  tenantId: string;
-}) {
+export default function UnansweredQuestions() {
+  const { tenantId } = useSettings()
   const [items, setItems] = useState<UnansweredQuestion[]>([]);
-
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);

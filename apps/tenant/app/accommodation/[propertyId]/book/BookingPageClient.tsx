@@ -23,16 +23,15 @@ import PaymentForm from "@/app/booking/[bookingId]/payment/PaymentForm";
 import BookingSummary from "../../BookingSummary";
 import DevLabel from "@/helpers/DevLabel";
 import { EmptyState, PageLoader } from "@hotel/ui";
+import { useSettings } from "@/providers/SettingsProvider";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
 type Props = {
-  tenantId: string;
   propertyId: string;
   cancellationPolicy: CancellationPolicy;
-  globalTheme?: GlobalTheme;
 };
 
 type BookingResponse = {
@@ -57,12 +56,11 @@ type PaymentResponse = {
 };
 
 export default function BookingPageClient({
-  tenantId,
   propertyId,
   cancellationPolicy,
-  globalTheme,
 }: Props) {
   const router = useRouter();
+  const { tenantId, globalTheme } = useSettings();
   const searchParams = useSearchParams();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");

@@ -1,11 +1,10 @@
-import { GlobalTheme, SectionTheme } from "@/types";
+import { SectionTheme } from "@/types";
 
 type Props = {
   content: {
     heading?: { en?: string };
   };
   sectionTheme?: SectionTheme;
-  globalTheme?: GlobalTheme;
 };
 
 export default function Booking({ content, sectionTheme }: Props) {

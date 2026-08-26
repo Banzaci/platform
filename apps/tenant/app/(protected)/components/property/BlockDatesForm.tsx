@@ -5,9 +5,9 @@ import { useState } from "react";
 import DevLabel from "@/helpers/DevLabel";
 import { DateRange } from "react-day-picker";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
-  tenantId: string;
   propertyId: string;
   range?: DateRange;
   reason: string;
@@ -21,7 +21,6 @@ type Props = {
 };
 
 export default function BlockDatesForm({
-  tenantId,
   propertyId,
   range,
   reason,
@@ -33,6 +32,7 @@ export default function BlockDatesForm({
   onSaved,
   clearRange,
 }: Props) {
+  const { tenantId } = useSettings()
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [price, setPrice] = useState("");

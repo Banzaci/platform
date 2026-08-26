@@ -21,12 +21,10 @@ import { useIsEditor } from "@/hooks/useIsEditor";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
 import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
+import { useSettings } from "@/providers/SettingsProvider";
 
-export default function PropertiesPageClient({ tenantId, globalTheme, sectionTheme }: {
-  tenantId: string;
-  sectionTheme?: SectionTheme;
-  globalTheme: GlobalTheme;
-}) {
+export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: SectionTheme }) {
+  const { globalTheme, tenantId } = useSettings();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -244,7 +242,6 @@ export default function PropertiesPageClient({ tenantId, globalTheme, sectionThe
             {properties.map((property) => (
               <EditablePropertyCard
                 key={property.id}
-                tenantId={tenantId}
                 property={property}
                 checkIn={checkIn}
                 checkOut={checkOut}

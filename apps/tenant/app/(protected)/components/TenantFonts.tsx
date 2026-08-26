@@ -2,17 +2,13 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
-
 import { apiClient } from "@/libs/api";
 import { TenantFont } from "@/types";
+import { useSettings } from "@/providers/SettingsProvider";
 
-export default function TenantFonts({
-  tenantId,
-}: {
-  tenantId: string;
-}) {
+export default function TenantFonts() {
   const queryClient = useQueryClient();
-
+  const { tenantId } = useSettings()
   const deleteFont = useMutation({
     mutationFn: (fontId: string) =>
       apiClient.api(

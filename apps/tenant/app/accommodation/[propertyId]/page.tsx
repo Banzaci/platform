@@ -13,11 +13,8 @@ export default async function PropertyPage({ params }: { params: Promise<{ prope
   }
   return (
     <EditPropertyDetailsClient
-      tenantId={tenant.tenant.id}
-      fonts={tenant.fonts}
       propertyId={propertyId}
       cancellationPolicy={tenant.tenant.cancellation_policy}
-      globalTheme={tenant.tenant.theme}
       pageId={page.id}
       sections={page.sections}
     />

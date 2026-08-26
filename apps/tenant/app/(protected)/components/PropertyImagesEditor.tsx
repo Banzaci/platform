@@ -19,7 +19,6 @@ export type EditablePropertyImage = {
 };
 
 type Props = {
-  tenantId: string;
   images: EditablePropertyImage[];
   onChange: (images: EditablePropertyImage[]) => void;
   onDelete: (publicId: string) => void;

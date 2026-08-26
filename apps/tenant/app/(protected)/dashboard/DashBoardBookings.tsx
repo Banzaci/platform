@@ -10,6 +10,7 @@ import {
 
 import { createPortal } from "react-dom";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   tenantId: string;
@@ -51,11 +52,9 @@ type BookingPeriod =
   | "current"
   | "future";
 
-export default function DashBoardBookings({
-  tenantId,
-}: Props) {
+export default function DashBoardBookings() {
+  const { tenantId } = useSettings()
   const now = new Date();
-
   const [year, setYear] = useState(now.getFullYear());
 
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -240,7 +239,6 @@ export default function DashBoardBookings({
                           days={days}
                           month={month}
                           year={year}
-                          tenantId={tenantId}
                           onCancelled={bookingCancelled}
                         />
                       )
@@ -333,16 +331,15 @@ function BookingRow({
   days,
   month,
   year,
-  tenantId,
   onCancelled,
 }: {
   booking: DashboardBooking;
   days: number[];
   month: number;
   year: number;
-  tenantId: string;
   onCancelled: (bookingId: string) => void;
 }) {
+  const { tenantId } = useSettings()
   const [menuOpen, setMenuOpen] = useState(false);
   const [specialRequestOpen, setSpecialRequestOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);

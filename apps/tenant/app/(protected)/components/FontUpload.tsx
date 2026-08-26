@@ -2,14 +2,11 @@
 
 import { useState } from "react";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
-export default function FontUpload({
-  tenantId,
-}: {
-  tenantId: string;
-}) {
+export default function FontUpload() {
   const [isUploading, setIsUploading] = useState(false);
-
+  const { tenantId } = useSettings()
   async function handleUpload(
     event: React.ChangeEvent<HTMLInputElement>
   ) {

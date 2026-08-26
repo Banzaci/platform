@@ -1,26 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { GlobalTheme, TenantFont } from "@/types";
+import { GlobalTheme } from "@/types";
 import { useState } from "react";
 import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
 import { ColorField } from "./ColorField";
-import { Check, X } from "lucide-react";
+import { X } from "lucide-react";
 import { SelectField } from "./SelectField";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type GlobalBaseTheme = NonNullable<GlobalTheme["global"]>;
 type NavigationKey = keyof NonNullable<GlobalTheme["navigation"]>;
 
-export default function GlobalEditor({
-  tenantId,
-  globalTheme,
-  fonts
-}: {
-  tenantId: string;
-  globalTheme: GlobalTheme;
-  fonts: TenantFont[]
-}) {
+export default function GlobalEditor() {
+  const { tenantId, globalTheme, fonts } = useSettings();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<GlobalTheme>(globalTheme);
   const [saving, setSaving] = useState(false);

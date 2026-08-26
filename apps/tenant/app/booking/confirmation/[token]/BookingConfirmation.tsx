@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   token: string;
-  tenantId: string;
 };
 
 type BookingConfirmationValue = {
@@ -34,8 +34,8 @@ type BookingConfirmationValue = {
 
 export default function BookingConfirmation({
   token,
-  tenantId
 }: Props) {
+  const { tenantId } = useSettings()
   const [booking, setBooking] = useState<BookingConfirmationValue | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [loading, setLoading] = useState(true);

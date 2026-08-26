@@ -11,6 +11,7 @@ import BlockDatesForm from "@/app/(protected)/components/property/BlockDatesForm
 import PricePeriodForm from "@/app/(protected)/components/property/PricePeriodForm";
 import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type BlockedPeriod = {
   id: string;
@@ -23,12 +24,11 @@ type BlockedPeriod = {
 };
 
 export default function PropertyCalendar({
-  tenantId,
   propertyId,
 }: {
-  tenantId: string;
   propertyId: string;
 }) {
+  const { tenantId } = useSettings()
   const [range, setRange] = useState<DateRange>();
   const [periods, setPeriods] = useState<BlockedPeriod[]>([]);
   const [selectedBlockedPeriod, setSelectedBlockedPeriod] = useState<BlockedPeriod | null>(null);
@@ -331,7 +331,6 @@ export default function PropertyCalendar({
           <div className="mt-5">
             {mode === "block" ? (
               <BlockDatesForm
-                tenantId={tenantId}
                 propertyId={propertyId}
                 range={range}
                 reason={reason}
@@ -347,7 +346,6 @@ export default function PropertyCalendar({
               />
             ) : (
               <PricePeriodForm
-                tenantId={tenantId}
                 propertyId={propertyId}
                 range={range}
                 clearRange={() =>

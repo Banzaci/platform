@@ -4,12 +4,10 @@ import { Providers } from "@hotel/providers";
 import { getTenant } from "@/libs/tenant";
 import Navigation from "./Navigation";
 import EditorControls from "./(protected)/components/EditorControls";
-import ThemeProvider from "@/providers/ThemeProvider";
 import DevLabelToggle from "@/helpers/DevLabelToggle";
 import { GlobalTheme } from "@/types";
-import { notFound } from "next/navigation";
 import NoTenant from "./NoTenant";
-
+import { SettingsProvider } from "@/providers/SettingsProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getTenant();
@@ -134,20 +132,20 @@ export default async function RootLayout({
           backgroundColor: globalTheme?.global?.backgroundColor,
           color: globalTheme?.global?.textColor,
           fontFamily: globalTheme?.fonts?.body,
-          // fontSize: globalTheme.global.fontSize,
         }}
       >
         <Providers>
-          <ThemeProvider globalTheme={globalTheme}>
-            <Navigation tenant={tenant} />
-            <EditorControls
-              tenantId={tenant.tenant.id}
-              globalTheme={tenant.tenant.theme}
-              fonts={fonts}
-            />
-            {children}
+          <SettingsProvider
+            globalTheme={globalTheme}
+            fonts={tenant.fonts ?? []}
+            currency={tenant.tenant.currency}
+            tenantId={tenant.tenant.id}
+          >
+              <Navigation tenant={tenant} />
+              <EditorControls />
+              {children}
             <DevLabelToggle />
-          </ThemeProvider>
+          </SettingsProvider>
         </Providers>
       </body>
     </html>

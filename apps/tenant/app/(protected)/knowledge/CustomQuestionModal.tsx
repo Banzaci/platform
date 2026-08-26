@@ -7,20 +7,20 @@ import type {
   KnowledgeItem,
   LocalizedText,
 } from "./KnowledgeEditor";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
-  tenantId: string;
   language: string;
   onClose: () => void;
   onCreated: (item: KnowledgeItem) => void;
 };
 
 export default function CustomQuestionModal({
-  tenantId,
   language,
   onClose,
   onCreated,
 }: Props) {
+  const { tenantId } = useSettings()
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [saving, setSaving] = useState(false);

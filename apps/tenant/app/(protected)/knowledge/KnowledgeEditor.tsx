@@ -6,6 +6,7 @@ import { apiClient } from "@/libs/api";
 import KnowledgeWizard from "./KnowledgeWizard";
 import CustomQuestionModal from "./CustomQuestionModal";
 import UnansweredQuestions from "../components/UnansweredQuestions";
+import { useSettings } from "@/providers/SettingsProvider";
 
 export type LocalizedText = Record<string, string>;
 
@@ -38,11 +39,8 @@ export type KnowledgeTemplate = {
   options?: LocalizedText[];
 };
 
-export default function KnowledgeEditor({
-  tenantId,
-}: {
-  tenantId: string;
-}) {
+export default function KnowledgeEditor() {
+  const { tenantId } = useSettings()
   const [customOpen, setCustomOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "unanswered" | "custom">("all");
   const [items, setItems] = useState<KnowledgeItem[]>([]);
@@ -297,7 +295,6 @@ export default function KnowledgeEditor({
       )}
       {customOpen && (
         <CustomQuestionModal
-          tenantId={tenantId}
           language={language}
           onClose={() => setCustomOpen(false)}
           onCreated={(created) => {
@@ -310,7 +307,7 @@ export default function KnowledgeEditor({
           }}
         />
       )}
-      <UnansweredQuestions tenantId={tenantId} />
+      <UnansweredQuestions />
     </main>
   );
 }

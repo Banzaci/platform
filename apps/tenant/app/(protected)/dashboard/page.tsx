@@ -1,10 +1,7 @@
-import { getTenant } from "@/libs/tenant";
 import DashBoardBookings from "./DashBoardBookings";
 // import BookingList from "./components/BookingList";
 
 export default async function DashboardPage() {
-  const data = await getTenant();
-
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
       <div className="mb-8">
@@ -17,7 +14,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      <DashBoardBookings tenantId={data.tenant.id} />
+      <DashBoardBookings />
     </main>
   );
 }

@@ -10,10 +10,8 @@ export default async function BookingPage({
   const tenant = await getTenant();
   return (
     <BookingPageClient
-      tenantId={tenant.tenant.id}
       propertyId={propertyId}
       cancellationPolicy={tenant.tenant.cancellation_policy}
-      globalTheme={tenant.tenant.theme}
     />
   );
 }

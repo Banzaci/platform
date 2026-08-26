@@ -7,9 +7,9 @@ import BasePriceEditor, { BasePrice, isValidBasePrice } from "./price/BasePriceE
 import { Property } from "@/types";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
-  tenantId: string;
   property: Property;
   onClose: () => void;
   onSaved: (property: Property) => void;
@@ -39,11 +39,11 @@ const amenities = [
 ];
 
 export default function EditProperty({
-  tenantId,
   property,
   onClose,
   onSaved,
 }: Props) {
+  const { tenantId } = useSettings()
   const [form, setForm] = useState<EditableProperty>(property);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -235,7 +235,6 @@ export default function EditProperty({
             </div>
 
             <PropertyImagesEditor
-              tenantId={tenantId}
               images={form.images}
               onChange={(images) => update("images", images)}
               onDelete={(publicId) => setImageToDelete(publicId)}

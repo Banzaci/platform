@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type CancellationPolicy = {
   free_cancellation_days: number;
@@ -12,12 +13,11 @@ type CancellationPolicy = {
 };
 
 export default function CancellationPolicyForm({
-  tenantId,
   initialPolicy,
 }: {
-  tenantId: string;
   initialPolicy: CancellationPolicy;
 }) {
+  const { tenantId } = useSettings()
   const [policy, setPolicy] = useState(initialPolicy ?? {
     free_cancellation_days: 14,
     partial_refund_hours: 48,

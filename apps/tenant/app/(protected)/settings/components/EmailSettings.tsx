@@ -2,21 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Mail, Save } from "lucide-react";
-
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
-
-type Props = {
-  tenantId: string;
-};
+import { useSettings } from "@/providers/SettingsProvider";
 
 type EmailSettingsValue = {
   booking_email: string;
 };
 
-export default function EmailSettings({
-  tenantId,
-}: Props) {
+export default function EmailSettings() {
+  const { tenantId } = useSettings()
   const [settings, setSettings] =
     useState<EmailSettingsValue | null>(null);
 

@@ -1,4 +1,3 @@
-import { getTenant } from "@/libs/tenant";
 import BookingConfirmation from "./BookingConfirmation";
 
 export default async function Page({
@@ -9,11 +8,7 @@ export default async function Page({
   }>;
 }) {
   const { token } = await params;
-  const tenant = await getTenant()
   return (
-    <BookingConfirmation
-      token={token}
-      tenantId={tenant.tenant.id}
-    />
+    <BookingConfirmation token={token} />
   );
 }

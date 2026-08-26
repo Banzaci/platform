@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type BookingStatus =
   | "pending_payment"
@@ -26,12 +27,11 @@ type Booking = {
 };
 
 export default function PaymentSuccessClient({
-  tenantId,
   bookingId,
 }: {
-  tenantId: string;
   bookingId: string;
 }) {
+  const { tenantId } = useSettings()
   const [booking, setBooking] =
     useState<Booking | null>(null);
 

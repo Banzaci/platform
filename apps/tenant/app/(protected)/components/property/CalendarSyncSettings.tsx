@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Copy, Trash2 } from "lucide-react";
 import DevLabel from "@/helpers/DevLabel";
 import { apiClient } from "@/libs/api";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type CalendarSource = {
   id: string;
@@ -14,16 +15,15 @@ type CalendarSource = {
 };
 
 type Props = {
-  tenantId: string;
   propertyId: string;
   calendarToken: string;
 };
 
 export default function CalendarSyncSettings({
-  tenantId,
   propertyId,
   calendarToken,
 }: Props) {
+  const { tenantId } = useSettings()
   const [sources, setSources] = useState<CalendarSource[]>([]);
   const [provider, setProvider] = useState("Booking.com");
   const [url, setUrl] = useState("");

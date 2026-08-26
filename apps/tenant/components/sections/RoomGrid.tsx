@@ -4,34 +4,32 @@ import { useEffect, useState } from "react";
 
 import { apiClient } from "@/libs/api";
 import {
-  GlobalTheme,
   SectionTheme,
   TenantProperty,
 } from "@/types";
 import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
-  tenantId: string;
   content: {
     heading?: { en?: string };
     text?: { en?: string };
     limit?: number;
   };
   sectionTheme?: SectionTheme;
-  globalTheme?: GlobalTheme;
 };
 
 export default function RoomGrid({
-  tenantId,
   content,
   sectionTheme,
-  globalTheme,
 }: Props) {
+  const { globalTheme } = useSettings();
   const [properties, setProperties] = useState<
     TenantProperty[]
   >([]);
-
+  const { tenantId } = useSettings()
   const [loading, setLoading] = useState(true);
+  
 
   const {
     backgroundColor,

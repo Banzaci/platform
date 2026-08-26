@@ -1,13 +1,13 @@
 "use client";
 
-import { SectionTheme, TenantFont } from "@/types";
+import { SectionTheme } from "@/types";
 import DevLabel from "@/helpers/DevLabel";
 import { ColorField } from "../ColorField";
 import { Field } from "../Field";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type Props = {
   theme: SectionTheme;
-  fonts: TenantFont[];
   onChange: (theme: SectionTheme) => void;
 };
 
@@ -16,9 +16,9 @@ export const inputClassName =
 
 export default function ThemeEditor({
   theme,
-  fonts,
   onChange,
 }: Props) {
+  const { fonts } = useSettings()
   function update(key: keyof SectionTheme, value: string) {
     onChange({
       ...theme,

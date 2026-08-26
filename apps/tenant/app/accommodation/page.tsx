@@ -13,7 +13,5 @@ export default async function AccommodationPage() {
   return <PageRenderer
     page={page}
     editable={true}
-    globalTheme={data.tenant.theme}
-    fonts={data.fonts}
   />;
 }

@@ -10,10 +10,7 @@ import {
 
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
-
-type Props = {
-  tenantId: string;
-};
+import { useSettings } from "@/providers/SettingsProvider";
 
 type PaymentMethodKey =
   | "online"
@@ -39,9 +36,8 @@ type PaymentSettingsValue = {
   bank_instructions: string | null;
 };
 
-export default function PaymentSettings({
-  tenantId,
-}: Props) {
+export default function PaymentSettings() {
+  const { tenantId } = useSettings()
   const [settings, setSettings] =
     useState<PaymentSettingsValue | null>(null);
 

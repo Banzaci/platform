@@ -5,6 +5,7 @@ import { Send, Sparkle, Sparkles } from "lucide-react";
 
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
+import { useSettings } from "@/providers/SettingsProvider";
 
 
 type ChatProperty = {
@@ -73,13 +74,8 @@ function getSessionId() {
   return id;
 }
 
-export default function FAQChatClient({
-  tenantId,
-  tenantName,
-}: {
-  tenantId: string;
-  tenantName: string;
-}) {
+export default function FAQChatClient() {
+  const { tenantId } = useSettings()
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -169,7 +165,7 @@ export default function FAQChatClient({
               </h1>
 
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500 sm:text-base">
-                Ask anything about {tenantName}, rooms,
+                Ask anything about rooms,
                 facilities, availability, getting here or booking.
               </p>
 
@@ -313,7 +309,7 @@ export default function FAQChatClient({
             onChange={(event) =>
               setText(event.target.value)
             }
-            placeholder={`Ask ${tenantName} anything...`}
+            placeholder={`Ask anything...`}
             rows={1}
             className="max-h-40 min-h-12 flex-1 resize-none bg-transparent px-4 py-3 text-sm leading-6 text-slate-800 outline-none placeholder:text-slate-400 sm:text-base"
             onKeyDown={(event) => {

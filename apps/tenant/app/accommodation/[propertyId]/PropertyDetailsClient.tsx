@@ -24,22 +24,20 @@ import BookingSummary from "../BookingSummary";
 import DevLabel from "@/helpers/DevLabel";
 import { EmptyState, PageLoader } from "@hotel/ui";
 import { SectionType } from "@/app/(protected)/types/section";
+import { useSettings } from "@/providers/SettingsProvider";
 
 export type PropertyDetailsClientProps = {
-  tenantId: string;
   propertyId: string;
   cancellationPolicy: CancellationPolicy;
-  globalTheme?: GlobalTheme;
   section?: SectionType;
 };
 
 export default function PropertyDetailsClient({
-  tenantId,
   propertyId,
   cancellationPolicy,
-  globalTheme,
   section,
 }: PropertyDetailsClientProps) {
+  const { tenantId, globalTheme } = useSettings();
   const searchParams = useSearchParams();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
