@@ -84,5 +84,7 @@ jobs:
             docker pull michedot/hotels-platform:latest
             docker pull michedot/hotels-tenant:latest
 
-            docker compose up -d
+            docker compose up -d --remove-orphans
+
+            docker image prune -af
           EOF
