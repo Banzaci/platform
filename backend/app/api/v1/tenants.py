@@ -64,9 +64,14 @@ class CancellationPolicyUpdate(BaseModel):
 class TenantEmailSettingsUpdate(BaseModel):
     booking_email: EmailStr
 
-
 class TenantEmailSettingsOut(BaseModel):
     booking_email: EmailStr | None
+
+class TenantCurrencySettingsOut(BaseModel):
+    currency: str | None
+
+class TenantCurrencySettingsUpdate(BaseModel):
+    currency: str
 
 class PasswordUpdate(BaseModel):
     current_password: str
@@ -807,10 +812,7 @@ async def get_tenant_payment_settings(
     }
 
 
-@router.get(
-    "/{tenant_id}/email-settings",
-    response_model=TenantEmailSettingsOut,
-)
+@router.get("/{tenant_id}/email-settings", response_model=TenantEmailSettingsOut)
 async def get_tenant_email_settings(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
@@ -835,7 +837,6 @@ async def get_tenant_email_settings(
     return {
         "booking_email": tenant.booking_email,
     }
-
 
 @router.put("/{tenant_id}/email-settings", response_model=TenantEmailSettingsOut)
 async def update_tenant_email_settings(
@@ -886,7 +887,80 @@ async def update_tenant_email_settings(
             detail="Could not update booking email",
         )
 
+@router.get("/{tenant_id}/currency-settings", response_model=TenantCurrencySettingsOut)
+async def get_tenant_currency_settings(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("email_settings.view")
+    ),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
 
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    return {
+        "currency": tenant.currency,
+    }
+
+@router.put("/{tenant_id}/currency-settings", response_model=TenantCurrencySettingsOut)
+async def update_tenant_currency_settings(
+    tenant_id: uuid.UUID,
+    payload: TenantCurrencySettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("currency_settings.edit")
+    ),
+):
+    result = await db.execute(
+        select(Tenant).where(
+            Tenant.id == tenant_id
+        )
+    )
+
+    tenant = result.scalar_one_or_none()
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found",
+        )
+
+    tenant.currency = str(
+        payload.currency
+    )
+
+    try:
+        await db.commit()
+        await db.refresh(tenant)
+
+        return {
+            "currency": tenant.currency,
+        }
+
+    except Exception as error:
+        await db.rollback()
+
+        print(
+            "UPDATE BOOKING EMAIL ERROR:",
+            repr(error),
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail="Could not update booking email",
+        )
+    
 @router.put(
     "/{tenant_id}/password",
     status_code=204,

@@ -38,6 +38,7 @@ class TenantOut(BaseModel):
     id: uuid.UUID
     name: str
     subdomain: str
+    currency: str | None = None
     custom_domain: str | None
     category: str | None
     location: str | None

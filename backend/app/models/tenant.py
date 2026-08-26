@@ -24,7 +24,11 @@ class Tenant(Base):
     short_description: Mapped[str | None] = mapped_column(String, nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-
+    currency: Mapped[str] = mapped_column(
+        String(3),
+        nullable=False,
+        default="USD",
+    )
     theme: Mapped[dict] = mapped_column(
         JSONB,
         nullable=False,
