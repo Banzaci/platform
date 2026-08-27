@@ -43,7 +43,7 @@ class DateSelectorThemeSchema(BaseModel):
     selectedBackgroundColor: str | None = None
     selectedColor: str | None = None
     shadow: Literal["none", "sm", "md", "lg"] | None = None
-    width: Literal["50%", "100%"] | None = None
+    width: Literal["50%", "75%", "100%"] | None = None
 
 
 class ImageThemeSchema(BaseModel):

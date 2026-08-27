@@ -115,17 +115,12 @@ export default function DateSelector({ range, setRange, globalTheme}: {
         >
           <div
             className="min-w-180"
-            // style={
-            //   {
-            //     "--rdp-accent-color":
-            //       date_text ??
-            //       primaryColor,
-
-            //     "--rdp-accent-background-color":
-            //       date_background ??
-            //       secondaryColor,
-            //   } as React.CSSProperties
-            // }
+            style={
+              {
+                "--rdp-accent-color": date_text,
+                "--rdp-accent-background-color": date_background 
+              } as React.CSSProperties
+            }
           >
             <ThemedDayPicker
               mode="range"

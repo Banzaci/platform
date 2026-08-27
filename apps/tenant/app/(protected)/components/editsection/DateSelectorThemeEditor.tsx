@@ -41,9 +41,11 @@ export default function DateSelectorThemeEditor({
     date_selected_background,
     date_selected_color,
     date_shadow, 
+    date_radius,
     date_text, 
     date_width,
   } = resolveSectionTheme(globalTheme);
+  
   return (
     <div className="relative">
       <DevLabel
@@ -140,6 +142,23 @@ export default function DateSelectorThemeEditor({
               updateDate(
                 "shadow",
                 value as "none" | "sm" | "md" | "lg" | undefined
+              )
+            }
+          />
+          <SelectField
+            label="Date radius"
+            value={date_radius}
+            options={[
+              { value: "0px", label: "None" },
+              { value: "8px", label: "Small" },
+              { value: "12px", label: "Medium" },
+              { value: "16px", label: "Large" },
+              { value: "24px", label: "Extra large" },
+            ]}
+            onChange={(value) =>
+              updateDate(
+                "borderRadius",
+                value
               )
             }
           />

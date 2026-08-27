@@ -91,7 +91,6 @@ export default function CurrencySettings() {
       setSaving(false);
     }
   }
-  console.log(currency)
   if (loading) {
     return (
       <div className="py-8 text-sm text-slate-500">

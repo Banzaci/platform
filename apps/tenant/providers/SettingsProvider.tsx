@@ -24,8 +24,8 @@ const SettingsContext =
 type SettingsProviderProps = {
   tenantId: string;
   currency: string;
-  globalTheme?: GlobalTheme;
-  fonts?: TenantFont[];
+  globalTheme: GlobalTheme;
+  fonts: TenantFont[];
   children: React.ReactNode;
 };
 
@@ -33,7 +33,7 @@ export function SettingsProvider({
   tenantId,
   currency,
   globalTheme,
-  fonts = [],
+  fonts,
   children,
 }: SettingsProviderProps) {
   const value = useMemo(

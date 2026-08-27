@@ -22,6 +22,7 @@ import { resolveSectionTheme } from "@/libs/resolveSectionTheme";
 import DevLabel from "@/helpers/DevLabel";
 import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
 import { useSettings } from "@/providers/SettingsProvider";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: SectionTheme }) {
   const { globalTheme, tenantId } = useSettings();
@@ -31,9 +32,26 @@ export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: 
   const isEditor = useIsEditor();
   const checkIn = searchParams.get("checkIn");
   const checkOut = searchParams.get("checkOut");
-  const [properties, setProperties] = useState<TenantProperty[]>([]);
-  const [loading, setLoading] = useState(true);
   const [localGlobalTheme, setLocalGlobalTheme] = useState<GlobalTheme>(globalTheme);
+  
+  const params = new URLSearchParams();
+
+  if (checkIn) params.set("check_in", checkIn);
+  if (checkOut) params.set("check_out", checkOut);
+
+  const query = params.toString();
+  const {
+    data: properties = [],
+    isLoading: loading,
+  } = useQuery({
+    queryKey: ["properties", tenantId, checkIn, checkOut],
+    queryFn: () =>
+      apiClient.api<TenantProperty[]>(
+        `v1/tenants/${tenantId}/properties/public${query ? `?${query}` : ""}`
+      ),
+      enabled: !!checkIn && !!checkOut,
+      staleTime: Infinity,
+  });
 
   async function saveTheme() {
     await apiClient.api<any>(
@@ -110,43 +128,6 @@ export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: 
     router,
     searchParams,
   ]);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-
-      try {
-        const params = new URLSearchParams();
-
-        if (checkIn) {
-          params.set("check_in", checkIn);
-        }
-
-        if (checkOut) {
-          params.set("check_out", checkOut);
-        }
-
-        const query = params.toString();
-
-        const data = await apiClient.api<TenantProperty[]>(
-            `v1/tenants/${tenantId}/properties/public${
-              query ? `?${query}` : ""
-            }`
-          );
-
-        setProperties(data);
-      } catch (error) {
-        console.error(
-          "Could not load properties:",
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
-  }, [tenantId, checkIn, checkOut]);
 
   function setRange(nextRange: DateRange | undefined) {
     const params = new URLSearchParams(
@@ -234,9 +215,7 @@ export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: 
               localGlobalTheme.layout?.columns
             )}
             style={{
-              gap: 
-                localGlobalTheme.layout?.gap ??
-                "24px",
+              gap: "24px",
             }}
           >
             {properties.map((property) => (
