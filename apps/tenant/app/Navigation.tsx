@@ -11,7 +11,6 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
   const name = tenant.tenant.name;
   const pages = tenant.pages;
   const pathname = usePathname();
-  console.log(navigation)
   return (
     <nav
       style={
@@ -32,7 +31,7 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
       }
     >
       <div
-        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
           href="/"
           className="transition-colors hover:text-(--nav-hover)"
@@ -41,10 +40,7 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
             <img
               src={logoUrl}
               alt={name}
-              style={{
-                height: navigation?.logoHeight,
-              }}
-              className="w-auto"
+              className="w-auto max-h-16"
             />
           ) : (
             <span>{name}</span>
