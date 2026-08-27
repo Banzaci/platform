@@ -23,6 +23,7 @@ import DevLabel from "@/helpers/DevLabel";
 import DateSelectorWrapper from "../(protected)/components/editsection/DateSelectorWrapper";
 import { useSettings } from "@/providers/SettingsProvider";
 import { useQuery } from "@tanstack/react-query";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: SectionTheme }) {
   const { globalTheme, tenantId } = useSettings();
@@ -61,6 +62,8 @@ export default function PropertiesPageClient({ sectionTheme }: { sectionTheme?: 
         body: JSON.stringify(localGlobalTheme),
       }
     );
+    await revalidateTenant(window.location.host);
+    window.location.reload();
   }
 
   const {

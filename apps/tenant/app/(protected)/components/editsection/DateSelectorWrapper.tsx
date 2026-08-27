@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { Pencil, X } from "lucide-react";
+import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 
-import { GlobalTheme, SectionTheme } from "@/types";
+import { GlobalTheme } from "@/types";
 import DateSelector from "@/app/accommodation/DateSelector";
 import DateSelectorThemeEditor from "./DateSelectorThemeEditor";
 import EditButton from "../EditButton";

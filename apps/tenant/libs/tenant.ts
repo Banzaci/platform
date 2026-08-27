@@ -24,6 +24,7 @@ export const getTenant = cache(async () => {
     {
       next: {
         revalidate: 300,
+        tags: [`tenant:${host}`],
       },
     }
   );

@@ -416,6 +416,8 @@ async def update_tenant_theme(
         exclude_unset=True,
     )
 
+    print(payload.card)
+
     await db.commit()
     await db.refresh(tenant)
 
