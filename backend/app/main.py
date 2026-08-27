@@ -18,6 +18,7 @@ from app.api.v1 import (
     blocked_periods,
     property_theme,
     tenant_knowledge,
+    dashboard
 )
 
 from app.db.session import engine
@@ -43,15 +44,6 @@ app = FastAPI(
 
 API_PREFIX = "/api/v1"
 
-# ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "http://localhost:3001",
-#     "http://localhost:3005",
-#     "http://localhost:3006",
-#     "https://miche.se",
-#     "https://admin.miche.se",
-# ]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[],
@@ -76,6 +68,7 @@ app.include_router(ai_chat.router, prefix=API_PREFIX)
 app.include_router(bookings.router, prefix=API_PREFIX)
 app.include_router(stripe_webhook.router, prefix=API_PREFIX)
 app.include_router(calendar.router, prefix=API_PREFIX)
+app.include_router(dashboard.router, prefix=API_PREFIX)
 
 @app.get("/health")
 async def health():

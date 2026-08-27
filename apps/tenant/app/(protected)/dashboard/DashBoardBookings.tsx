@@ -11,6 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { apiClient } from "@/libs/api";
 import { useSettings } from "@/providers/SettingsProvider";
+import DailyBriefingCard from "../components/DailyBriefingCard";
 
 type Props = {
   tenantId: string;

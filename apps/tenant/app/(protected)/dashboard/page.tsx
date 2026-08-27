@@ -1,19 +1,11 @@
+import DailyBriefingCard from "../components/DailyBriefingCard";
 import DashBoardBookings from "./DashBoardBookings";
 // import BookingList from "./components/BookingList";
 
 export default async function DashboardPage() {
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-semibold">
-          Dashboard
-        </h1>
-
-        <p className="mt-2 text-gray-500">
-          Manage bookings and upcoming stays.
-        </p>
-      </div>
-
+      <DailyBriefingCard />
       <DashBoardBookings />
     </main>
   );

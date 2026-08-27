@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import AITenantDetails from "./AITenantDetails";
 import { apiClient } from "@/libs/api";
 import { Tenant } from "@hotel/types";
 import { Trash2 } from "lucide-react";
