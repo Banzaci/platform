@@ -5,6 +5,7 @@ import { Mail, Save } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type EmailSettingsValue = {
   booking_email: string;
@@ -84,8 +85,8 @@ export default function EmailSettings() {
           }
         );
 
-      setSettings(updated);
-      setSaved(true);
+      await revalidateTenant(window.location.host);
+      window.location.reload();
     } catch (error) {
       console.error(
         "Could not save email settings:",

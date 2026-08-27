@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 import { apiClient } from "@/libs/api";
 import { useSettings } from "@/providers/SettingsProvider";
 
@@ -50,6 +51,7 @@ export default function MoveSection({
       }
     );
 
+    await revalidateTenant(window.location.host);
     window.location.reload();
   }
 

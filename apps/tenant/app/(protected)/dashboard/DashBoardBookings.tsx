@@ -349,7 +349,6 @@ function BookingRow({
 
   async function cancelBooking() {
     setCancelling(true);
-
     try {
       await apiClient.api(
         `v1/tenants/${tenantId}/bookings/${booking.id}/cancel`,
@@ -357,7 +356,6 @@ function BookingRow({
           method: "PUT",
         }
       );
-
       setMenuOpen(false);
       onCancelled(booking.id);
     } catch (error) {

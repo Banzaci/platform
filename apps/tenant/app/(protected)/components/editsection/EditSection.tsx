@@ -10,6 +10,7 @@ import EditButton from "../EditButton";
 import { apiClient } from "@/libs/api";
 import { SectionType } from "../../types/section";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type ImageResponse = {
   url: string;
@@ -116,6 +117,7 @@ export default function EditSection({
       if (image?.deletePublicId) {
         await deleteImage(image.deletePublicId);
       }
+      await revalidateTenant(window.location.host);
       window.location.reload();
     } catch (error) {
       console.error("Save section failed:", error);

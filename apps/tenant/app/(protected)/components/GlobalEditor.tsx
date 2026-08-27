@@ -9,6 +9,7 @@ import { ColorField } from "./ColorField";
 import { X } from "lucide-react";
 import { SelectField } from "./SelectField";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type GlobalBaseTheme = NonNullable<GlobalTheme["global"]>;
 type NavigationKey = keyof NonNullable<GlobalTheme["navigation"]>;
@@ -83,6 +84,7 @@ export default function GlobalEditor() {
           ),
         }
       );
+      await revalidateTenant(window.location.host);
       window.location.reload();
     } catch (error) {
       console.error("Theme save failed:", error);

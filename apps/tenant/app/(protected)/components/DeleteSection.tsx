@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type Props = {
   section: any;
@@ -36,6 +37,7 @@ export default function DeleteSection({
           body: JSON.stringify({sections: updatedSections}),
         }
       );
+      await revalidateTenant(window.location.host);
       window.location.reload();
     } catch (error) {
       console.error("Delete section failed:", error);

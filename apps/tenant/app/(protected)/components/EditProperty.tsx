@@ -8,6 +8,7 @@ import { Property } from "@/types";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type Props = {
   property: Property;
@@ -139,6 +140,7 @@ export default function EditProperty({
       if (imageToDelete) {
         await deleteImage(imageToDelete);
       }
+      await revalidateTenant(window.location.host);
       window.location.reload();
     } catch (error) {
       console.error("Update property failed:", error);

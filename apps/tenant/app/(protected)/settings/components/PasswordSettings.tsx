@@ -5,6 +5,7 @@ import { KeyRound, Save } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 export default function PasswordSettings() {
   const { tenantId } = useSettings()
@@ -49,10 +50,8 @@ export default function PasswordSettings() {
         }
       );
 
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setSaved(true);
+      await revalidateTenant(window.location.host);
+      window.location.reload();
     } catch (error) {
       console.error(
         "Could not update password:",

@@ -11,6 +11,7 @@ import {
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type PaymentMethodKey =
   | "online"
@@ -175,8 +176,8 @@ export default function PaymentSettings() {
           }
         );
 
-      setSettings(updated);
-      setSaved(true);
+      await revalidateTenant(window.location.host);
+      window.location.reload();
     } catch (error) {
       console.error(
         "Could not save payment settings:",

@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { apiClient } from "@/libs/api";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type Props = {
   section: any;
@@ -194,6 +195,7 @@ export default function AddSection({
         }
       );
 
+      await revalidateTenant(window.location.host);
       window.location.reload();
     } catch (error) {
       console.error("Add section failed:", error);

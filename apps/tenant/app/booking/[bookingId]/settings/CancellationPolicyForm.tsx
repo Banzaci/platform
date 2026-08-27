@@ -5,6 +5,7 @@ import { useState } from "react";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 
 type CancellationPolicy = {
   free_cancellation_days: number;
@@ -39,7 +40,8 @@ export default function CancellationPolicyForm({
         }
       );
 
-      setSaved(true);
+      await revalidateTenant(window.location.host);
+      window.location.reload();
     } catch (error) {
       console.error(
         "Could not save cancellation policy:",
