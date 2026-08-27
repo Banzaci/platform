@@ -236,7 +236,7 @@ export default function GlobalEditor() {
             </div>
             <div className="px-6">
               <h3 className="text-lg font-semibold text-gray-950">
-                Global Theme
+                Navigation Theme
               </h3>
               <p className="mt-1 text-sm text-gray-500">
                 Edit the main content shown in this section.
@@ -244,7 +244,7 @@ export default function GlobalEditor() {
             </div>
               <div className="grid grid-cols-2 gap-5 p-6">
                 <ColorField
-                  label="Background color"
+                  label="Navigation background color"
                   value={form?.navigation?.backgroundColor}
                   onChange={(value) =>
                     updateNavigation("backgroundColor", value)
@@ -254,7 +254,7 @@ export default function GlobalEditor() {
                   }
                 />
                 <ColorField
-                  label="Text color"
+                  label="Navigation Text color"
                   value={form?.navigation?.textColor}
                   onChange={(value) =>
                     updateNavigation("textColor", value)
@@ -264,7 +264,7 @@ export default function GlobalEditor() {
                   }
                 />
                 <ColorField
-                  label="Hover color"
+                  label="Navigation Hover color"
                   value={form?.navigation?.hoverColor}
                   onChange={(value) =>
                     updateNavigation("hoverColor", value)
@@ -274,7 +274,7 @@ export default function GlobalEditor() {
                   }
                 />
                 <ColorField
-                  label="activeColor color"
+                  label="Navigation ActiveColor color"
                   value={form?.navigation?.activeColor}
                   onChange={(value) =>
                     updateNavigation("activeColor", value)
@@ -299,6 +299,26 @@ export default function GlobalEditor() {
                   }
                   onReset={() =>
                     resetNavigation("fontFamily")
+                  }
+                />
+                <SelectField
+                  label="Font size"
+                  value={form.navigation?.fontSize}
+                  options={[
+                    { value: "12px", label: "12px" },
+                    { value: "16px", label: "16px" },
+                    { value: "20px", label: "20px" },
+                    { value: "24px", label: "24px" },
+                    { value: "32px", label: "32px" },
+                  ]}
+                  onChange={(value) =>
+                    updateNavigation(
+                      "fontSize",
+                      value || undefined
+                    )
+                  }
+                  onReset={() =>
+                    resetNavigation("fontSize")
                   }
                 />
             </div>

@@ -11,21 +11,25 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
   const name = tenant.tenant.name;
   const pages = tenant.pages;
   const pathname = usePathname();
+  console.log(navigation)
   return (
     <nav
       style={
         {
-          "--nav-bg": navigation?.backgroundColor,
+          fontSize: navigation?.fontSize,
+          backgroundColor: navigation?.backgroundColor,
+          fontFamily: navigation?.fontFamily,
+          height: navigation?.height,
+
           "--nav-text": navigation?.textColor,
           "--nav-hover": navigation?.hoverColor,
           "--nav-active": navigation?.activeColor,
-          "--nav-font": `"${navigation?.fontFamily}"`,
-          "--nav-font-size": navigation?.fontSize,
-          "--nav-height": navigation?.height,
-          "--nav-logo-height": navigation?.logoHeight,
-        } as React.CSSProperties
+        } as React.CSSProperties & {
+          "--nav-text"?: string;
+          "--nav-hover"?: string;
+          "--nav-active"?: string;
+        }
       }
-      className="bg-(--nav-bg) text-(--nav-text)"
     >
       <div
         className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
@@ -38,7 +42,7 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
               src={logoUrl}
               alt={name}
               style={{
-                height: "var(--nav-logo-height)",
+                height: navigation?.logoHeight,
               }}
               className="w-auto"
             />
@@ -55,12 +59,11 @@ export default function Navigation({ tenant }: { tenant: TenantResponse }) {
               <Link
                 key={page.id}
                 href={href}
-                style={{
-                  color: isActive
-                    ? "var(--nav-active)"
-                    : "var(--nav-text)",
-                }}
-                className="font-medium transition-colors hover:text-(--nav-hover)"
+                className={`transition-colors hover:text-(--nav-hover) ${
+                  isActive
+                    ? "text-(--nav-active)"
+                    : "text-(--nav-text)"
+                }`}
               >
                 {page.name.en}
               </Link>
