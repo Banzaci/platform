@@ -95,7 +95,7 @@ export default function TenantDetails() {
             }),
           }
         );
-
+        
       router.push(
         `/tenant/${result.tenant_id}`
       );

@@ -44,7 +44,7 @@ export default function AITenantDetails() {
             }),
           }
         );
-
+        
       router.push(
         `/tenant/${result.tenant_id}`
       );

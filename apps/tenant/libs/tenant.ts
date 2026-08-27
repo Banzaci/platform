@@ -22,10 +22,10 @@ export const getTenant = cache(async () => {
   const response = await fetch(
     `${apiUrl}v1/tenants/resolve?host=${encodeURIComponent(host)}`,
     {
-      next: {
-        revalidate: 300,
-        tags: [`tenant:${host}`],
-      },
+      // next: {
+      //   // revalidate: 300,
+      //   tags: [`tenant:${host}`],
+      // },
     }
   );
   

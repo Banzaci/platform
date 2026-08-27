@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.services.ai.chat_service import handle_chat_message
+from app.services.ai.chat_service import handle_chat_message, clear_chat_session
 
 
 router = APIRouter(
@@ -38,3 +38,15 @@ async def chat(
         session_id=payload.session_id,
         language=payload.language,
     )
+
+
+@router.delete("/chat/{session_id}")
+async def reset_ai_session(
+    session_id: str,
+):
+    await clear_chat_session(session_id)
+
+    return {
+        "success": True,
+        "session_id": session_id,
+    }

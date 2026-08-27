@@ -1,5 +1,6 @@
 "use client";
 
+import { revalidateTenant } from "@/helpers/revalidateTenant";
 import { apiClient } from "@/libs/api";
 import { useSettings } from "@/providers/SettingsProvider";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +26,7 @@ export default function DailyBriefingCard() {
       const response = await apiClient.api<DailyBriefing>(
         `v1/tenants/${tenantId}/daily-briefing`
       );
-
+      await revalidateTenant(window.location.host);
       return response;
     },
     enabled: !!tenantId,

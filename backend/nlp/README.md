@@ -33,21 +33,6 @@
 ------------------------------------------------------------------------------------------------------
 
 
-1. Lägg till nya templates i generate_dataset.py
-2. Lägg till ny generator-funktion
-3. Lägg till i generators-listan
-4. Kör: python nlp/data/generate_dataset.py
-5. Kör: python nlp/scripts/split.py
-6. Träna: python -m spacy train nlp/config.cfg \
-            --output nlp/output \
-            --paths.train nlp/data/train.spacy \
-            --paths.dev nlp/data/dev.spacy
-7. uvicorn app.main:app --reload
-# i en annan terminal:
-8. python nlp/scripts/eval.py
-9. Testa lokalt
-10. Pusha till GitHub → ny Docker-image byggs automatiskt
-
 # Ny intent
 new_templates = [
     "Do you have a spa?",
@@ -114,3 +99,7 @@ with open('nlp/data/train.jsonl', 'w') as f:
 
 print(f'Before: {len(lines)}, After: {len(unique)}, Removed: {len(lines) - len(unique)}')
 "
+
+
+
+Hi! Me and my girlfriend are thinking of coming next Friday for three nights. Do you have anything available, and what would it cost?

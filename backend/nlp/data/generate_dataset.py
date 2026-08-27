@@ -177,12 +177,32 @@ def generate_booking_id() -> str:
 def generate_ask_booking():
     template = random.choice(booking_templates)
     booking_id = generate_booking_id()
-    text = template.format(booking_id=booking_id) if "{booking_id}" in template else template
+
+    text = (
+        template.format(booking_id=booking_id)
+        if "{booking_id}" in template
+        else template
+    )
+
+    # Viktigt: prefix först
+    text = with_prefix(text)
+
     entities = []
+
     if booking_id in text:
         start = text.index(booking_id)
-        entities.append({"start": start, "end": start + len(booking_id), "label": "BOOKING_ID"})
-    return {"text": with_prefix(text), "intent": "ask_booking", "entities": entities}
+
+        entities.append({
+            "start": start,
+            "end": start + len(booking_id),
+            "label": "BOOKING_ID",
+        })
+
+    return {
+        "text": text,
+        "intent": "ask_booking",
+        "entities": entities,
+    }
 
 
 def with_prefix(text: str) -> str:
@@ -206,47 +226,67 @@ months = [
 def random_date():
     day = random.randint(1, 28)
     month = random.choice(months)
-    return random.choice([
+
+    explicit_dates = [
         f"{day} {month}",
-        f"{day}th {month}",
-        f"{day}st {month}",
-        f"{day}nd {month}",
-        f"{day} of {month}",
         f"{month} {day}",
-        f"{month} {day}th",
+        f"{day} of {month}",
         f"the {day}th of {month}",
-        f"{day} of {month}",      # ← redan finns
-        f"{day}{month}",          # ← ny
-        f"{month} the {day}th",   # ← ny
-        f"on {day} {month}",      # ← ny
-        f"on the {day}th of {month}", # ← ny
-    ])
+    ]
+
+    relative_dates = [
+        "today",
+        "tomorrow",
+        "the day after tomorrow",
+        "this Friday",
+        "next Friday",
+        "this Saturday",
+        "next Saturday",
+        "this Sunday",
+        "next Sunday",
+        "next Monday",
+        "next Tuesday",
+        "next Wednesday",
+        "next Thursday",
+    ]
+
+    if random.random() < 0.5:
+        return random.choice(explicit_dates)
+
+    return random.choice(relative_dates)
 
 # ── TEMPLATES ─────────────────────────────────────────────────────────────────
 
 availability_templates = [
-    "I need a room for {guests} people from {date} for {nights} nights",
-    "Do you have availability from {date} for {nights} nights?",
-    "Can I book a room from {date} for {nights} nights?",
+    "I need a room for {guests} people from {date} for {duration_value} {duration_unit}",
+    "{guests} are thinking of coming {date} for {duration_value} {duration_unit}",
+    "{guests} want to stay from {date} for {duration_value} {duration_unit}",
+    "Do you have anything for {guests} from {date} for {duration_value} {duration_unit}?",
+    "Do you have availability from {date} for {duration_value} {duration_unit}?",
+    "Can I book a room from {date} for {duration_value} {duration_unit}?",
     "Room for {guests} people from {date}",
-    "Looking for a room from {date} for {nights} nights",
+    "{guests} are thinking of coming {date} for {duration_value} {duration_unit}",
+    "{guests} want to come {date} for {duration_value} {duration_unit}",
+    "{guests} are planning to stay {date} for {duration_value} {duration_unit}",
+    "{guests} are looking for somewhere to stay {date} for {duration_value} {duration_unit}",
+    "Looking for a room from {date} for {duration_value} {duration_unit}",
     "I want a room from {date} for {guests} guests",
-    "Any rooms available from {date} for {nights} nights?",
-    "Need accommodation from {date} for {nights} nights for {guests} people",
+    "Any rooms available from {date} for {duration_value} {duration_unit}?",
+    "Need accommodation from {date} for {duration_value} {duration_unit} for {guests} people",
     "I'd like to book a room from {date}",
     "We need a room for {guests} guests starting {date}",
-    "Searching for a room from {date} for {nights} nights",
+    "Searching for a room from {date} for {duration_value} {duration_unit}",
     "Is there a room available from {date} for {guests} people?",
-    "I'm looking for accommodation from {date} for {nights} nights",
+    "I'm looking for accommodation from {date} for {duration_value} {duration_unit}",
     "Do you have a room for {guests} from {date}?",
-    "Book me a room from {date} for {nights} nights",
-    "I want to check in on {date} for {nights} nights",
+    "Book me a room from {date} for {duration_value} {duration_unit}",
+    "I want to check in on {date} for {duration_value} {duration_unit}",
     "We are {guests} people looking for a room from {date}",
-    "Arriving {date} and staying for {nights} nights",
-    "Checking in {date} for {nights} nights for {guests} guests",
+    "Arriving {date} and staying for {duration_value} {duration_unit}",
+    "Checking in {date} for {duration_value} {duration_unit} for {guests} guests",
     "Any availability for {guests} people from {date}?",
     "I would like a room from {date} for {guests} people",
-    "Is there anything available from {date} for {nights} nights?",
+    "Is there anything available from {date} for {duration_value} {duration_unit}?",
     "Find me a room for {guests} people starting {date}",
     "I want to book a room",
     "I'd like to book a room",
@@ -296,7 +336,7 @@ availability_templates = [
     "just the two of us, {date} to {end_date}",
     "can we get something for {guests} starting {date}?",
     "is there space for {guests} around {date}?",
-    "we need somewhere to stay {date} for {nights} days",
+    "we need somewhere to stay {date} for {duration_value} days",
     "got anything open {date}?",
     "what's free around {date}?",
     "anything for {guests} people around {date}?",
@@ -617,6 +657,49 @@ conversation_templates = [
 
 # ── GENERATORS ────────────────────────────────────────────────────────────────
 
+def random_guests():
+    number = random.randint(1, 6)
+
+    natural = {
+        1: [
+            "1",
+            "one",
+            "just me",
+        ],
+        2: [
+            "2",
+            "two",
+            "the two of us",
+            "me and my girlfriend",
+            "me and my boyfriend",
+            "me and my partner",
+            "my wife and I",
+            "my husband and I",
+        ],
+        3: [
+            "3",
+            "three",
+            "the three of us",
+        ],
+        4: [
+            "4",
+            "four",
+            "the four of us",
+        ],
+        5: [
+            "5",
+            "five",
+            "the five of us",
+        ],
+        6: [
+            "6",
+            "six",
+            "the six of us",
+        ],
+    }
+
+    return random.choice(natural[number])
+
 def generate_room_feature():
     if random.random() < 0.5:
         bed_type = random.choice(BED_TYPES)
@@ -643,31 +726,86 @@ def generate_directions():
         text = template
     return {"text": with_prefix(text), "intent": "ask_directions", "entities": []}
 
+number_words = {
+    1: "one",
+    2: "two",
+    3: "three",
+    4: "four",
+    5: "five",
+    6: "six",
+    7: "seven",
+    8: "eight",
+    9: "nine",
+    10: "ten",
+    11: "eleven",
+    12: "twelve",
+    13: "thirteen",
+    14: "fourteen",
+}
+
 def generate_availability():
-    guests = str(random.randint(1, 6))
-    nights = str(random.randint(1, 14))
-    date   = random_date()
+    guests = random_guests()
+    date = random_date()
     end_date = random_date()
+
+    duration_value = random.choice([
+        "1", "2", "3", "5", "7", "10", "14",
+        "one", "two", "three", "five", "seven", "ten", "fourteen",
+    ])
+
+    duration_unit = random.choice([
+        "night",
+        "nights",
+        "day",
+        "days",
+        "week",
+        "weeks",
+    ])
 
     template = random.choice(availability_templates)
 
-    if "{end_date}" in template:
-        text = template.format(guests=guests, nights=nights, date=date, end_date=end_date)
-    else:
-        text = template.format(guests=guests, nights=nights, date=date)
+    text = template.format(
+        guests=guests,
+        date=date,
+        end_date=end_date,
+        duration_value=duration_value,
+        duration_unit=duration_unit,
+    )
 
     text = with_prefix(text)
 
     entities = []
+
     if "{guests}" in template:
         add_entity(entities, text, guests, "GUESTS")
-    if "{nights}" in template:
-        add_entity(entities, text, nights, "NIGHTS")
-    add_entity(entities, text, date, "START_DATE")
+
+    if "{date}" in template:
+        add_entity(entities, text, date, "START_DATE")
+
     if "{end_date}" in template:
         add_entity(entities, text, end_date, "END_DATE")
 
-    return {"text": text, "intent": "check_availability", "entities": entities}
+    if "{duration_value}" in template:
+        add_entity(
+            entities,
+            text,
+            duration_value,
+            "DURATION_VALUE",
+        )
+
+    if "{duration_unit}" in template:
+        add_entity(
+            entities,
+            text,
+            duration_unit,
+            "DURATION_UNIT",
+        )
+
+    return {
+        "text": text,
+        "intent": "check_availability",
+        "entities": entities,
+    }
 
 def generate_book_room():
     text = random.choice(book_room_templates)

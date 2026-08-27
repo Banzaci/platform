@@ -1,0 +1,12 @@
+{
+  "labels":[
+    "GUESTS_1",
+    "GUESTS_2",
+    "GUESTS_3",
+    "GUESTS_4",
+    "GUESTS_5",
+    "GUESTS_6"
+  ],
+  "threshold":0.0,
+  "positive_label":null
+}

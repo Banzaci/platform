@@ -6,6 +6,7 @@ import { Send, Sparkle, Sparkles } from "lucide-react";
 import { apiClient } from "@/libs/api";
 import DevLabel from "@/helpers/DevLabel";
 import { useSettings } from "@/providers/SettingsProvider";
+import ResetAISessionButton from "@/components/ResetAISessionButton";
 
 
 type ChatProperty = {
@@ -53,12 +54,12 @@ type ChatResponse = {
   answer?: string;
   message?: string;
   question?: string;
-
+  session_id: string;
   properties?: ChatProperty[];
   query?: AvailabilityQuery;
 };
 
-function getSessionId() {
+export function getSessionId() {
   const key = "faq-chat-session";
 
   const existing = sessionStorage.getItem(key);
@@ -102,8 +103,7 @@ export default function FAQChatClient() {
     setSending(true);
 
     try {
-      const result =
-        await apiClient.api<ChatResponse>(
+      const result = await apiClient.api<ChatResponse>(
           `v1/tenants/${tenantId}/ai/chat`,
           {
             method: "POST",
@@ -114,7 +114,7 @@ export default function FAQChatClient() {
             }),
           }
         );
-
+      console.log(JSON.stringify(result))
       const responseText =
         result.answer ??
         result.question ??
@@ -151,7 +151,6 @@ export default function FAQChatClient() {
         name="FAQChatClient"
         file="/Users/michellarsson/Projects/hotels/apps/tenant/app/faq/FAQChatClient.tsx"
       />
-
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-4xl px-5 pb-44 pt-8">
           {messages.length === 0 ? (
@@ -159,7 +158,6 @@ export default function FAQChatClient() {
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
                 <Sparkle className="h-5 w-5" />
               </div>
-
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
                 How can I help?
               </h1>
@@ -300,6 +298,7 @@ export default function FAQChatClient() {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 right-0 from-slate-50 px-4 pb-5 pt-12">
+        <ResetAISessionButton />
         <form
           onSubmit={submit}
           className="mx-auto flex w-full max-w-3xl items-end gap-2 rounded-[26px] border border-slate-200 bg-white p-2 shadow-xl shadow-slate-200/60"

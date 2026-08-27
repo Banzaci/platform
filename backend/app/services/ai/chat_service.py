@@ -15,16 +15,17 @@ from app.services.ai.knowledge_service import get_answer_for_intent
 from app.services.ai.booking_service import (
     calculate_booking_price,
     find_available_properties,
-    resolve_booking_dates,
     to_int,
     find_property_by_name,
     create_booking,
 )
+from nlp.data.datetime_resolver import resolve_stay_dates, parse_date
 
 REQUIRED_BOOKING_SLOTS = [
     "START_DATE",
+    "DURATION_VALUE",
+    "DURATION_UNIT",
     "GUESTS",
-    "NIGHTS",
 ]
 
 BOOKING_FOLLOWUP_QUESTIONS = {
@@ -50,8 +51,8 @@ def is_valid_email(value: str) -> bool:
 
 def find_missing_slot(slots: dict) -> str | None:
     for slot in REQUIRED_BOOKING_SLOTS:
-        # NIGHTS behövs inte om END_DATE redan finns
-        if slot == "NIGHTS" and "END_DATE" in slots:
+        # Duration behövs inte om END_DATE redan finns
+        if slot in {"DURATION_VALUE", "DURATION_UNIT"} and "END_DATE" in slots:
             continue
 
         if slot not in slots:
@@ -140,6 +141,10 @@ async def handle_chat_message(
                 session,
             )
 
+            print("EXTRACTED SLOTS 1:", slots)
+            # print("SESSION BEFORE MERGE:", session)
+            # print("SLOTS AFTER MERGE:", session["slots"])
+
             return {
                 "status": "follow_up",
                 "intent": "book_room",
@@ -165,10 +170,11 @@ async def handle_chat_message(
 
         session["pending_slot"] = None
         session["intent"] = "book_room"
-        dates = resolve_booking_dates(
+        dates = resolve_stay_dates(
             start_date=slots.get("START_DATE"),
             end_date=slots.get("END_DATE"),
-            nights=slots.get("NIGHTS"),
+            duration_value=slots.get("DURATION_VALUE"),
+            duration_unit=slots.get("DURATION_UNIT"),
         )
 
         if not dates:
@@ -195,7 +201,9 @@ async def handle_chat_message(
             session_id,
             session,
         )
-
+        print("EXTRACTED SLOTS 2:", slots)
+        # print("SESSION BEFORE MERGE:", session)
+        # print("SLOTS AFTER MERGE:", session["slots"])
         return {
             "status": "booking_ready",
             "property": {
@@ -248,10 +256,11 @@ async def handle_chat_message(
 
         slots = session.get("slots", {})
 
-        dates = resolve_booking_dates(
+        dates = resolve_stay_dates(
             start_date=slots.get("START_DATE"),
             end_date=slots.get("END_DATE"),
-            nights=slots.get("NIGHTS"),
+            duration_value=slots.get("DURATION_VALUE"),
+            duration_unit=slots.get("DURATION_UNIT"),
         )
 
         if not dates:
@@ -432,7 +441,9 @@ async def handle_chat_message(
                 question=text,
                 language=language,
             )
-
+            print("EXTRACTED SLOTS 3:", slots)
+            # print("SESSION BEFORE MERGE:", session)
+            # print("SLOTS AFTER MERGE:", session["slots"])
             return {
                 "status": "unknown",
                 "intent": intent,
@@ -454,7 +465,9 @@ async def handle_chat_message(
             intent=intent,
             language=language,
         )
-
+        print("EXTRACTED SLOTS 4:", slots)
+        # print("SESSION BEFORE MERGE:", session)
+        # print("SLOTS AFTER MERGE:", session["slots"])
         if answer:
             return {
                 "status": "faq",
@@ -488,10 +501,11 @@ async def handle_chat_message(
                 ],
             }
 
-        dates = resolve_booking_dates(
+        dates = resolve_stay_dates(
             start_date=slots.get("START_DATE"),
             end_date=slots.get("END_DATE"),
-            nights=slots.get("NIGHTS"),
+            duration_value=slots.get("DURATION_VALUE"),
+            duration_unit=slots.get("DURATION_UNIT"),
         )
 
         guests = to_int(
@@ -502,7 +516,10 @@ async def handle_chat_message(
             to_int(slots.get("ROOMS"))
             or 1
         )
-
+        print("EXTRACTED SLOTS 5:", slots)
+        print(parse_date("next Friday"))
+        # print("SESSION BEFORE MERGE:", session)
+        # print("SLOTS AFTER MERGE:", session["slots"])
         if not dates:
             session["pending_slot"] = "START_DATE"
 
@@ -526,7 +543,7 @@ async def handle_chat_message(
                 session_id,
                 session,
             )
-
+            
             return {
                 "status": "follow_up",
                 "intent": intent,
@@ -536,7 +553,9 @@ async def handle_chat_message(
             }
 
         check_in, check_out = dates
-
+        print("RESOLVED DATES:", check_in, check_out)
+        print("GUESTS:", guests)
+        print("-----------------------------------------------------------------------")
         properties = await find_available_properties(
             db=db,
             tenant_id=tenant_id,
@@ -563,7 +582,9 @@ async def handle_chat_message(
             session_id,
             session,
         )
-
+        print("EXTRACTED SLOTS 6:", slots)
+        # print("SESSION BEFORE MERGE:", session)
+        # print("SLOTS AFTER MERGE:", session["slots"])
         return {
             "status": "availability",
             "intent": intent,
@@ -581,7 +602,9 @@ async def handle_chat_message(
                 else "I couldn't find anything available for those dates."
             ),
         }
-
+    print("EXTRACTED SLOTS 7:", slots)
+    # print("SESSION BEFORE MERGE:", session)
+    # print("SLOTS AFTER MERGE:", session["slots"])
     return {
         "status": "unknown",
         "intent": intent,

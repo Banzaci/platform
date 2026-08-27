@@ -30,7 +30,7 @@ def predict(text: str) -> dict:
     if best_intent != "conversation_update" and best_score < INTENT_THRESHOLD:
         best_intent = "unknown"
 
-    print(f"Predicted intent: {doc.cats.items()} (confidence: {best_score:.2f})")
+    # print(f"Predicted intent: {doc.cats.items()} (confidence: {best_score:.2f})")
 
     return {
         "intent":     best_intent,
