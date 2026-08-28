@@ -17,7 +17,7 @@ async def daily_briefing(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
     _access: TenantMembership = Depends(
-        require_permission("properties.edit")
+        require_permission("dashboard.view")
     )
 ):
     return await build_daily_briefing(

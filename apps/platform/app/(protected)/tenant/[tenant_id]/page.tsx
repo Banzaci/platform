@@ -5,7 +5,7 @@ import TenantJsonPage from "@/app/components/TenantJsonPage";
 
 export default function TenantPage() {
   const params = useParams<{ tenant_id: string }>();
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}v1/tenants/${params.tenant_id}`;
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}v1/platform/${params.tenant_id}`;
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">

@@ -19,7 +19,7 @@ export default function DashboardPage() {
   const deleteTenant = useMutation({
     mutationFn: (tenantId: string) =>
       apiClient.api(
-        `v1/tenants/${tenantId}`,
+        `v1/platform/${tenantId}`,
         {
           method: "DELETE",
         }
@@ -35,7 +35,7 @@ export default function DashboardPage() {
 
   const { data: tenants, isLoading } = useQuery({
     queryKey: ["my-tenants"],
-    queryFn: () => apiClient.api<Tenant[]>("v1/tenants"),
+    queryFn: () => apiClient.api<Tenant[]>("v1/platform"),
   });
 
   if (isLoading) {

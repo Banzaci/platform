@@ -19,27 +19,28 @@ def slugify(value: str) -> str:
     value = re.sub(r"[^a-z0-9]+", "-", value)
     return value.strip("-")
 
-async def require_owner(
-    tenant_id: uuid.UUID,
-    user: CurrentUser = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> CurrentUser:
-    """Stricter than require_tenant_access — only the tenant's owner (or a
-    superadmin) may pass. Use this on endpoints like inviting/removing
-    members or deleting the tenant itself."""
+def require_role(*roles: TenantRole):
+    async def dependency(
+        tenant_id: uuid.UUID,
+        membership: TenantMembership = Depends(
+            require_tenant_access
+        ),
+    ) -> TenantMembership:
+        if membership.tenant_id != tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not allowed for this tenant",
+            )
 
-    if user.is_superadmin:
-        return user
+        if membership.role not in roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient role",
+            )
 
-    result = await db.execute(
-        select(TenantMembership).where(
-            TenantMembership.tenant_id == tenant_id,
-            TenantMembership.role == TenantRole.owner,
-        )
-    )
-    if result.scalar_one_or_none() is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only the owner can do this")
-    return user
+        return membership
+
+    return dependency
 
 
 def require_superadmin(

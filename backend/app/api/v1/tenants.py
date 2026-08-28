@@ -7,7 +7,7 @@ from app.schemas.theme import TenantThemeSchema
 from app.services.cloudinary import delete_tenant_cloudinary_assets, delete_file
 from app.models.unanswered_question import UnansweredQuestion
 from app.schemas.generator import GenerateProjectRequest, GenerateProjectResponse, GenerateProjectAIRequest
-from app.api.deps import require_tenant_access, require_permission, slugify
+from app.api.deps import require_tenant_access, require_permission, slugify, require_role
 from app.api.open_ai import generate_hotel_plan, generate_tenant_update
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select, func
@@ -21,6 +21,8 @@ from app.core.redis import (
     add_tenant_cache,
     delete_tenant_cache_for_tenant,
 )
+from app.enum.permissions import PERMISSIONS
+from app.schemas.tenant_membership import TenantMembershipOut, TenantMembershipCreate
 from app.core.config import settings
 from app.models.booking import (
     Booking,
@@ -1493,9 +1495,6 @@ async def apply_tenant_update(
 async def get_tenant_fonts(
     tenant_id: uuid.UUID,
     db: AsyncSession = Depends(get_db),
-    _access: TenantMembership = Depends(
-        require_permission("content.edit")
-    ),
 ):
     result = await db.execute(
         select(TenantFont)
@@ -1538,3 +1537,134 @@ async def delete_tenant_font(
 
     await db.delete(font)
     await db.commit()
+
+
+@router.post("/{tenant_id}/members",response_model=TenantMembershipOut)
+async def create_tenant_member(
+    tenant_id: uuid.UUID,
+    payload: TenantMembershipCreate,
+    _access: TenantMembership = Depends(
+        require_role(TenantRole.owner)
+    ),
+    db: AsyncSession = Depends(get_db),
+):
+    if _access.role != TenantRole.owner:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only owner can add members",
+        )
+    existing = await db.execute(
+        select(TenantMembership).where(
+            TenantMembership.tenant_id == tenant_id,
+            TenantMembership.username == payload.username,
+        )
+    )
+
+    if existing.scalar_one_or_none():
+        raise HTTPException(
+            status_code=409,
+            detail="Username already exists",
+        )
+
+    member = TenantMembership(
+        tenant_id=tenant_id,
+        username=payload.username,
+        hashed_password=hash_password(payload.password),
+        role=payload.role,
+        permissions=payload.permissions,
+    )
+
+    db.add(member)
+
+    await db.commit()
+    await db.refresh(member)
+
+    
+    return {
+        "id": member.id,
+        "username": member.username,
+        "role": member.role,
+        "permissions": member.permissions,
+        "created_at": member.created_at,
+        "can_delete": (
+            _access.role == TenantRole.owner
+            and member.id != _access.id
+        ),
+    }
+
+
+@router.get("/{tenant_id}/members", response_model=list[TenantMembershipOut])
+async def get_members(
+    tenant_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_permission("employees.view")
+    ),
+):
+    result = await db.execute(
+        select(TenantMembership)
+        .where(
+            TenantMembership.tenant_id == tenant_id
+        )
+        .order_by(TenantMembership.created_at.asc())
+    )
+
+    members = result.scalars().all()
+
+    return [
+        {
+            "id": member.id,
+            "username": member.username,
+            "role": member.role,
+            "permissions": member.permissions,
+            "created_at": member.created_at,
+            "can_delete": (
+                _access.role == TenantRole.owner
+                and member.id != _access.id
+            ),
+        }
+        for member in members
+    ]
+
+@router.delete("/{tenant_id}/members/{member_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_member(
+    tenant_id: uuid.UUID,
+    member_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _access: TenantMembership = Depends(
+        require_role(TenantRole.owner)
+    ),
+):
+    result = await db.execute(
+        select(TenantMembership).where(
+            TenantMembership.id == member_id,
+            TenantMembership.tenant_id == tenant_id,
+        )
+    )
+
+    member = result.scalar_one_or_none()
+
+    if not member:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Member not found",
+        )
+
+    if member.id == _access.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete yourself",
+        )
+
+    await db.delete(member)
+    await db.commit()
+
+
+@router.get("/{tenant_id}/permissions")
+async def get_permissions(
+    tenant_id: uuid.UUID,
+    _access: TenantMembership = Depends(
+        require_permission("employees.view")
+    ),
+):
+    return PERMISSIONS

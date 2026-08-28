@@ -10,8 +10,7 @@ from app.models.tenant_membership import TenantMembership
 from app.models.user import User
 from app.schemas.entities import MembershipCreate, MembershipOut
 
-router = APIRouter(prefix="/tenants/{tenant_id}/members", tags=["memberships"])
-
+router = APIRouter(prefix="/platform/{tenant_id}/members", tags=["memberships"])
 
 @router.get("", response_model=list[MembershipOut])
 async def list_members(
@@ -19,7 +18,7 @@ async def list_members(
 ):
     result = await db.execute(
         select(User.id, User.email, TenantMembership.role)
-        .join(TenantMembership, TenantMembership.user_id == User.id)
+        .join(TenantMembership)
         .where(TenantMembership.tenant_id == tenant_id)
     )
     return [{"user_id": row.id, "email": row.email, "role": row.role} for row in result.all()]
@@ -43,7 +42,7 @@ async def add_member(
 
     existing = await db.execute(
         select(TenantMembership).where(
-            TenantMembership.tenant_id == tenant_id, TenantMembership.user_id == user.id
+            TenantMembership.tenant_id == tenant_id
         )
     )
     if existing.scalar_one_or_none():
@@ -63,10 +62,13 @@ async def remove_member(
 ):
     result = await db.execute(
         select(TenantMembership).where(
-            TenantMembership.tenant_id == tenant_id, TenantMembership.user_id == user_id
+            TenantMembership.tenant_id == tenant_id
         )
     )
     membership = result.scalar_one_or_none()
+
     if membership:
         await db.delete(membership)
         await db.commit()
+
+

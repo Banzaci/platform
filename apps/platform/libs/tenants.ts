@@ -7,7 +7,7 @@ export async function deleteTenant(
     id: string;
     deleted: boolean;
   }>(
-    `v1/tenants/${tenantId}`,
+    `v1/platform/${tenantId}`,
     {
       method: "DELETE",
     }

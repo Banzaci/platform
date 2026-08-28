@@ -73,8 +73,7 @@ export default function EmailSettings() {
     setError(null);
 
     try {
-      const updated =
-        await apiClient.api<EmailSettingsValue>(
+      await apiClient.api<EmailSettingsValue>(
           `v1/tenants/${tenantId}/email-settings`,
           {
             method: "PUT",
